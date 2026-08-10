@@ -16,4 +16,14 @@ class ExampleTest extends TestCase
 
         $response->assertStatus(200);
     }
+
+    public function test_the_welcome_page_filters_jobs_by_search_query(): void
+    {
+        $response = $this->get('/?search=Laravel');
+
+        $response
+            ->assertStatus(200)
+            ->assertSee('Laravel Developer')
+            ->assertDontSee('Recruitment Marketeer');
+    }
 }
