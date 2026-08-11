@@ -1,41 +1,47 @@
-@extends('layouts.app')
+@extends('layouts.tenant')
 
 @section('title', ($tenant->name ?? 'Jobboard').' | Vacatures')
-@section('meta_description', 'Tenant job board frontend voor gekoppelde klantdomeinen.')
+@section('meta_description', 'Vacatures, filters en sollicitaties voor dit jobboard.')
 
 @php
   $settings = $tenant->settings ?? [];
   $brandName = $settings['brand_name'] ?? $tenant->name ?? 'Jobboard';
   $accent = $settings['accent_color'] ?? '#2f5f80';
-
-  $jobs = [
-    ['title' => 'Laravel Developer', 'location' => 'Amsterdam', 'type' => 'Fulltime', 'department' => 'Development'],
-    ['title' => 'Recruitment Marketeer', 'location' => 'Rotterdam', 'type' => 'Parttime', 'department' => 'Marketing'],
-    ['title' => 'Customer Success Manager', 'location' => 'Utrecht', 'type' => 'Hybrid', 'department' => 'Customer Success'],
-  ];
+  $intro = $settings['intro'] ?? 'Bekijk actuele vacatures en solliciteer direct.';
 @endphp
 
 @section('content')
 <section class="tenant-page" style="--tenant-accent: {{ $accent }};">
-  <div class="tenant-shell">
-    <header class="tenant-hero">
+  <header class="tenant-nav">
+    <a class="tenant-brand" href="{{ route('tenant.home') }}">
+      <span>{{ mb_substr($brandName, 0, 1) }}</span>
+      <strong>{{ $brandName }}</strong>
+    </a>
+    <nav>
+      <a href="{{ route('tenant.jobs') }}">Vacatures</a>
+      <a href="{{ route('tenant.contact') }}">Contact</a>
+    </nav>
+  </header>
+
+  <main class="tenant-shell">
+    <section class="tenant-hero">
       <div>
-        <p class="tenant-eyebrow">Tenant job board</p>
+        <p class="tenant-eyebrow">Vacatureplatform</p>
         <h1>{{ $brandName }}</h1>
-        <p>Bekijk actuele vacatures, leer het team kennen en reageer direct via het gekoppelde job board van {{ $brandName }}.</p>
+        <p>{{ $intro }}</p>
         <div class="tenant-actions">
-          <a class="tenant-btn tenant-btn--primary" href="{{ route('tenant.jobs') }}">Vacatures bekijken</a>
-          <a class="tenant-btn tenant-btn--ghost" href="{{ route('tenant.contact') }}">Contact</a>
+          <a class="tenant-btn tenant-btn--primary" href="#vacatures">Vacatures bekijken</a>
+          <a class="tenant-btn tenant-btn--ghost" href="#contact">Contact</a>
         </div>
       </div>
       <aside class="tenant-card">
-        <span>Status</span>
-        <strong>{{ ucfirst($tenant->status ?? 'trial') }}</strong>
+        <span>Openstaande functies</span>
+        <strong>{{ $jobs->count() }}</strong>
         <p>Plan: {{ ucfirst($tenant->plan ?? 'starter') }}</p>
       </aside>
-    </header>
+    </section>
 
-    <section class="tenant-panel" aria-labelledby="tenant-jobs-title">
+    <section class="tenant-panel" id="vacatures" aria-labelledby="tenant-jobs-title">
       <div class="tenant-panel__head">
         <div>
           <p class="tenant-eyebrow">Vacatures</p>
@@ -43,198 +49,49 @@
         </div>
       </div>
 
+      <form class="tenant-filter" method="GET" action="{{ route('tenant.jobs') }}">
+        <input name="search" value="{{ request('search') }}" placeholder="Zoek op titel, afdeling of locatie">
+        <select name="department">
+          <option value="">Alle afdelingen</option>
+          @foreach($departments as $department)
+            <option value="{{ $department }}" @selected(request('department') === $department)>{{ $department }}</option>
+          @endforeach
+        </select>
+        <button type="submit">Zoeken</button>
+      </form>
+
       <div class="tenant-jobs">
-        @foreach($jobs as $job)
+        @forelse($jobs as $job)
           <article class="tenant-job">
             <div>
-              <h3>{{ $job['title'] }}</h3>
-              <p>{{ $job['department'] }} - {{ $job['location'] }} - {{ $job['type'] }}</p>
+              <h3>{{ $job->title }}</h3>
+              <p>{{ $job->department }} - {{ $job->location }} - {{ $job->employment_type }}</p>
+              @if($job->intro)
+                <span>{{ $job->intro }}</span>
+              @endif
             </div>
-            <a href="{{ route('tenant.contact') }}">Reageren</a>
+            <a href="{{ route('tenant.jobs.show', $job) }}">Bekijk vacature</a>
           </article>
-        @endforeach
+        @empty
+          <article class="tenant-job tenant-job--empty">
+            <div>
+              <h3>Geen vacatures gevonden</h3>
+              <p>Pas je filters aan of kom later terug.</p>
+            </div>
+          </article>
+        @endforelse
       </div>
     </section>
 
-    <section class="tenant-panel" id="tenant-contact" aria-labelledby="tenant-contact-title">
+    <section class="tenant-panel" id="contact" aria-labelledby="tenant-contact-title">
       <p class="tenant-eyebrow">Contact</p>
       <h2 id="tenant-contact-title">Solliciteren of meer weten?</h2>
-      <p>Stuur je gegevens mee bij je reactie, dan neemt het recruitmentteam contact met je op.</p>
+      <p>Reageer direct op een vacature of neem contact op met het recruitmentteam van {{ $brandName }}.</p>
     </section>
-  </div>
+  </main>
 </section>
 @endsection
 
 @push('styles')
-<style>
-.tenant-page {
-  background: var(--color-bg);
-  padding: 48px 24px 72px;
-}
-
-.tenant-shell {
-  width: min(1120px, 100%);
-  margin: 0 auto;
-  display: grid;
-  gap: 20px;
-}
-
-.tenant-hero {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 280px;
-  gap: 24px;
-  align-items: stretch;
-}
-
-.tenant-eyebrow {
-  margin: 0 0 8px;
-  color: var(--tenant-accent);
-  font-family: var(--font-ui);
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.tenant-hero h1,
-.tenant-panel h2 {
-  margin: 0;
-  font-weight: 800;
-}
-
-.tenant-hero h1 {
-  font-size: clamp(34px, 4vw, 54px);
-}
-
-.tenant-hero p,
-.tenant-panel p,
-.tenant-job p {
-  color: var(--color-text-muted);
-}
-
-.tenant-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 22px;
-}
-
-.tenant-btn {
-  display: inline-flex;
-  min-height: 42px;
-  align-items: center;
-  justify-content: center;
-  padding: 0 16px;
-  border: 1px solid transparent;
-  border-radius: 6px;
-  font-family: var(--font-ui);
-  font-weight: 800;
-  text-decoration: none;
-}
-
-.tenant-btn:hover {
-  text-decoration: none;
-}
-
-.tenant-btn--primary {
-  background: var(--tenant-accent);
-  color: #ffffff;
-}
-
-.tenant-btn--ghost {
-  border-color: var(--color-border-strong);
-  background: #ffffff;
-  color: var(--tenant-accent);
-}
-
-.tenant-card,
-.tenant-panel {
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  background: #ffffff;
-  box-shadow: var(--shadow-sm);
-}
-
-.tenant-card {
-  display: grid;
-  align-content: center;
-  padding: 22px;
-}
-
-.tenant-card span {
-  color: var(--color-text-muted);
-  font-size: 13px;
-}
-
-.tenant-card strong {
-  display: block;
-  margin-top: 4px;
-  font-family: var(--font-ui);
-  font-size: 30px;
-}
-
-.tenant-panel {
-  padding: 26px;
-}
-
-.tenant-panel__head {
-  margin-bottom: 16px;
-}
-
-.tenant-jobs {
-  display: grid;
-  gap: 12px;
-}
-
-.tenant-job {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 18px;
-  padding: 18px;
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  background: #fbfdff;
-}
-
-.tenant-job h3,
-.tenant-job p {
-  margin: 0;
-}
-
-.tenant-job h3 {
-  font-size: 18px;
-  font-weight: 800;
-}
-
-.tenant-job a {
-  color: var(--tenant-accent);
-  font-family: var(--font-ui);
-  font-weight: 800;
-  white-space: nowrap;
-}
-
-@media (max-width: 820px) {
-  .tenant-hero,
-  .tenant-job {
-    grid-template-columns: 1fr;
-  }
-
-  .tenant-hero,
-  .tenant-job {
-    display: grid;
-  }
-}
-
-@media (max-width: 620px) {
-  .tenant-page {
-    padding: 36px 18px 56px;
-  }
-
-  .tenant-panel,
-  .tenant-card {
-    padding: 22px;
-  }
-}
-</style>
+  @include('tenant.partials.styles')
 @endpush

@@ -45,6 +45,12 @@
                 <span class="dash-status {{ $tenant->isActive() ? '' : 'dash-status--accent' }}">{{ ucfirst($tenant->status) }}</span>
               </div>
 
+              <div class="dash-actions">
+                <a class="dash-btn dash-btn--primary" href="{{ route('tenant.jobs.index', $tenant) }}">Vacatures beheren</a>
+                <a class="dash-btn dash-btn--ghost" href="{{ route('tenant.applications.index', $tenant) }}">Sollicitaties</a>
+                <a class="dash-btn dash-btn--ghost" href="{{ route('onboarding.index') }}">Onboarding</a>
+              </div>
+
               <div class="tenant-domain-list">
                 @forelse($tenant->domains as $domain)
                   <div class="tenant-domain">
@@ -52,7 +58,17 @@
                       <strong>{{ $domain->domain }}</strong>
                       <span>{{ $domain->is_primary ? 'Primair domein' : 'Extra domein' }} - DNS: {{ ucfirst($domain->status) }} - SSL: {{ ucfirst($domain->ssl_status) }}</span>
                     </div>
-                    <code>CNAME {{ $domain->domain }} -> cname.jobboardsoftware.co</code>
+                    <div class="tenant-domain__ops">
+                      <code>CNAME {{ $domain->domain }} -> cname.jobboardsoftware.co</code>
+                      <form method="POST" action="{{ route('tenant.environments.domains.check', [$tenant, $domain]) }}">
+                        @csrf
+                        <button class="dash-btn dash-btn--ghost" type="submit">DNS check</button>
+                      </form>
+                      <form method="POST" action="{{ route('tenant.environments.domains.ssl', [$tenant, $domain]) }}">
+                        @csrf
+                        <button class="dash-btn dash-btn--ghost" type="submit" @disabled(! in_array($domain->status, [\App\Models\Domain::STATUS_VERIFIED, \App\Models\Domain::STATUS_ACTIVE], true))>SSL actief</button>
+                      </form>
+                    </div>
                   </div>
                 @empty
                   <p class="dash-cell-meta">Nog geen domein gekoppeld.</p>
@@ -85,7 +101,7 @@
       <aside class="dash-sidebar">
         <section class="dash-card">
           <h2>Nieuwe omgeving</h2>
-          <p>Start met een trial-licentie. Billing kan hierna met Stripe/Cashier worden gekoppeld.</p>
+          <p>Start met het gekozen pakket. Billing loopt lokaal in trialmodus totdat Stripe price IDs zijn ingesteld.</p>
           <form class="form tenant-create-form" method="POST" action="{{ route('tenant.environments.store') }}">
             @csrf
             <div class="form-field">
@@ -212,6 +228,18 @@
       color: var(--color-primary-strong);
       font-size: 12px;
       white-space: nowrap;
+    }
+
+    .tenant-domain__ops {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .tenant-domain__ops form {
+      margin: 0;
     }
 
     .tenant-domain-form,

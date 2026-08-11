@@ -122,8 +122,9 @@
           <h2>Snelle acties</h2>
           <p>Ga direct naar de belangrijkste onderdelen van de SaaS omgeving.</p>
           <div class="dash-actions dash-actions--spaced">
+            <a class="dash-btn dash-btn--primary" href="{{ route('onboarding.index') }}">Onboarding</a>
             <a class="dash-btn dash-btn--primary" href="{{ route('tenant.environments.index') }}">Omgevingen beheren</a>
-            <a class="dash-btn dash-btn--ghost" href="{{ route('pages.tarieven') }}">Licentie bekijken</a>
+            <a class="dash-btn dash-btn--ghost" href="{{ route('billing.index') }}">Licentie bekijken</a>
             <a class="dash-btn dash-btn--ghost" href="{{ route('pages.contact') }}">Support vragen</a>
           </div>
         </section>

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Stancl\Tenancy\Database\Concerns\HasDomains;
 use Stancl\Tenancy\Database\Concerns\HasScopedValidationRules;
@@ -25,6 +26,7 @@ class Tenant extends BaseTenant
         'settings' => 'array',
         'trial_ends_at' => 'datetime',
         'subscribed_at' => 'datetime',
+        'onboarding_completed_at' => 'datetime',
     ];
 
     public static function getCustomColumns(): array
@@ -36,6 +38,9 @@ class Tenant extends BaseTenant
             'slug',
             'plan',
             'status',
+            'billing_status',
+            'onboarding_step',
+            'onboarding_completed_at',
             'trial_ends_at',
             'subscribed_at',
             'settings',
@@ -50,6 +55,16 @@ class Tenant extends BaseTenant
     public function primaryDomain(): HasOne
     {
         return $this->hasOne(Domain::class)->where('is_primary', true);
+    }
+
+    public function jobs(): HasMany
+    {
+        return $this->hasMany(TenantJob::class);
+    }
+
+    public function applications(): HasMany
+    {
+        return $this->hasMany(JobApplication::class);
     }
 
     public function isActive(): bool

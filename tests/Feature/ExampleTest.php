@@ -3,7 +3,10 @@
 namespace Tests\Feature;
 
 use App\Models\Domain;
+use App\Models\BillingPlan;
+use App\Models\JobApplication;
 use App\Models\Tenant;
+use App\Models\TenantJob;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -17,13 +20,13 @@ class ExampleTest extends TestCase
         $this->get('/')->assertStatus(200);
     }
 
-    public function test_the_homepage_is_a_saas_marketing_page(): void
+    public function test_the_homepage_keeps_header_and_footer_without_welcome_content(): void
     {
         $this->get('/')
             ->assertStatus(200)
-            ->assertSee('SaaS job board software')
-            ->assertSee('Job board software voor je eigen vacatureplatform')
-            ->assertSee('Start gratis')
+            ->assertSee('JobBoardSoftware')
+            ->assertDontSee('SaaS job board software')
+            ->assertDontSee('Job board software voor je eigen vacatureplatform')
             ->assertDontSee('Laravel Developer');
     }
 
@@ -76,6 +79,18 @@ class ExampleTest extends TestCase
             'is_primary' => true,
             'status' => Domain::STATUS_ACTIVE,
             'ssl_status' => Domain::SSL_ACTIVE,
+        ]);
+
+        $tenant->jobs()->create([
+            'title' => 'Laravel Developer',
+            'slug' => 'laravel-developer',
+            'department' => 'Development',
+            'location' => 'Amsterdam',
+            'employment_type' => 'Fulltime',
+            'intro' => 'Werk mee aan een groeiend platform.',
+            'description' => 'Bouw mee aan moderne jobboard software.',
+            'status' => TenantJob::STATUS_PUBLISHED,
+            'published_at' => now(),
         ]);
 
         $this->get('http://acme.test/')
@@ -150,8 +165,8 @@ class ExampleTest extends TestCase
             'password_confirmation' => 'password123',
         ]);
 
-        $response->assertRedirect(route('tenant.owner.dashboard'));
-        $this->assertSame('/dashboard', parse_url(route('tenant.owner.dashboard'), PHP_URL_PATH));
+        $response->assertRedirect(route('onboarding.index'));
+        $this->assertSame('/dashboard/onboarding', parse_url(route('onboarding.index'), PHP_URL_PATH));
         $this->assertAuthenticated();
         $this->assertDatabaseHas('users', [
             'email' => 'owner@example.com',
@@ -159,10 +174,10 @@ class ExampleTest extends TestCase
             'role' => User::ROLE_TENANT_OWNER,
         ]);
 
-        $this->get('/dashboard')
+        $this->get('/dashboard/onboarding')
             ->assertStatus(200)
-            ->assertSee('SaaS beheeromgeving')
-            ->assertSee('Mijn jobboards');
+            ->assertSee('Zet je jobboard live')
+            ->assertSee('Pakket kiezen');
     }
 
     public function test_saas_user_can_login_and_reaches_dashboard(): void
@@ -221,6 +236,120 @@ class ExampleTest extends TestCase
 
         $response->assertRedirect(route('admin.dashboard'));
         $this->assertAuthenticatedAs($admin);
-        $this->get('/admin/dashboard')->assertStatus(200)->assertSee('Admin dashboard');
+        $this->get('/admin/dashboard')->assertStatus(200)->assertSee('Platformbeheer');
+    }
+
+    public function test_saas_user_can_select_a_billing_plan(): void
+    {
+        $plan = BillingPlan::create([
+            'key' => Tenant::PLAN_STARTER,
+            'name' => 'Starter',
+            'description' => 'Startpakket',
+            'monthly_price_cents' => 4900,
+            'currency' => 'eur',
+            'features' => ['1 jobboard'],
+            'limits' => ['tenants' => 1],
+            'is_active' => true,
+        ]);
+
+        $owner = User::factory()->create([
+            'role' => User::ROLE_TENANT_OWNER,
+        ]);
+
+        $this->actingAs($owner)
+            ->post('/dashboard/billing/plan', ['plan_key' => Tenant::PLAN_STARTER])
+            ->assertRedirect(route('onboarding.index'));
+
+        $this->assertDatabaseHas('users', [
+            'id' => $owner->id,
+            'billing_plan_id' => $plan->id,
+            'billing_status' => 'trial',
+        ]);
+    }
+
+    public function test_saas_user_can_manage_jobs_for_a_tenant(): void
+    {
+        $owner = User::factory()->create([
+            'role' => User::ROLE_TENANT_OWNER,
+        ]);
+
+        $tenant = Tenant::create([
+            'id' => 'hire-labs',
+            'owner_user_id' => $owner->id,
+            'name' => 'Hire Labs',
+            'slug' => 'hire-labs',
+            'plan' => Tenant::PLAN_STARTER,
+            'status' => Tenant::STATUS_ACTIVE,
+        ]);
+
+        $this->actingAs($owner)
+            ->post(route('tenant.jobs.store', $tenant), [
+                'title' => 'PHP Developer',
+                'department' => 'Development',
+                'location' => 'Amsterdam',
+                'employment_type' => 'Fulltime',
+                'intro' => 'Bouw mee.',
+                'description' => 'Een uitgebreide vacaturetekst.',
+                'status' => TenantJob::STATUS_PUBLISHED,
+            ])
+            ->assertRedirect(route('tenant.jobs.index', $tenant));
+
+        $this->assertDatabaseHas('tenant_jobs', [
+            'tenant_id' => 'hire-labs',
+            'title' => 'PHP Developer',
+            'slug' => 'php-developer',
+            'status' => TenantJob::STATUS_PUBLISHED,
+        ]);
+
+        $this->actingAs($owner)
+            ->get(route('tenant.jobs.index', $tenant))
+            ->assertStatus(200)
+            ->assertSee('PHP Developer');
+    }
+
+    public function test_candidate_can_apply_on_tenant_frontend(): void
+    {
+        $tenant = Tenant::create([
+            'id' => 'front',
+            'name' => 'Frontend Careers',
+            'slug' => 'frontend-careers',
+            'plan' => Tenant::PLAN_STARTER,
+            'status' => Tenant::STATUS_ACTIVE,
+            'settings' => [
+                'brand_name' => 'Frontend Careers',
+            ],
+        ]);
+
+        $tenant->domains()->create([
+            'domain' => 'front.test',
+            'is_primary' => true,
+            'status' => Domain::STATUS_ACTIVE,
+            'ssl_status' => Domain::SSL_ACTIVE,
+        ]);
+
+        $job = $tenant->jobs()->create([
+            'title' => 'Frontend Developer',
+            'slug' => 'frontend-developer',
+            'department' => 'Development',
+            'location' => 'Utrecht',
+            'employment_type' => 'Fulltime',
+            'description' => 'Maak mooie interfaces.',
+            'status' => TenantJob::STATUS_PUBLISHED,
+            'published_at' => now(),
+        ]);
+
+        $this->post('http://front.test/vacatures/frontend-developer/solliciteren', [
+            'name' => 'Sanne Sollicitant',
+            'email' => 'sanne@example.com',
+            'phone' => '0612345678',
+            'motivation' => 'Ik ben enthousiast.',
+        ])->assertRedirect('http://front.test/vacatures/frontend-developer');
+
+        $this->assertDatabaseHas('job_applications', [
+            'tenant_id' => 'front',
+            'tenant_job_id' => $job->id,
+            'email' => 'sanne@example.com',
+            'status' => JobApplication::STATUS_NEW,
+        ]);
     }
 }

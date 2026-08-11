@@ -117,6 +117,10 @@ class PortalAuthController extends Controller
         Auth::login($user);
         $request->session()->regenerate();
 
+        if ($role === User::ROLE_TENANT_OWNER) {
+            return redirect()->route('onboarding.index');
+        }
+
         return redirect()->route($this->dashboardRouteNameFor($role));
     }
 

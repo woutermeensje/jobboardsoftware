@@ -1,7 +1,12 @@
 <?php
 
 use App\Http\Controllers\Auth\PortalAuthController;
+use App\Http\Controllers\AdminDashboardController;
+use App\Http\Controllers\BillingController;
+use App\Http\Controllers\OnboardingController;
+use App\Http\Controllers\TenantApplicationController;
 use App\Http\Controllers\TenantEnvironmentController;
+use App\Http\Controllers\TenantJobController;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
@@ -49,15 +54,33 @@ $centralRoutes = function (): void {
         Route::get('/dashboard', 'tenantOwnerDashboard')->middleware(['auth', 'role:tenant_owner'])->name('tenant.owner.dashboard');
         Route::redirect('/dashboard/werkzoekende', '/dashboard')->name('werkzoekende.dashboard');
         Route::redirect('/dashboard/werkgever', '/dashboard')->name('werkgever.dashboard');
-        Route::get('/admin/dashboard', 'dashboard')->middleware(['auth', 'role:admin'])->name('admin.dashboard');
+        Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->middleware(['auth', 'role:admin'])->name('admin.dashboard');
     });
 
     Route::redirect('/dashboard/werkgever/omgeving', '/dashboard/omgeving');
 
     Route::middleware(['auth', 'role:tenant_owner'])->group(function () {
+        Route::get('/dashboard/onboarding', [OnboardingController::class, 'index'])->name('onboarding.index');
+
+        Route::get('/dashboard/billing', [BillingController::class, 'index'])->name('billing.index');
+        Route::post('/dashboard/billing/plan', [BillingController::class, 'selectPlan'])->name('billing.plan.select');
+        Route::get('/dashboard/billing/success', [BillingController::class, 'success'])->name('billing.success');
+
         Route::get('/dashboard/omgeving', [TenantEnvironmentController::class, 'index'])->name('tenant.environments.index');
         Route::post('/dashboard/omgeving', [TenantEnvironmentController::class, 'store'])->name('tenant.environments.store');
         Route::post('/dashboard/omgeving/{tenant}/domeinen', [TenantEnvironmentController::class, 'storeDomain'])->name('tenant.environments.domains.store');
+        Route::post('/dashboard/omgeving/{tenant}/domeinen/{domain}/controleer', [TenantEnvironmentController::class, 'checkDomain'])->name('tenant.environments.domains.check');
+        Route::post('/dashboard/omgeving/{tenant}/domeinen/{domain}/ssl', [TenantEnvironmentController::class, 'issueSsl'])->name('tenant.environments.domains.ssl');
+
+        Route::get('/dashboard/omgeving/{tenant}/vacatures', [TenantJobController::class, 'index'])->name('tenant.jobs.index');
+        Route::get('/dashboard/omgeving/{tenant}/vacatures/nieuw', [TenantJobController::class, 'create'])->name('tenant.jobs.create');
+        Route::post('/dashboard/omgeving/{tenant}/vacatures', [TenantJobController::class, 'store'])->name('tenant.jobs.store');
+        Route::get('/dashboard/omgeving/{tenant}/vacatures/{job}/bewerken', [TenantJobController::class, 'edit'])->name('tenant.jobs.edit');
+        Route::put('/dashboard/omgeving/{tenant}/vacatures/{job}', [TenantJobController::class, 'update'])->name('tenant.jobs.update');
+        Route::delete('/dashboard/omgeving/{tenant}/vacatures/{job}', [TenantJobController::class, 'destroy'])->name('tenant.jobs.destroy');
+
+        Route::get('/dashboard/omgeving/{tenant}/sollicitaties', [TenantApplicationController::class, 'index'])->name('tenant.applications.index');
+        Route::patch('/dashboard/omgeving/{tenant}/sollicitaties/{application}', [TenantApplicationController::class, 'update'])->name('tenant.applications.update');
     });
 };
 
