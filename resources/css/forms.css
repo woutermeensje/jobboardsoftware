@@ -14,6 +14,10 @@ input[type="email"],
 input[type="tel"],
 input[type="url"],
 input[type="password"],
+input[type="number"],
+input[type="search"],
+input[type="date"],
+input[type="datetime-local"],
 textarea,
 select {
   width: 100%;
@@ -34,6 +38,10 @@ input[type="email"]:hover,
 input[type="tel"]:hover,
 input[type="url"]:hover,
 input[type="password"]:hover,
+input[type="number"]:hover,
+input[type="search"]:hover,
+input[type="date"]:hover,
+input[type="datetime-local"]:hover,
 textarea:hover,
 select:hover {
   border-color: var(--field-border-hover);
@@ -46,6 +54,10 @@ input[type="email"]:focus,
 input[type="tel"]:focus,
 input[type="url"]:focus,
 input[type="password"]:focus,
+input[type="number"]:focus,
+input[type="search"]:focus,
+input[type="date"]:focus,
+input[type="datetime-local"]:focus,
 textarea:focus,
 select:focus {
   outline: none;
@@ -66,6 +78,50 @@ textarea::placeholder {
   color: var(--color-text-subtle);
   opacity: 1; /* voorkomt extra fade in sommige browsers */
   font-weight: 400;
+}
+
+input[type="checkbox"],
+input[type="radio"]{
+  accent-color: var(--color-primary);
+}
+
+input[type="file"]{
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--field-border);
+  border-radius: var(--radius-default);
+  background: var(--field-bg);
+  font-family: var(--font-text);
+  font-size: 14px;
+  color: var(--color-text);
+  line-height: 1.4;
+}
+
+input[type="file"]:hover{
+  border-color: var(--field-border-hover);
+}
+
+input[type="file"]:focus{
+  outline: none;
+  border-color: var(--field-focus);
+}
+
+input[type="file"]::file-selector-button{
+  margin-right: 12px;
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-default);
+  background: var(--color-primary);
+  color: #fff;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 10px;
+  cursor: pointer;
+}
+
+input[type="file"]::file-selector-button:hover{
+  background: var(--color-primary-strong);
+  border-color: var(--color-primary-strong);
 }
 
 
@@ -104,6 +160,14 @@ textarea::placeholder {
   gap: 12px;
 }
 
+.form-grid--two{
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.form-grid--three{
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 /* Field wrapper */
 .form-field{
   display: flex;
@@ -132,6 +196,26 @@ textarea::placeholder {
   margin-bottom: 10px;
 }
 
+.content-form,
+.portal-form{
+  display: grid;
+  gap: 14px;
+}
+
+.content-form__grid,
+.portal-form__row{
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.content-field,
+.portal-field{
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 .auth-page .form-section {
   font-family: 'Inter', var(--font-text), sans-serif;
   font-size: 20px;
@@ -142,7 +226,10 @@ textarea::placeholder {
 
 /* Labels */
 .form-field label,
-.label-basis{
+.label-basis,
+.form-label,
+.content-field label,
+.portal-label{
   font-family: 'Poppins', sans-serif;
   font-size: 15px;
   font-weight: 300;
@@ -156,6 +243,62 @@ textarea::placeholder {
 .form-container .vacature-actions button,
 .form-container .auth-actions button{
   margin-top: 12px;
+}
+
+.portal-input,
+.portal-textarea{
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--field-border);
+  border-radius: var(--radius-default);
+  background: var(--field-bg);
+  font-family: var(--font-text);
+  font-size: 14px;
+  color: var(--color-text);
+  line-height: 1.4;
+  transition: border-color .16s ease, background-color .16s ease;
+}
+
+.portal-input:hover,
+.portal-textarea:hover{
+  border-color: var(--field-border-hover);
+}
+
+.portal-input:focus,
+.portal-textarea:focus{
+  outline: none;
+  border-color: var(--field-focus);
+}
+
+.portal-textarea{
+  resize: vertical;
+  min-height: 120px;
+}
+
+.portal-help{
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-text-subtle);
+}
+
+.portal-input-icon-wrapper{
+  position: relative;
+  display: block;
+}
+
+.portal-input-icon{
+  position: absolute;
+  top: 50%;
+  left: 11px;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+  line-height: 1;
+}
+
+.portal-input.portal-input--icon{
+  padding-left: 36px;
 }
 
 
@@ -189,6 +332,86 @@ textarea::placeholder {
 
 }
 
+.form-control{
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--field-border);
+  border-radius: var(--radius-default);
+  background: var(--field-bg);
+  font-family: var(--font-text);
+  font-size: 14px;
+  color: var(--color-text);
+  line-height: 1.4;
+  transition: border-color .16s ease, background-color .16s ease;
+}
+
+.form-control:hover{
+  border-color: var(--field-border-hover);
+}
+
+.form-control:focus,
+.form-control:focus-visible{
+  outline: none;
+  border-color: var(--field-focus);
+}
+
+.form-control[type="file"]{
+  padding: 10px 12px;
+  cursor: pointer;
+}
+
+.form-control[type="file"]::file-selector-button{
+  margin-right: 12px;
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-default);
+  background: var(--color-primary);
+  color: #fff;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 10px;
+  cursor: pointer;
+}
+
+.form-actions,
+.content-actions{
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.form-help{
+  display: block;
+  margin: 4px 0 0;
+  font-family: var(--font-text);
+  font-size: 13px;
+  color: var(--color-text-subtle);
+}
+
+.form-help a{
+  color: var(--color-primary);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.form-help a:hover{
+  text-decoration: underline;
+}
+
+.form-error{
+  margin: 4px 0 0;
+  color: var(--color-accent-strong);
+  font-family: var(--font-text);
+  font-size: 13px;
+}
+
+.form-control.is-invalid,
+.basis-input.is-invalid,
+.textarea.is-invalid{
+  border-color: var(--color-accent-strong);
+}
+
 
 /* ===============================
    Two-column form layout
@@ -214,6 +437,11 @@ textarea::placeholder {
   }
 
   .form-grid{
+    grid-template-columns: 1fr;
+  }
+
+  .form-grid--two,
+  .form-grid--three{
     grid-template-columns: 1fr;
   }
 
@@ -258,6 +486,153 @@ textarea::placeholder {
   outline: none;
   border-color: var(--field-focus);
 
+}
+
+/* ===============================
+   Rich text editor
+================================ */
+
+.richtext-field {
+  border: 1px solid #d8dee6;
+  border-radius: var(--radius-default);
+  background: #fff;
+  overflow: hidden;
+  transition: border-color .16s ease;
+}
+
+.richtext-field:hover {
+  border-color: #c9d2dc;
+}
+
+.richtext-field:focus-within {
+  border-color: color-mix(in srgb, var(--color-primary) 45%, transparent);
+}
+
+.richtext-field .ql-toolbar.ql-snow {
+  border: 0;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 8px 10px;
+  background: #fbfcfd;
+}
+
+.richtext-field .ql-container.ql-snow {
+  border: 0;
+}
+
+.richtext-field .ql-editor {
+  min-height: 150px;
+  padding: 12px 14px;
+  font-family: var(--font-text);
+  font-size: 14px;
+  color: var(--color-text);
+  line-height: 1.6;
+}
+
+.richtext-field .ql-toolbar .ql-formats {
+  margin-right: 8px;
+}
+
+.richtext-field__source {
+  display: none !important;
+}
+
+.richtext-field.is-invalid {
+  border-color: var(--color-accent-strong);
+}
+
+/* ===============================
+   Searchable multiselect fields
+================================ */
+
+.js-multiselect-field{
+  position: relative;
+}
+
+.js-multiselect-control{
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-height: 40px;
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid var(--field-border);
+  border-radius: var(--radius-default);
+  background: var(--field-bg);
+  transition: border-color .16s ease, background-color .16s ease;
+}
+
+.js-multiselect-control:hover{
+  border-color: var(--field-border-hover);
+}
+
+.js-multiselect-control:focus-within{
+  border-color: var(--field-focus);
+}
+
+.js-multiselect-input{
+  flex: 1 1 160px;
+  width: auto;
+  min-width: 120px;
+  max-width: 100%;
+  min-height: 28px;
+  padding: 2px 4px;
+  border: 0 !important;
+  background: transparent;
+  box-shadow: none;
+}
+
+.js-multiselect-input:focus{
+  outline: none;
+  border-color: transparent;
+}
+
+.js-multiselect-tag{
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  max-width: 100%;
+  min-height: 26px;
+  padding: 4px 8px;
+  border: 1px solid var(--color-primary-muted);
+  border-radius: 999px;
+  background: var(--color-primary-soft);
+  color: var(--color-text);
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.js-multiselect-dropdown{
+  position: absolute;
+  z-index: 40;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  max-height: 220px;
+  overflow: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-default);
+  background: #ffffff;
+}
+
+.js-multiselect-option{
+  padding: 10px 12px;
+  color: var(--color-text);
+  font-family: var(--font-text);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.js-multiselect-option + .js-multiselect-option{
+  border-top: 1px solid #efefef;
+}
+
+.js-multiselect-option:hover,
+.js-multiselect-option.is-selected{
+  background: var(--color-primary-soft);
+  color: var(--color-primary-strong);
 }
 
 /* File upload (custom) */
@@ -309,7 +684,28 @@ textarea::placeholder {
   flex: 0 0 36px;
 }
 
+.file-field__icon{
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #F3F4F6;
+  border: 1px solid #E5E7EB;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex: 0 0 36px;
+}
+
 .file-text{
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.file-field__content{
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -327,7 +723,26 @@ textarea::placeholder {
   white-space: nowrap;
 }
 
+.file-field__title{
+  font-family: var(--font-ui);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .file-subtitle{
+  font-family: var(--font-text);
+  font-size: 13px;
+  color: var(--color-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-field__meta{
   font-family: var(--font-text);
   font-size: 13px;
   color: var(--color-text-muted);
@@ -350,6 +765,62 @@ textarea::placeholder {
 
 .file-field:hover .file-cta{
   background: #0B1220;
+}
+
+.file-preview-hint{
+  margin-top: 2px;
+  color: var(--color-text-muted);
+  font-size: 13px;
+}
+
+.file-remove{
+  border: 1px solid var(--color-accent-muted, rgba(217, 154, 91, .30));
+  border-radius: var(--radius-default);
+  background: var(--color-accent-soft);
+  color: var(--color-accent-strong);
+  cursor: pointer;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 10px;
+}
+
+.file-remove:hover{
+  background: var(--color-accent-tint, rgba(217, 154, 91, .16));
+}
+
+/* ===============================
+   Toggle and option groups
+================================ */
+
+.toggle-group,
+.account-type-toggle{
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+.toggle-option,
+.account-type-option{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-default);
+  background: var(--color-bg-white);
+  color: var(--color-text);
+  cursor: pointer;
+  font-family: var(--font-text);
+  font-size: 14px;
+}
+
+.toggle-option:hover,
+.account-type-option:hover{
+  border-color: var(--field-border-hover);
+  background: var(--color-bg);
 }
 
 /* Keep upload controls inside narrow sidebar cards (e.g. werkgever profiel) */
