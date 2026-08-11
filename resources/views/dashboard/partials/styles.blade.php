@@ -352,6 +352,38 @@
   font-size: 18px;
 }
 
+.dash-checklist--large {
+  margin: 0;
+  padding: 20px;
+}
+
+.dash-checklist--large li {
+  min-height: 40px;
+  font-size: 15px;
+}
+
+.dash-empty {
+  display: grid;
+  gap: 12px;
+  padding: 28px;
+  border-top: 1px solid var(--color-border);
+  background: #fbfdff;
+}
+
+.dash-empty h3,
+.dash-empty p {
+  margin: 0;
+}
+
+.dash-empty h3 {
+  font-size: 20px;
+}
+
+.dash-empty p {
+  max-width: 620px;
+  color: var(--color-text-muted);
+}
+
 @media (max-width: 1080px) {
   .dash-layout,
   .dash-topbar {

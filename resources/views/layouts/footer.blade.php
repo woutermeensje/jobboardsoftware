@@ -13,7 +13,7 @@
         <ul class="si-footer__list">
           <li>JobBoardSoftware B.V.</li>
           <li><a href="mailto:{{ $supportEmail }}">{{ $supportEmail }}</a></li>
-          <li>Demo omgeving voor vacaturebank software</li>
+          <li>SaaS software voor eigen jobboards</li>
         </ul>
         <div class="si-footer__socials" aria-label="Social media">
           <a href="{{ route('pages.contact') }}" aria-label="LinkedIn">
@@ -28,31 +28,30 @@
       <section class="si-footer__col">
         <h3 class="si-footer__heading">Product</h3>
         <ul class="si-footer__list">
-          <li><a href="{{ route('welcome') }}#vacatures">Vacaturebank</a></li>
-          <li><a href="{{ route('pages.werkzoekende') }}">Werkzoekende</a></li>
-          <li><a href="{{ route('pages.werkgever') }}">Werkgever</a></li>
+          <li><a href="{{ route('welcome') }}#product">Jobboard software</a></li>
+          <li><a href="{{ route('welcome') }}#beheer">Beheeromgeving</a></li>
+          <li><a href="{{ route('welcome') }}#domeinen">Eigen domein</a></li>
           <li><a href="{{ route('pages.tarieven') }}">Tarieven</a></li>
         </ul>
       </section>
 
       <section class="si-footer__col">
-        <h3 class="si-footer__heading">Werkgevers</h3>
+        <h3 class="si-footer__heading">Account</h3>
         <ul class="si-footer__list">
-          <li><a href="{{ route('pages.vacature-plaatsen') }}">Vacature plaatsen</a></li>
+          <li><a href="{{ route('register.choice') }}">Account aanmaken</a></li>
+          <li><a href="{{ route('login.choice') }}">Inloggen</a></li>
+          <li><a href="{{ route('tenant.environments.index') }}">Dashboard</a></li>
           <li><a href="{{ route('pages.tarieven') }}">Tarieven</a></li>
-          <li><a href="{{ route('register.werkgever') }}">Account aanmaken</a></li>
+        </ul>
+      </section>
+
+      <section class="si-footer__col">
+        <h3 class="si-footer__heading">Bedrijf</h3>
+        <ul class="si-footer__list">
+          <li><a href="{{ route('pages.over-ons') }}">Over ons</a></li>
+          <li><a href="{{ route('pages.contact') }}">Contact</a></li>
           <li><a href="{{ route('pages.contact') }}">Demo plannen</a></li>
-        </ul>
-      </section>
-
-      <section class="si-footer__col">
-        <h3 class="si-footer__heading">Categorieen</h3>
-        <ul class="si-footer__list">
-          <li><a href="{{ route('welcome') }}?category%5B0%5D=Development#vacatures">Development</a></li>
-          <li><a href="{{ route('welcome') }}?category%5B0%5D=Marketing#vacatures">Marketing</a></li>
-          <li><a href="{{ route('welcome') }}?category%5B0%5D=Sales#vacatures">Sales</a></li>
-          <li><a href="{{ route('welcome') }}?category%5B0%5D=Customer%20Success#vacatures">Customer Success</a></li>
-          <li><a href="{{ route('welcome') }}?type%5B0%5D=Remote#vacatures">Remote vacatures</a></li>
+          <li><a href="{{ route('admin.login') }}">Admin</a></li>
         </ul>
       </section>
     </div>

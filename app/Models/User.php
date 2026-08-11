@@ -6,6 +6,7 @@ namespace App\Models;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -21,6 +22,8 @@ class User extends Authenticatable
 
     public const ROLE_WERKGEVER = 'werkgever';
 
+    public const ROLE_TENANT_OWNER = 'tenant_owner';
+
     public const ROLE_ADMIN = 'admin';
 
     public function isWerkzoekende(): bool
@@ -33,9 +36,19 @@ class User extends Authenticatable
         return $this->role === self::ROLE_WERKGEVER;
     }
 
+    public function isTenantOwner(): bool
+    {
+        return $this->role === self::ROLE_TENANT_OWNER;
+    }
+
     public function isAdmin(): bool
     {
         return $this->role === self::ROLE_ADMIN;
+    }
+
+    public function ownedTenants(): HasMany
+    {
+        return $this->hasMany(Tenant::class, 'owner_user_id');
     }
 
     /**

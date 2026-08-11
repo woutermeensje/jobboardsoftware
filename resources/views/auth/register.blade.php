@@ -6,7 +6,7 @@
 <section class="auth-page">
   <div class="auth-shell">
     <div class="auth-head">
-      <p class="auth-eyebrow">{{ ucfirst($role) }}</p>
+      <p class="auth-eyebrow">{{ $eyebrow ?? ucfirst(str_replace('_', ' ', $role)) }}</p>
       <h1>{{ $title }}</h1>
       <p>{{ $subtitle }}</p>
     </div>
@@ -23,9 +23,9 @@
           @enderror
         </div>
 
-        @if($role === \App\Models\User::ROLE_WERKGEVER)
+        @if(in_array($role, [\App\Models\User::ROLE_WERKGEVER, \App\Models\User::ROLE_TENANT_OWNER], true))
           <div class="auth-field">
-            <label class="auth-label" for="company_name">Bedrijfsnaam</label>
+            <label class="auth-label" for="company_name">{{ $companyLabel ?? 'Bedrijfsnaam' }}</label>
             <input id="company_name" class="auth-input" name="company_name" type="text" value="{{ old('company_name') }}" autocomplete="organization" required>
             @error('company_name')
               <p class="auth-error">{{ $message }}</p>
@@ -57,7 +57,7 @@
         <div class="auth-actions">
           <button class="btn btn-primary" type="submit">Account aanmaken</button>
           <a class="auth-link" href="{{ $loginUrl }}">Ik heb al een account</a>
-          <a class="auth-link" href="{{ route('register.choice') }}">Andere rol kiezen</a>
+          <a class="auth-link" href="{{ route('welcome') }}">Terug naar website</a>
         </div>
       </form>
     </div>

@@ -18,8 +18,7 @@ class EnsureUserRole
         if (! $user) {
             return redirect()->route(match ($role) {
                 'admin' => 'admin.login',
-                'werkgever' => 'login.werkgever',
-                default => 'login.werkzoekende',
+                default => 'login.choice',
             });
         }
 

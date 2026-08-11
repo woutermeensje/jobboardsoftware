@@ -1,26 +1,26 @@
 @extends('layouts.app')
 
-@section('title', 'Werkgever dashboard | JobBoardSoftware')
-@section('meta_description', 'Werkgeversdashboard voor vacatures, reacties, kandidaten en plaatsingen.')
+@section('title', 'Jobboard beheer | JobBoardSoftware')
+@section('meta_description', 'SaaS dashboard voor jobboard licenties, tenant omgevingen, domeinen en beheerinstellingen.')
 
 @php
+  $tenantCollection = $tenants ?? collect();
+  $domainCount = $tenantCollection->sum(fn ($tenant) => $tenant->domains->count());
+  $activeTenants = $tenantCollection->where('status', \App\Models\Tenant::STATUS_ACTIVE)->count();
+  $trialTenants = $tenantCollection->where('status', \App\Models\Tenant::STATUS_TRIAL)->count();
+
   $stats = [
-    ['label' => 'Open vacatures', 'value' => '6'],
-    ['label' => 'Nieuwe reacties', 'value' => '18'],
-    ['label' => 'Concepten', 'value' => '3'],
-    ['label' => 'Views deze week', 'value' => '1.284'],
+    ['label' => 'Jobboards', 'value' => (string) $tenantCollection->count()],
+    ['label' => 'Domeinen', 'value' => (string) $domainCount],
+    ['label' => 'Actieve licenties', 'value' => (string) $activeTenants],
+    ['label' => 'Trials', 'value' => (string) $trialTenants],
   ];
 
-  $jobs = [
-    ['title' => 'Laravel Developer', 'meta' => 'Amsterdam - Fulltime', 'status' => 'Gepubliceerd', 'responses' => '8 reacties', 'updated' => 'Vandaag'],
-    ['title' => 'Recruitment Marketeer', 'meta' => 'Rotterdam - Parttime', 'status' => 'Concept', 'responses' => 'Nog niet live', 'updated' => 'Gisteren'],
-    ['title' => 'Customer Success Manager', 'meta' => 'Utrecht - Hybrid', 'status' => 'Screening', 'responses' => '5 reacties', 'updated' => '2 dagen geleden'],
-  ];
-
-  $candidates = [
-    ['name' => 'Sanne de Vries', 'role' => 'Laravel Developer', 'stage' => 'Nieuw'],
-    ['name' => 'Milan Bakker', 'role' => 'Customer Success Manager', 'stage' => 'Interview'],
-    ['name' => 'Nora Jansen', 'role' => 'Recruitment Marketeer', 'stage' => 'Shortlist'],
+  $steps = [
+    ['label' => 'SaaS account aangemaakt', 'done' => true],
+    ['label' => 'Jobboard omgeving starten', 'done' => $tenantCollection->isNotEmpty()],
+    ['label' => 'Eigen domein koppelen', 'done' => $domainCount > 0],
+    ['label' => 'Licentie activeren', 'done' => $activeTenants > 0],
   ];
 @endphp
 
@@ -29,14 +29,14 @@
   <div class="dash-shell">
     <header class="dash-topbar">
       <div>
-        <p class="dash-eyebrow">Werkgever omgeving</p>
+        <p class="dash-eyebrow">SaaS beheeromgeving</p>
         <h1 class="dash-title">Welkom terug, {{ $user->name }}</h1>
-        <p class="dash-subtitle">Beheer vacatures, volg reacties en bereid nieuwe plaatsingen voor vanuit een centraal werkgeversdashboard.</p>
+        <p class="dash-subtitle">Beheer hier je jobboard software, licentie, tenant omgevingen en gekoppelde domeinen.</p>
       </div>
-      <aside class="dash-user" aria-label="Ingelogde werkgever">
-        <strong>{{ $user->company_name ?: 'Werkgeversaccount' }}</strong>
+      <aside class="dash-user" aria-label="Ingelogde gebruiker">
+        <strong>{{ $user->company_name ?: 'Jobboard account' }}</strong>
         <span>{{ $user->email }}</span>
-        <span>Rol: Werkgever</span>
+        <span>Rol: SaaS gebruiker</span>
       </aside>
     </header>
 
@@ -51,114 +51,100 @@
 
     <div class="dash-layout">
       <main class="dash-main">
-        <section class="dash-panel" aria-labelledby="employer-jobs-title">
+        <section class="dash-panel" aria-labelledby="owner-boards-title">
           <div class="dash-panel__head">
             <div>
-              <h2 id="employer-jobs-title">Vacatures</h2>
-              <p>Publicatiestatus, reacties en laatste activiteit.</p>
+              <h2 id="owner-boards-title">Mijn jobboards</h2>
+              <p>Omgevingen die straks op het domein van je klant of merk draaien.</p>
             </div>
-            <a class="dash-btn dash-btn--primary" href="{{ route('pages.vacature-plaatsen') }}">
+            <a class="dash-btn dash-btn--primary" href="{{ route('tenant.environments.index') }}">
               <i class="ph ph-plus"></i>
-              Vacature plaatsen
+              Omgeving beheren
             </a>
           </div>
 
-          <table class="dash-table">
-            <thead>
-              <tr>
-                <th>Vacature</th>
-                <th>Status</th>
-                <th>Reacties</th>
-                <th>Bijgewerkt</th>
-              </tr>
-            </thead>
-            <tbody>
-              @foreach($jobs as $job)
+          @if($tenantCollection->isEmpty())
+            <div class="dash-empty">
+              <h3>Nog geen jobboard omgeving</h3>
+              <p>Maak je eerste omgeving aan, koppel een domein en laat de vacaturefrontend daar live komen.</p>
+              <a class="dash-btn dash-btn--primary" href="{{ route('tenant.environments.index') }}">Eerste omgeving aanmaken</a>
+            </div>
+          @else
+            <table class="dash-table">
+              <thead>
                 <tr>
-                  <td>
-                    <span class="dash-cell-title">{{ $job['title'] }}</span>
-                    <span class="dash-cell-meta">{{ $job['meta'] }}</span>
-                  </td>
-                  <td>
-                    <span class="dash-status {{ $job['status'] === 'Concept' ? 'dash-status--muted' : ($job['status'] === 'Screening' ? 'dash-status--accent' : '') }}">{{ $job['status'] }}</span>
-                  </td>
-                  <td>{{ $job['responses'] }}</td>
-                  <td>{{ $job['updated'] }}</td>
+                  <th>Jobboard</th>
+                  <th>Plan</th>
+                  <th>Status</th>
+                  <th>Domeinen</th>
                 </tr>
-              @endforeach
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                @foreach($tenantCollection as $tenant)
+                  <tr>
+                    <td>
+                      <span class="dash-cell-title">{{ $tenant->name }}</span>
+                      <span class="dash-cell-meta">{{ $tenant->slug }}</span>
+                    </td>
+                    <td>{{ ucfirst($tenant->plan) }}</td>
+                    <td>
+                      <span class="dash-status {{ $tenant->isActive() ? '' : 'dash-status--accent' }}">{{ ucfirst($tenant->status) }}</span>
+                    </td>
+                    <td>{{ $tenant->domains->count() }}</td>
+                  </tr>
+                @endforeach
+              </tbody>
+            </table>
+          @endif
         </section>
 
-        <section class="dash-panel" aria-labelledby="employer-candidates-title">
+        <section class="dash-panel" aria-labelledby="owner-flow-title">
           <div class="dash-panel__head">
             <div>
-              <h2 id="employer-candidates-title">Recente kandidaten</h2>
-              <p>Nieuwe reacties en opvolging per vacature.</p>
+              <h2 id="owner-flow-title">Implementatie voortgang</h2>
+              <p>De basisflow voor een klant die jobboard software koopt en publiceert.</p>
             </div>
           </div>
 
-          <table class="dash-table">
-            <thead>
-              <tr>
-                <th>Kandidaat</th>
-                <th>Vacature</th>
-                <th>Fase</th>
-              </tr>
-            </thead>
-            <tbody>
-              @foreach($candidates as $candidate)
-                <tr>
-                  <td><span class="dash-cell-title">{{ $candidate['name'] }}</span></td>
-                  <td>{{ $candidate['role'] }}</td>
-                  <td><span class="dash-status dash-status--accent">{{ $candidate['stage'] }}</span></td>
-                </tr>
-              @endforeach
-            </tbody>
-          </table>
+          <ul class="dash-checklist dash-checklist--large">
+            @foreach($steps as $step)
+              <li>
+                <i class="ph {{ $step['done'] ? 'ph-check-circle' : 'ph-circle' }}"></i>
+                {{ $step['label'] }}
+              </li>
+            @endforeach
+          </ul>
         </section>
       </main>
 
       <aside class="dash-sidebar">
         <section class="dash-card">
           <h2>Snelle acties</h2>
-          <p>Start de belangrijkste werkgeversflows.</p>
+          <p>Ga direct naar de belangrijkste onderdelen van de SaaS omgeving.</p>
           <div class="dash-actions dash-actions--spaced">
-            <a class="dash-btn dash-btn--primary" href="{{ route('pages.vacature-plaatsen') }}">Vacature plaatsen</a>
-            <a class="dash-btn dash-btn--ghost" href="{{ route('pages.tarieven') }}">Tarieven</a>
+            <a class="dash-btn dash-btn--primary" href="{{ route('tenant.environments.index') }}">Omgevingen beheren</a>
+            <a class="dash-btn dash-btn--ghost" href="{{ route('pages.tarieven') }}">Licentie bekijken</a>
+            <a class="dash-btn dash-btn--ghost" href="{{ route('pages.contact') }}">Support vragen</a>
           </div>
         </section>
 
         <section class="dash-card">
-          <h2>Account voortgang</h2>
-          <p>Maak het werkgeversprofiel publicatieklaar.</p>
-          <div class="dash-progress" aria-label="Account voortgang">
-            <div class="dash-progress__track"><span class="dash-progress__bar dash-progress__bar--employer"></span></div>
-            <span class="dash-cell-meta">68% compleet</span>
-          </div>
-          <ul class="dash-checklist">
-            <li><i class="ph ph-check-circle"></i>Bedrijfsgegevens ingevuld</li>
-            <li><i class="ph ph-check-circle"></i>Eerste vacature voorbereid</li>
-            <li><i class="ph ph-circle"></i>Bedrijfspagina publiceren</li>
-          </ul>
-        </section>
-
-        <section class="dash-card">
-          <h2>Planning</h2>
+          <h2>Domein koppelen</h2>
+          <p>De jobboard frontend wordt pas zichtbaar op het domein dat aan een tenant is gekoppeld.</p>
           <ul class="dash-list">
             <li>
               <div>
-                <strong>2 interviews</strong>
-                <span>Deze week gepland</span>
+                <strong>CNAME target</strong>
+                <span>cname.jobboardsoftware.co</span>
               </div>
-              <span>Week 33</span>
+              <span>DNS</span>
             </li>
             <li>
               <div>
-                <strong>3 vacatures</strong>
-                <span>Controle nodig voor publicatie</span>
+                <strong>SSL status</strong>
+                <span>Wordt per domein voorbereid</span>
               </div>
-              <span>Actie</span>
+              <span>Auto</span>
             </li>
           </ul>
         </section>
@@ -166,7 +152,7 @@
         <form method="POST" action="{{ route('logout') }}" class="dash-card">
           @csrf
           <h2>Sessie</h2>
-          <p>Je bent ingelogd als werkgever.</p>
+          <p>Je bent ingelogd in de centrale SaaS beheeromgeving.</p>
           <div class="dash-actions dash-actions--spaced">
             <button class="dash-btn dash-btn--ghost" type="submit">Uitloggen</button>
           </div>

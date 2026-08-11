@@ -6,7 +6,7 @@
 <section class="auth-page">
   <div class="auth-shell">
     <div class="auth-head">
-      <p class="auth-eyebrow">{{ ucfirst($role) }}</p>
+      <p class="auth-eyebrow">{{ $eyebrow ?? ucfirst(str_replace('_', ' ', $role)) }}</p>
       <h1>{{ $title }}</h1>
       <p>{{ $subtitle }}</p>
     </div>
@@ -38,10 +38,10 @@
 
         <div class="auth-actions">
           <button class="btn btn-primary" type="submit">Inloggen</button>
-          <a class="auth-link" href="{{ route('login.choice') }}">Andere omgeving kiezen</a>
           @if($registerUrl)
             <a class="auth-link" href="{{ $registerUrl }}">Account aanmaken</a>
           @endif
+          <a class="auth-link" href="{{ route('welcome') }}">Terug naar website</a>
         </div>
       </form>
     </div>

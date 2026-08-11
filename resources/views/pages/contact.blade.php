@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Contact | JobBoardSoftware')
-@section('meta_description', 'Neem contact op over JobBoardSoftware, vacatureplaatsingen of een eigen job board platform.')
+@section('meta_description', 'Neem contact op over JobBoardSoftware, SaaS jobboard software, licenties of een eigen domein.')
 
 @section('content')
 <section class="content-page">
@@ -9,8 +9,8 @@
     <header class="content-hero">
       <div class="content-hero__copy">
         <p class="content-eyebrow">Contact</p>
-        <h1>Bespreek je job board plannen.</h1>
-        <p class="content-hero__intro">Wil je werkgevers aansluiten, tarieven bepalen of dashboards verder uitbouwen? Stuur een bericht en plan een korte verkenning.</p>
+        <h1>Bespreek je SaaS jobboard plannen.</h1>
+        <p class="content-hero__intro">Wil je jobboard software aanbieden, een klantdomein koppelen of de beheeromgeving verder uitbouwen? Stuur een bericht en plan een korte verkenning.</p>
       </div>
       <aside class="content-visual" aria-label="Contactgegevens">
         <i class="ph ph-chat-circle-text"></i>

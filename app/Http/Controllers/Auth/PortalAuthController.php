@@ -14,34 +14,37 @@ class PortalAuthController extends Controller
 {
     public function showLoginChoice(): View
     {
-        return view('auth.login-choice');
+        return view('auth.login', [
+            'role' => User::ROLE_TENANT_OWNER,
+            'eyebrow' => 'SaaS account',
+            'title' => 'Inloggen op JobBoardSoftware',
+            'subtitle' => 'Log in om je jobboard, domeinen, licentie en instellingen te beheren.',
+            'action' => route('login.submit'),
+            'registerUrl' => route('register.choice'),
+        ]);
     }
 
     public function showRegisterChoice(): View
     {
-        return view('auth.register-choice');
+        return view('auth.register', [
+            'role' => User::ROLE_TENANT_OWNER,
+            'eyebrow' => 'SaaS account',
+            'title' => 'Start je eigen jobboard',
+            'subtitle' => 'Maak een beheeraccount aan om je licentie te starten en je eigen domein te koppelen.',
+            'action' => route('register.submit'),
+            'loginUrl' => route('login.choice'),
+            'companyLabel' => 'Organisatie of label',
+        ]);
     }
 
     public function showWerkzoekendeLogin(): View
     {
-        return view('auth.login', [
-            'role' => User::ROLE_WERKZOEKENDE,
-            'title' => 'Inloggen als werkzoekende',
-            'subtitle' => 'Bekijk vacatures, bewaar interessante functies en beheer straks je sollicitaties.',
-            'action' => route('login.werkzoekende.submit'),
-            'registerUrl' => route('register.werkzoekende'),
-        ]);
+        return $this->showLoginChoice();
     }
 
     public function showWerkgeverLogin(): View
     {
-        return view('auth.login', [
-            'role' => User::ROLE_WERKGEVER,
-            'title' => 'Inloggen als werkgever',
-            'subtitle' => 'Plaats vacatures, beheer bedrijfspagina\'s en volg reacties vanuit je werkgeversomgeving.',
-            'action' => route('login.werkgever.submit'),
-            'registerUrl' => route('register.werkgever'),
-        ]);
+        return $this->showLoginChoice();
     }
 
     public function showAdminLogin(): View
@@ -49,7 +52,7 @@ class PortalAuthController extends Controller
         return view('auth.login', [
             'role' => User::ROLE_ADMIN,
             'title' => 'Admin inloggen',
-            'subtitle' => 'Beheer gebruikers, werkgevers, vacatures en platforminstellingen.',
+            'subtitle' => 'Beheer SaaS gebruikers, tenants, domeinen en platforminstellingen.',
             'action' => route('admin.login.submit'),
             'registerUrl' => null,
         ]);
@@ -82,40 +85,30 @@ class PortalAuthController extends Controller
 
     public function showWerkzoekendeRegister(): View
     {
-        return view('auth.register', [
-            'role' => User::ROLE_WERKZOEKENDE,
-            'title' => 'Aanmelden als werkzoekende',
-            'subtitle' => 'Maak een profiel aan om vacatures te bewaren en straks direct te solliciteren.',
-            'action' => route('register.werkzoekende.submit'),
-            'loginUrl' => route('login.werkzoekende'),
-        ]);
+        return $this->showRegisterChoice();
     }
 
     public function showWerkgeverRegister(): View
     {
-        return view('auth.register', [
-            'role' => User::ROLE_WERKGEVER,
-            'title' => 'Aanmelden als werkgever',
-            'subtitle' => 'Maak een werkgeversaccount aan om vacatures te publiceren en kandidaten te beheren.',
-            'action' => route('register.werkgever.submit'),
-            'loginUrl' => route('login.werkgever'),
-        ]);
+        return $this->showRegisterChoice();
     }
 
     public function register(Request $request, string $role): RedirectResponse
     {
-        abort_unless(in_array($role, [User::ROLE_WERKZOEKENDE, User::ROLE_WERKGEVER], true), 404);
+        abort_unless(in_array($role, [User::ROLE_WERKZOEKENDE, User::ROLE_WERKGEVER, User::ROLE_TENANT_OWNER], true), 404);
+
+        $requiresCompanyName = in_array($role, [User::ROLE_WERKGEVER, User::ROLE_TENANT_OWNER], true);
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'company_name' => [$role === User::ROLE_WERKGEVER ? 'required' : 'nullable', 'string', 'max:255'],
+            'company_name' => [$requiresCompanyName ? 'required' : 'nullable', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'confirmed', Password::min(8)],
         ]);
 
         $user = User::create([
             'name' => $validated['name'],
-            'company_name' => $role === User::ROLE_WERKGEVER ? $validated['company_name'] : null,
+            'company_name' => $requiresCompanyName ? $validated['company_name'] : null,
             'email' => $validated['email'],
             'password' => $validated['password'],
             'role' => $role,
@@ -148,6 +141,15 @@ class PortalAuthController extends Controller
     {
         return view('dashboard.werkgever', [
             'user' => $request->user(),
+            'tenants' => $request->user()->ownedTenants()->with('domains')->latest()->get(),
+        ]);
+    }
+
+    public function tenantOwnerDashboard(Request $request): View
+    {
+        return view('dashboard.werkgever', [
+            'user' => $request->user(),
+            'tenants' => $request->user()->ownedTenants()->with('domains')->latest()->get(),
         ]);
     }
 
@@ -167,7 +169,7 @@ class PortalAuthController extends Controller
     {
         return match ($role) {
             User::ROLE_ADMIN => 'admin.dashboard',
-            User::ROLE_WERKGEVER => 'werkgever.dashboard',
+            User::ROLE_TENANT_OWNER, User::ROLE_WERKGEVER => 'tenant.owner.dashboard',
             default => 'werkzoekende.dashboard',
         };
     }

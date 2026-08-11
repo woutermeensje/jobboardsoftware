@@ -6,6 +6,7 @@
   $roleLabels = [
     \App\Models\User::ROLE_WERKZOEKENDE => 'Werkzoekende',
     \App\Models\User::ROLE_WERKGEVER => 'Werkgever',
+    \App\Models\User::ROLE_TENANT_OWNER => 'SaaS gebruiker',
     \App\Models\User::ROLE_ADMIN => 'Admin',
   ];
 
@@ -18,7 +19,7 @@
     <div class="auth-head">
       <p class="auth-eyebrow">{{ $roleTitle }}</p>
       <h1>Welkom, {{ $user->name }}</h1>
-      <p>Dit is de eerste versie van je {{ strtolower($roleTitle) }} omgeving. De functionele modules kunnen hierna per rol worden uitgebreid.</p>
+      <p>Dit is de eerste versie van je {{ strtolower($roleTitle) }} omgeving. De functionele modules kunnen hierna verder worden uitgebreid.</p>
     </div>
 
     <div class="auth-dashboard-card">
@@ -32,7 +33,7 @@
       </div>
 
       <div class="auth-dashboard-actions">
-        <a class="btn btn-primary" href="{{ route('welcome') }}">Vacaturebank bekijken</a>
+        <a class="btn btn-primary" href="{{ route('welcome') }}">Website bekijken</a>
         <form method="POST" action="{{ route('logout') }}">
           @csrf
           <button class="btn btn-ghost" type="submit">Uitloggen</button>

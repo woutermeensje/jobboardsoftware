@@ -5,30 +5,30 @@
   if ($authUser) {
     $dashboardUrl = match ($authUser->role) {
       \App\Models\User::ROLE_ADMIN => route('admin.dashboard'),
-      \App\Models\User::ROLE_WERKGEVER => route('werkgever.dashboard'),
-      default => route('werkzoekende.dashboard'),
+      \App\Models\User::ROLE_TENANT_OWNER => route('tenant.owner.dashboard'),
+      default => route('tenant.owner.dashboard'),
     };
   }
 
   $primaryNav = [
     [
-      'label' => 'Werkzoekende',
-      'url' => route('pages.werkzoekende'),
-      'active' => request()->routeIs('pages.werkzoekende') || request()->routeIs('pages.job-alerts') || request()->routeIs('pages.nieuwsbrief') || request()->routeIs('register.werkzoekende'),
+      'label' => 'Product',
+      'url' => route('welcome').'#product',
+      'active' => request()->routeIs('welcome'),
       'children' => [
-        ['label' => 'Job alerts', 'url' => route('pages.job-alerts')],
-        ['label' => 'Nieuwsbrief', 'url' => route('pages.nieuwsbrief')],
-        ['label' => 'Account aanmaken', 'url' => route('register.werkzoekende')],
+        ['label' => 'Jobboard website', 'url' => route('welcome').'#jobboard'],
+        ['label' => 'Beheeromgeving', 'url' => route('welcome').'#beheer'],
+        ['label' => 'Eigen domein', 'url' => route('welcome').'#domeinen'],
       ],
     ],
     [
-      'label' => 'Werkgever',
-      'url' => route('pages.werkgever'),
-      'active' => request()->routeIs('pages.werkgever') || request()->routeIs('pages.vacature-plaatsen') || request()->routeIs('register.werkgever'),
+      'label' => 'Features',
+      'url' => route('welcome').'#features',
+      'active' => false,
       'children' => [
-        ['label' => 'Vacature plaatsen', 'url' => route('pages.vacature-plaatsen')],
-        ['label' => 'Tarieven', 'url' => route('pages.tarieven')],
-        ['label' => 'Account aanmaken', 'url' => route('register.werkgever')],
+        ['label' => 'Tenant beheer', 'url' => route('welcome').'#beheer'],
+        ['label' => 'DNS koppeling', 'url' => route('welcome').'#domeinen'],
+        ['label' => 'Start account', 'url' => route('register.choice')],
       ],
     ],
     ['label' => 'Tarieven', 'url' => route('pages.tarieven'), 'active' => request()->routeIs('pages.tarieven')],
@@ -39,14 +39,14 @@
   $utilityLinks = $authUser
     ? [
       ['label' => 'Mijn dashboard', 'url' => $dashboardUrl],
-      ['label' => 'Vacaturebank bekijken', 'url' => route('welcome').'#vacatures'],
+      ['label' => 'Omgeving beheren', 'url' => route('tenant.environments.index')],
       ['label' => 'Contact', 'url' => route('pages.contact')],
     ]
     : [
       ['label' => 'Aanmelden', 'url' => route('register.choice')],
       ['label' => 'Inloggen', 'url' => route('login.choice')],
-      ['label' => 'Vacature plaatsen', 'url' => route('pages.vacature-plaatsen')],
-      ['label' => 'Vacaturebank bekijken', 'url' => route('welcome').'#vacatures'],
+      ['label' => 'Tarieven', 'url' => route('pages.tarieven')],
+      ['label' => 'Demo plannen', 'url' => route('pages.contact')],
     ];
 @endphp
 
@@ -68,9 +68,9 @@
         @endif
       </div>
       <div class="rn-topbar__group rn-topbar__group--right">
-        <a class="rn-topbar__link" href="{{ route('pages.vacature-plaatsen') }}">Vacature plaatsen</a>
+        <a class="rn-topbar__link" href="{{ route('welcome') }}#domeinen">Eigen domein koppelen</a>
         <span class="rn-topbar__sep" aria-hidden="true">|</span>
-        <a class="rn-topbar__link" href="{{ route('welcome') }}#vacatures">Vacaturebank bekijken</a>
+        <a class="rn-topbar__link" href="{{ route('pages.contact') }}">Demo plannen</a>
       </div>
     </div>
   </div>
@@ -125,7 +125,7 @@
           <button class="rn-btn rn-btn--outline" type="submit">Uitloggen</button>
         </form>
       @else
-        <a href="{{ route('register.choice') }}" class="rn-btn rn-btn--accent">Aanmelden</a>
+        <a href="{{ route('register.choice') }}" class="rn-btn rn-btn--accent">Start gratis</a>
         <a href="{{ route('login.choice') }}" class="rn-btn rn-btn--outline">Inloggen</a>
       @endif
     </div>
@@ -195,7 +195,7 @@
             <button class="rn-btn rn-btn--outline rn-mobile-nav__cta" type="submit">Uitloggen</button>
           </form>
         @else
-          <a href="{{ route('register.choice') }}" class="rn-btn rn-btn--accent rn-mobile-nav__cta">Aanmelden</a>
+          <a href="{{ route('register.choice') }}" class="rn-btn rn-btn--accent rn-mobile-nav__cta">Start gratis</a>
           <a href="{{ route('login.choice') }}" class="rn-btn rn-btn--outline rn-mobile-nav__cta">Inloggen</a>
         @endif
       </div>
