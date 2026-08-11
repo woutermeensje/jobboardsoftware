@@ -26,7 +26,7 @@ class ExampleTest extends TestCase
             ->assertStatus(200)
             ->assertSee('JobBoardSoftware')
             ->assertDontSee('SaaS job board software')
-            ->assertDontSee('Job board software voor je eigen vacatureplatform')
+            ->assertDontSee('Launch your own job board')
             ->assertDontSee('Laravel Developer');
     }
 
@@ -36,9 +36,9 @@ class ExampleTest extends TestCase
             ->assertStatus(200)
             ->assertSee('Product')
             ->assertSee('Features')
-            ->assertSee('Eigen domein koppelen')
-            ->assertSee('/aanmelden', false)
-            ->assertSee('/inloggen', false)
+            ->assertSee('Connect a custom domain')
+            ->assertSee('/sign-up', false)
+            ->assertSee('/login', false)
             ->assertDontSee('/aanmelden/werkgever', false)
             ->assertDontSee('/aanmelden/werkzoekende', false);
     }
@@ -46,13 +46,13 @@ class ExampleTest extends TestCase
     public function test_public_menu_pages_are_available(): void
     {
         foreach ([
-            '/werkzoekende',
+            '/job-seeker',
             '/job-alerts',
-            '/nieuwsbrief',
-            '/werkgever',
-            '/vacature-plaatsen',
-            '/tarieven',
-            '/over-ons',
+            '/newsletter',
+            '/employer',
+            '/post-a-job',
+            '/pricing',
+            '/about-us',
             '/contact',
         ] as $path) {
             $this->get($path)->assertStatus(200);
@@ -87,8 +87,8 @@ class ExampleTest extends TestCase
             'department' => 'Development',
             'location' => 'Amsterdam',
             'employment_type' => 'Fulltime',
-            'intro' => 'Werk mee aan een groeiend platform.',
-            'description' => 'Bouw mee aan moderne jobboard software.',
+            'intro' => 'Help build a growing platform.',
+            'description' => 'Build modern job board software with the team.',
             'status' => TenantJob::STATUS_PUBLISHED,
             'published_at' => now(),
         ]);
@@ -96,7 +96,7 @@ class ExampleTest extends TestCase
         $this->get('http://acme.test/')
             ->assertStatus(200)
             ->assertSee('Acme Careers')
-            ->assertSee('Openstaande functies')
+            ->assertSee('Open roles')
             ->assertSee('Laravel Developer');
     }
 
@@ -107,10 +107,10 @@ class ExampleTest extends TestCase
             'company_name' => 'Hire Labs',
         ]);
 
-        $response = $this->actingAs($owner)->post('/dashboard/omgeving', [
+        $response = $this->actingAs($owner)->post('/dashboard/environments', [
             'name' => 'Acme Careers',
             'slug' => 'acme-careers',
-            'domain' => 'https://vacatures.acme.test/jobs',
+            'domain' => 'https://jobs.acme.test/jobs',
         ]);
 
         $response->assertRedirect(route('tenant.environments.index'));
@@ -126,39 +126,42 @@ class ExampleTest extends TestCase
 
         $this->assertDatabaseHas('domains', [
             'tenant_id' => 'acme-careers',
-            'domain' => 'vacatures.acme.test',
+            'domain' => 'jobs.acme.test',
             'is_primary' => true,
             'status' => Domain::STATUS_PENDING,
             'ssl_status' => Domain::SSL_PENDING,
         ]);
 
         $this->actingAs($owner)
-            ->get('/dashboard/omgeving')
+            ->get('/dashboard/environments')
             ->assertStatus(200)
             ->assertSee('Acme Careers')
-            ->assertSee('vacatures.acme.test');
+            ->assertSee('jobs.acme.test');
     }
 
     public function test_auth_pages_are_available(): void
     {
         foreach ([
-            '/inloggen',
-            '/aanmelden',
-            '/admin/inloggen',
+            '/login',
+            '/sign-up',
+            '/admin/login',
         ] as $path) {
             $this->get($path)->assertStatus(200);
         }
 
-        $this->get('/inloggen/werkzoekende')->assertRedirect('/inloggen');
-        $this->get('/inloggen/werkgever')->assertRedirect('/inloggen');
-        $this->get('/aanmelden/werkzoekende')->assertRedirect('/aanmelden');
-        $this->get('/aanmelden/werkgever')->assertRedirect('/aanmelden');
+        $this->get('/login/job-seeker')->assertRedirect('/login');
+        $this->get('/login/employer')->assertRedirect('/login');
+        $this->get('/sign-up/job-seeker')->assertRedirect('/sign-up');
+        $this->get('/sign-up/employer')->assertRedirect('/sign-up');
+        $this->get('/inloggen')->assertRedirect('/login');
+        $this->get('/aanmelden')->assertRedirect('/sign-up');
+        $this->get('/admin/inloggen')->assertRedirect('/admin/login');
     }
 
     public function test_saas_user_can_register_and_reaches_dashboard(): void
     {
-        $response = $this->post('/aanmelden', [
-            'name' => 'Nieuwe SaaS gebruiker',
+        $response = $this->post('/sign-up', [
+            'name' => 'New SaaS user',
             'company_name' => 'Hire Labs',
             'email' => 'owner@example.com',
             'password' => 'password123',
@@ -176,8 +179,8 @@ class ExampleTest extends TestCase
 
         $this->get('/dashboard/onboarding')
             ->assertStatus(200)
-            ->assertSee('Zet je jobboard live')
-            ->assertSee('Pakket kiezen');
+            ->assertSee('Launch your job board')
+            ->assertSee('Choose package');
     }
 
     public function test_saas_user_can_login_and_reaches_dashboard(): void
@@ -188,7 +191,7 @@ class ExampleTest extends TestCase
             'role' => User::ROLE_TENANT_OWNER,
         ]);
 
-        $response = $this->post('/inloggen', [
+        $response = $this->post('/login', [
             'email' => 'owner-login@example.com',
             'password' => 'password123',
         ]);
@@ -199,7 +202,7 @@ class ExampleTest extends TestCase
 
     public function test_dashboard_routes_are_role_protected(): void
     {
-        $werkzoekende = User::factory()->create([
+        $jobSeeker = User::factory()->create([
             'role' => User::ROLE_WERKZOEKENDE,
         ]);
 
@@ -208,7 +211,7 @@ class ExampleTest extends TestCase
         ]);
 
         $this->get('/dashboard')->assertRedirect(route('login.choice'));
-        $this->actingAs($werkzoekende)->get('/dashboard')->assertForbidden();
+        $this->actingAs($jobSeeker)->get('/dashboard')->assertForbidden();
         $this->actingAs($owner)->get('/dashboard')->assertStatus(200);
     }
 
@@ -217,7 +220,8 @@ class ExampleTest extends TestCase
         $this->get('/werkzoekende/dashboard')->assertRedirect('/dashboard');
         $this->get('/werkgever/dashboard')->assertRedirect('/dashboard');
         $this->get('/dashboard/werkgever')->assertRedirect('/dashboard');
-        $this->get('/dashboard/werkgever/omgeving')->assertRedirect('/dashboard/omgeving');
+        $this->get('/dashboard/werkgever/omgeving')->assertRedirect('/dashboard/environments');
+        $this->get('/dashboard/omgeving')->assertRedirect('/dashboard/environments');
     }
 
     public function test_admin_can_login_and_reaches_admin_dashboard(): void
@@ -229,14 +233,14 @@ class ExampleTest extends TestCase
             'role' => User::ROLE_ADMIN,
         ]);
 
-        $response = $this->post('/admin/inloggen', [
+        $response = $this->post('/admin/login', [
             'email' => 'wouter@inhuren.com',
             'password' => 'AdminPassword123!',
         ]);
 
         $response->assertRedirect(route('admin.dashboard'));
         $this->assertAuthenticatedAs($admin);
-        $this->get('/admin/dashboard')->assertStatus(200)->assertSee('Platformbeheer');
+        $this->get('/admin/dashboard')->assertStatus(200)->assertSee('Platform management');
     }
 
     public function test_saas_user_can_select_a_billing_plan(): void
@@ -244,7 +248,7 @@ class ExampleTest extends TestCase
         $plan = BillingPlan::create([
             'key' => Tenant::PLAN_STARTER,
             'name' => 'Starter',
-            'description' => 'Startpakket',
+            'description' => 'Starter package',
             'monthly_price_cents' => 4900,
             'currency' => 'eur',
             'features' => ['1 jobboard'],
@@ -288,8 +292,8 @@ class ExampleTest extends TestCase
                 'department' => 'Development',
                 'location' => 'Amsterdam',
                 'employment_type' => 'Fulltime',
-                'intro' => 'Bouw mee.',
-                'description' => 'Een uitgebreide vacaturetekst.',
+                'intro' => 'Build with us.',
+                'description' => 'A detailed job description.',
                 'status' => TenantJob::STATUS_PUBLISHED,
             ])
             ->assertRedirect(route('tenant.jobs.index', $tenant));
@@ -333,17 +337,17 @@ class ExampleTest extends TestCase
             'department' => 'Development',
             'location' => 'Utrecht',
             'employment_type' => 'Fulltime',
-            'description' => 'Maak mooie interfaces.',
+            'description' => 'Create polished interfaces.',
             'status' => TenantJob::STATUS_PUBLISHED,
             'published_at' => now(),
         ]);
 
-        $this->post('http://front.test/vacatures/frontend-developer/solliciteren', [
-            'name' => 'Sanne Sollicitant',
+        $this->post('http://front.test/jobs/frontend-developer/apply', [
+            'name' => 'Sanne Applicant',
             'email' => 'sanne@example.com',
             'phone' => '0612345678',
-            'motivation' => 'Ik ben enthousiast.',
-        ])->assertRedirect('http://front.test/vacatures/frontend-developer');
+            'motivation' => 'I am excited about this role.',
+        ])->assertRedirect('http://front.test/jobs/frontend-developer');
 
         $this->assertDatabaseHas('job_applications', [
             'tenant_id' => 'front',

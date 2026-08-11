@@ -51,7 +51,7 @@ class TenantEnvironmentController extends Controller
             'settings' => [
                 'brand_name' => $validated['name'],
                 'accent_color' => '#2f5f80',
-                'intro' => 'Bekijk actuele vacatures en solliciteer direct.',
+                'intro' => 'View current jobs and apply directly.',
             ],
         ]);
 
@@ -65,7 +65,7 @@ class TenantEnvironmentController extends Controller
 
         return redirect()
             ->route('tenant.environments.index')
-            ->with('status', 'Je jobboard omgeving is aangemaakt.');
+            ->with('status', 'Your job board environment has been created.');
     }
 
     public function storeDomain(Request $request, Tenant $tenant): RedirectResponse
@@ -92,7 +92,7 @@ class TenantEnvironmentController extends Controller
 
         return redirect()
             ->route('tenant.environments.index')
-            ->with('status', 'Domein toegevoegd. Voeg de CNAME toe bij je DNS-provider om verificatie af te ronden.');
+            ->with('status', 'Domain added. Add the CNAME at your DNS provider to complete verification.');
     }
 
     public function checkDomain(Request $request, Tenant $tenant, Domain $domain): RedirectResponse
@@ -116,14 +116,14 @@ class TenantEnvironmentController extends Controller
                 'verified_at' => now(),
             ])->save();
 
-            return back()->with('status', 'Domein geverifieerd. SSL kan nu worden voorbereid.');
+            return back()->with('status', 'Domain verified. SSL can now be prepared.');
         }
 
         $domain->forceFill([
             'status' => Domain::STATUS_FAILED,
         ])->save();
 
-        return back()->with('status', 'DNS records nog niet gevonden. Controleer de CNAME of TXT waarde en probeer opnieuw.');
+        return back()->with('status', 'DNS records were not found yet. Check the CNAME or TXT value and try again.');
     }
 
     public function issueSsl(Request $request, Tenant $tenant, Domain $domain): RedirectResponse
@@ -138,7 +138,7 @@ class TenantEnvironmentController extends Controller
             'ssl_issued_at' => now(),
         ])->save();
 
-        return back()->with('status', 'SSL status is actief gezet. Koppel hier later de certificaatprovider aan.');
+        return back()->with('status', 'SSL status has been set to active. Connect the certificate provider here later.');
     }
 
     /**

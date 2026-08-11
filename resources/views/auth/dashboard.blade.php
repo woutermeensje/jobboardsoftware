@@ -4,9 +4,9 @@
 
 @php
   $roleLabels = [
-    \App\Models\User::ROLE_WERKZOEKENDE => 'Werkzoekende',
-    \App\Models\User::ROLE_WERKGEVER => 'Werkgever',
-    \App\Models\User::ROLE_TENANT_OWNER => 'SaaS gebruiker',
+    \App\Models\User::ROLE_WERKZOEKENDE => 'Job seeker',
+    \App\Models\User::ROLE_WERKGEVER => 'Employer',
+    \App\Models\User::ROLE_TENANT_OWNER => 'SaaS user',
     \App\Models\User::ROLE_ADMIN => 'Admin',
   ];
 
@@ -18,8 +18,8 @@
   <div class="auth-shell">
     <div class="auth-head">
       <p class="auth-eyebrow">{{ $roleTitle }}</p>
-      <h1>Welkom, {{ $user->name }}</h1>
-      <p>Dit is de eerste versie van je {{ strtolower($roleTitle) }} omgeving. De functionele modules kunnen hierna verder worden uitgebreid.</p>
+      <h1>Welcome, {{ $user->name }}</h1>
+      <p>This is the first version of your {{ strtolower($roleTitle) }} portal. The functional modules can be expanded from here.</p>
     </div>
 
     <div class="auth-dashboard-card">
@@ -33,10 +33,10 @@
       </div>
 
       <div class="auth-dashboard-actions">
-        <a class="btn btn-primary" href="{{ route('welcome') }}">Website bekijken</a>
+        <a class="btn btn-primary" href="{{ route('welcome') }}">View website</a>
         <form method="POST" action="{{ route('logout') }}">
           @csrf
-          <button class="btn btn-ghost" type="submit">Uitloggen</button>
+          <button class="btn btn-ghost" type="submit">Log out</button>
         </form>
       </div>
     </div>

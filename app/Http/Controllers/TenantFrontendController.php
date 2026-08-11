@@ -70,7 +70,7 @@ class TenantFrontendController extends Controller
 
         return redirect()
             ->route('tenant.jobs.show', $job)
-            ->with('status', 'Je sollicitatie is ontvangen.');
+            ->with('status', 'Your application has been received.');
     }
 
     public function contact(): View

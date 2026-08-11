@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TenantFrontendController;
+use App\Models\TenantJob;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 
@@ -25,8 +26,12 @@ Route::middleware([
     PreventAccessFromCentralDomains::class,
 ])->group(function () {
     Route::get('/', [TenantFrontendController::class, 'home'])->name('tenant.home');
-    Route::get('/vacatures', [TenantFrontendController::class, 'jobs'])->name('tenant.jobs');
-    Route::get('/vacatures/{job:slug}', [TenantFrontendController::class, 'showJob'])->name('tenant.jobs.show');
-    Route::post('/vacatures/{job:slug}/solliciteren', [TenantFrontendController::class, 'apply'])->name('tenant.jobs.apply');
+    Route::get('/jobs', [TenantFrontendController::class, 'jobs'])->name('tenant.jobs');
+    Route::get('/jobs/{job:slug}', [TenantFrontendController::class, 'showJob'])->name('tenant.jobs.show');
+    Route::post('/jobs/{job:slug}/apply', [TenantFrontendController::class, 'apply'])->name('tenant.jobs.apply');
     Route::get('/contact', [TenantFrontendController::class, 'contact'])->name('tenant.contact');
+
+    Route::redirect('/vacatures', '/jobs');
+    Route::get('/vacatures/{job:slug}', fn (TenantJob $job) => redirect()->route('tenant.jobs.show', $job));
+    Route::post('/vacatures/{job:slug}/solliciteren', [TenantFrontendController::class, 'apply']);
 });

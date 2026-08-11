@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Admin dashboard | JobBoardSoftware')
-@section('meta_description', 'Admin dashboard voor SaaS gebruikers, tenants, domeinen, vacatures en sollicitaties.')
+@section('meta_description', 'Admin dashboard for SaaS users, tenants, domains, jobs and applications.')
 
 @section('content')
 <section class="dash-page">
@@ -12,8 +12,8 @@
       <header class="dash-topbar">
         <div>
           <p class="dash-eyebrow">Admin</p>
-          <h1 class="dash-title">Platformbeheer</h1>
-          <p class="dash-subtitle">Overzicht van SaaS gebruikers, jobboard omgevingen, domeinen en activiteit.</p>
+          <h1 class="dash-title">Platform management</h1>
+          <p class="dash-subtitle">Overview of SaaS users, job board environments, domains and activity.</p>
         </div>
         <aside class="dash-user">
           <strong>{{ $user->name }}</strong>
@@ -36,8 +36,8 @@
           <section class="dash-panel">
             <div class="dash-panel__head">
               <div>
-                <h2>Recente tenants</h2>
-                <p>Laatste jobboard omgevingen op het platform.</p>
+                <h2>Recent tenants</h2>
+                <p>Latest job board environments on the platform.</p>
               </div>
             </div>
 
@@ -45,9 +45,9 @@
               <thead>
                 <tr>
                   <th>Tenant</th>
-                  <th>Eigenaar</th>
+                  <th>Owner</th>
                   <th>Plan</th>
-                  <th>Domeinen</th>
+                  <th>Domains</th>
                 </tr>
               </thead>
               <tbody>
@@ -57,12 +57,12 @@
                       <span class="dash-cell-title">{{ $tenant->name }}</span>
                       <span class="dash-cell-meta">{{ $tenant->id }}</span>
                     </td>
-                    <td>{{ $tenant->owner?->email ?? 'Geen eigenaar' }}</td>
+                    <td>{{ $tenant->owner?->email ?? 'No owner' }}</td>
                     <td>{{ ucfirst($tenant->plan) }}</td>
                     <td>{{ $tenant->domains->count() }}</td>
                   </tr>
                 @empty
-                  <tr><td colspan="4">Nog geen tenants.</td></tr>
+                  <tr><td colspan="4">No tenants yet.</td></tr>
                 @endforelse
               </tbody>
             </table>
@@ -71,7 +71,7 @@
 
         <aside class="dash-sidebar">
           <section class="dash-card">
-            <h2>Domeinstatus</h2>
+            <h2>Domain status</h2>
             <ul class="dash-list">
               @forelse($domains as $domain)
                 <li>
@@ -84,8 +84,8 @@
               @empty
                 <li>
                   <div>
-                    <strong>Nog geen domeinen</strong>
-                    <span>Klantdomeinen verschijnen hier.</span>
+                    <strong>No domains yet</strong>
+                    <span>Customer domains will appear here.</span>
                   </div>
                 </li>
               @endforelse

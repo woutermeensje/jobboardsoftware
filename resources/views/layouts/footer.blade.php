@@ -13,7 +13,7 @@
         <ul class="si-footer__list">
           <li>JobBoardSoftware B.V.</li>
           <li><a href="mailto:{{ $supportEmail }}">{{ $supportEmail }}</a></li>
-          <li>SaaS software voor eigen jobboards</li>
+          <li>SaaS software for custom job boards</li>
         </ul>
         <div class="si-footer__socials" aria-label="Social media">
           <a href="{{ route('pages.contact') }}" aria-label="LinkedIn">
@@ -29,35 +29,35 @@
         <h3 class="si-footer__heading">Product</h3>
         <ul class="si-footer__list">
           <li><a href="{{ route('welcome') }}#product">Jobboard software</a></li>
-          <li><a href="{{ route('welcome') }}#beheer">Beheeromgeving</a></li>
-          <li><a href="{{ route('welcome') }}#domeinen">Eigen domein</a></li>
-          <li><a href="{{ route('pages.tarieven') }}">Tarieven</a></li>
+          <li><a href="{{ route('welcome') }}#management">Management portal</a></li>
+          <li><a href="{{ route('welcome') }}#domains">Custom domain</a></li>
+          <li><a href="{{ route('pages.tarieven') }}">Pricing</a></li>
         </ul>
       </section>
 
       <section class="si-footer__col">
         <h3 class="si-footer__heading">Account</h3>
         <ul class="si-footer__list">
-          <li><a href="{{ route('register.choice') }}">Account aanmaken</a></li>
-          <li><a href="{{ route('login.choice') }}">Inloggen</a></li>
+          <li><a href="{{ route('register.choice') }}">Create account</a></li>
+          <li><a href="{{ route('login.choice') }}">Log in</a></li>
           <li><a href="{{ route('tenant.environments.index') }}">Dashboard</a></li>
-          <li><a href="{{ route('pages.tarieven') }}">Tarieven</a></li>
+          <li><a href="{{ route('pages.tarieven') }}">Pricing</a></li>
         </ul>
       </section>
 
       <section class="si-footer__col">
-        <h3 class="si-footer__heading">Bedrijf</h3>
+        <h3 class="si-footer__heading">Company</h3>
         <ul class="si-footer__list">
-          <li><a href="{{ route('pages.over-ons') }}">Over ons</a></li>
+          <li><a href="{{ route('pages.over-ons') }}">About us</a></li>
           <li><a href="{{ route('pages.contact') }}">Contact</a></li>
-          <li><a href="{{ route('pages.contact') }}">Demo plannen</a></li>
+          <li><a href="{{ route('pages.contact') }}">Book a demo</a></li>
           <li><a href="{{ route('admin.login') }}">Admin</a></li>
         </ul>
       </section>
     </div>
 
     <div class="si-footer__bottom">
-      <p>&copy; {{ $currentYear }} JobBoardSoftware B.V. - Alle rechten voorbehouden.</p>
+      <p>&copy; {{ $currentYear }} JobBoardSoftware B.V. - All rights reserved.</p>
     </div>
   </div>
 </footer>

@@ -1,42 +1,42 @@
 @extends('layouts.app')
 
-@section('title', 'Vacature plaatsen | JobBoardSoftware')
-@section('meta_description', 'Start met het plaatsen van een vacature en maak een werkgeversaccount aan.')
+@section('title', 'Post a job | JobBoardSoftware')
+@section('meta_description', 'Start posting a job and create an employer account.')
 
 @section('content')
 <section class="content-page">
   <div class="content-page__shell">
     <header class="content-hero">
       <div class="content-hero__copy">
-        <p class="content-eyebrow">Vacature plaatsen</p>
-        <h1>Start een nieuwe vacatureplaatsing.</h1>
-        <p class="content-hero__intro">Vul de kern van de vacature in en ga daarna door naar een werkgeversaccount om de plaatsing straks te beheren.</p>
+        <p class="content-eyebrow">Post a job</p>
+        <h1>Start a new job posting.</h1>
+        <p class="content-hero__intro">Fill in the essentials of the role and continue to an employer account to manage the posting later.</p>
       </div>
-      <aside class="content-visual" aria-label="Vacature plaatsen">
+      <aside class="content-visual" aria-label="Post a job">
         <i class="ph ph-rocket-launch"></i>
-        <strong>Van concept naar publicatie</strong>
-        <span>Een eerste plaatsingsflow voor werkgevers binnen de SaaS omgeving.</span>
+        <strong>From draft to publication</strong>
+        <span>An initial posting flow for employers inside the SaaS portal.</span>
       </aside>
     </header>
 
     <section class="content-section" aria-labelledby="posting-title">
-      <h2 id="posting-title">Vacaturegegevens</h2>
+      <h2 id="posting-title">Job details</h2>
       <form class="content-form" method="GET" action="{{ route('register.werkgever') }}">
         <div class="content-form__grid">
           <div class="content-field">
-            <label for="job-title">Functietitel</label>
-            <input id="job-title" name="job_title" type="text" placeholder="Bijvoorbeeld Sales Development Representative">
+            <label for="job-title">Job title</label>
+            <input id="job-title" name="job_title" type="text" placeholder="For example: Sales Development Representative">
           </div>
           <div class="content-field">
-            <label for="company">Bedrijfsnaam</label>
-            <input id="company" name="company" type="text" placeholder="Naam van de organisatie">
+            <label for="company">Company name</label>
+            <input id="company" name="company" type="text" placeholder="Organization name">
           </div>
           <div class="content-field">
-            <label for="job-location">Locatie</label>
-            <input id="job-location" name="location" type="text" placeholder="Stad, regio of remote">
+            <label for="job-location">Location</label>
+            <input id="job-location" name="location" type="text" placeholder="City, region or remote">
           </div>
           <div class="content-field">
-            <label for="job-type">Dienstverband</label>
+            <label for="job-type">Employment type</label>
             <select id="job-type" name="type">
               <option>Fulltime</option>
               <option>Parttime</option>
@@ -46,12 +46,12 @@
           </div>
         </div>
         <div class="content-field">
-          <label for="job-description">Korte omschrijving</label>
-          <textarea id="job-description" name="description" placeholder="Beschrijf de functie in een paar zinnen."></textarea>
+          <label for="job-description">Short description</label>
+          <textarea id="job-description" name="description" placeholder="Describe the role in a few sentences."></textarea>
         </div>
         <div class="content-actions">
-          <button class="content-btn content-btn--primary" type="submit">Werkgeversaccount aanmaken</button>
-          <a class="content-btn content-btn--ghost" href="{{ route('pages.tarieven') }}">Bekijk tarieven</a>
+          <button class="content-btn content-btn--primary" type="submit">Create employer account</button>
+          <a class="content-btn content-btn--ghost" href="{{ route('pages.tarieven') }}">View pricing</a>
         </div>
       </form>
     </section>

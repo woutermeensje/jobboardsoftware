@@ -10,20 +10,20 @@
     ['label' => 'Dashboard', 'icon' => 'ph-squares-four', 'url' => route('tenant.owner.dashboard'), 'active' => request()->routeIs('tenant.owner.dashboard')],
     ['label' => 'Onboarding', 'icon' => 'ph-list-checks', 'url' => route('onboarding.index'), 'active' => request()->routeIs('onboarding.*')],
     ['label' => 'Billing', 'icon' => 'ph-credit-card', 'url' => route('billing.index'), 'active' => request()->routeIs('billing.*')],
-    ['label' => 'Omgevingen', 'icon' => 'ph-globe-hemisphere-west', 'url' => route('tenant.environments.index'), 'active' => request()->routeIs('tenant.environments.*')],
+    ['label' => 'Environments', 'icon' => 'ph-globe-hemisphere-west', 'url' => route('tenant.environments.index'), 'active' => request()->routeIs('tenant.environments.*')],
   ];
 
   if ($activeTenant) {
-    $items[] = ['label' => 'Vacatures', 'icon' => 'ph-briefcase', 'url' => route('tenant.jobs.index', $activeTenant), 'active' => request()->routeIs('tenant.jobs.*')];
-    $items[] = ['label' => 'Sollicitaties', 'icon' => 'ph-users-three', 'url' => route('tenant.applications.index', $activeTenant), 'active' => request()->routeIs('tenant.applications.*')];
+    $items[] = ['label' => 'Jobs', 'icon' => 'ph-briefcase', 'url' => route('tenant.jobs.index', $activeTenant), 'active' => request()->routeIs('tenant.jobs.*')];
+    $items[] = ['label' => 'Applications', 'icon' => 'ph-users-three', 'url' => route('tenant.applications.index', $activeTenant), 'active' => request()->routeIs('tenant.applications.*')];
   }
 @endphp
 
-<aside class="dash-nav" aria-label="Dashboard navigatie">
+<aside class="dash-nav" aria-label="Dashboard navigation">
   <div class="dash-nav__brand">
     <span>JB</span>
     <div>
-      <strong>Beheer</strong>
+      <strong>Manage</strong>
       <small>{{ $dashboardUser?->company_name ?: 'JobBoardSoftware' }}</small>
     </div>
   </div>
@@ -41,7 +41,7 @@
     @csrf
     <button type="submit">
       <i class="ph ph-sign-out"></i>
-      Uitloggen
+      Log out
     </button>
   </form>
 </aside>

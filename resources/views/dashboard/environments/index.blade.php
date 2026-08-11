@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Jobboard omgeving beheren | JobBoardSoftware')
-@section('meta_description', 'Beheer tenant jobboard omgevingen, domeinen en DNS-koppelingen.')
+@section('title', 'Manage job board environment | JobBoardSoftware')
+@section('meta_description', 'Manage tenant job board environments, domains and DNS connections.')
 
 @section('content')
 <section class="dash-page">
@@ -11,14 +11,14 @@
     <div class="dash-content">
     <header class="dash-topbar">
       <div>
-        <p class="dash-eyebrow">SaaS omgeving</p>
-        <h1 class="dash-title">Jobboard omgeving beheren</h1>
-        <p class="dash-subtitle">Maak een tenant omgeving aan, koppel je domeinnaam en beheer de basis van je eigen vacaturefrontend.</p>
+        <p class="dash-eyebrow">SaaS environment</p>
+        <h1 class="dash-title">Manage job board environment</h1>
+        <p class="dash-subtitle">Create a tenant environment, connect your domain name and manage the foundation of your own job frontend.</p>
       </div>
-      <aside class="dash-user" aria-label="Ingelogde gebruiker">
+      <aside class="dash-user" aria-label="Signed-in user">
         <strong>{{ $user->company_name ?: $user->name }}</strong>
         <span>{{ $user->email }}</span>
-        <span>Licentiebeheer</span>
+        <span>License management</span>
       </aside>
     </header>
 
@@ -33,8 +33,8 @@
         <section class="dash-panel" aria-labelledby="tenant-list-title">
           <div class="dash-panel__head">
             <div>
-              <h2 id="tenant-list-title">Mijn omgevingen</h2>
-              <p>Elke omgeving kan een of meerdere domeinen krijgen.</p>
+              <h2 id="tenant-list-title">My environments</h2>
+              <p>Each environment can have one or more domains.</p>
             </div>
           </div>
 
@@ -49,8 +49,8 @@
               </div>
 
               <div class="dash-actions">
-                <a class="dash-btn dash-btn--primary" href="{{ route('tenant.jobs.index', $tenant) }}">Vacatures beheren</a>
-                <a class="dash-btn dash-btn--ghost" href="{{ route('tenant.applications.index', $tenant) }}">Sollicitaties</a>
+                <a class="dash-btn dash-btn--primary" href="{{ route('tenant.jobs.index', $tenant) }}">Manage jobs</a>
+                <a class="dash-btn dash-btn--ghost" href="{{ route('tenant.applications.index', $tenant) }}">Applications</a>
                 <a class="dash-btn dash-btn--ghost" href="{{ route('onboarding.index') }}">Onboarding</a>
               </div>
 
@@ -59,7 +59,7 @@
                   <div class="tenant-domain">
                     <div>
                       <strong>{{ $domain->domain }}</strong>
-                      <span>{{ $domain->is_primary ? 'Primair domein' : 'Extra domein' }} - DNS: {{ ucfirst($domain->status) }} - SSL: {{ ucfirst($domain->ssl_status) }}</span>
+                      <span>{{ $domain->is_primary ? 'Primary domain' : 'Additional domain' }} - DNS: {{ ucfirst($domain->status) }} - SSL: {{ ucfirst($domain->ssl_status) }}</span>
                     </div>
                     <div class="tenant-domain__ops">
                       <code>CNAME {{ $domain->domain }} -> cname.jobboardsoftware.co</code>
@@ -69,33 +69,33 @@
                       </form>
                       <form method="POST" action="{{ route('tenant.environments.domains.ssl', [$tenant, $domain]) }}">
                         @csrf
-                        <button class="dash-btn dash-btn--ghost" type="submit" @disabled(! in_array($domain->status, [\App\Models\Domain::STATUS_VERIFIED, \App\Models\Domain::STATUS_ACTIVE], true))>SSL actief</button>
+                        <button class="dash-btn dash-btn--ghost" type="submit" @disabled(! in_array($domain->status, [\App\Models\Domain::STATUS_VERIFIED, \App\Models\Domain::STATUS_ACTIVE], true))>Activate SSL</button>
                       </form>
                     </div>
                   </div>
                 @empty
-                  <p class="dash-cell-meta">Nog geen domein gekoppeld.</p>
+                  <p class="dash-cell-meta">No domain connected yet.</p>
                 @endforelse
               </div>
 
               <form class="form tenant-domain-form" method="POST" action="{{ route('tenant.environments.domains.store', $tenant) }}">
                 @csrf
                 <div class="form-field">
-                  <label class="form-label" for="domain-{{ $tenant->id }}">Extra domein koppelen</label>
-                  <input class="form-control" id="domain-{{ $tenant->id }}" name="domain" type="text" placeholder="vacatures.voorbeeld.nl">
+                  <label class="form-label" for="domain-{{ $tenant->id }}">Connect additional domain</label>
+                  <input class="form-control" id="domain-{{ $tenant->id }}" name="domain" type="text" placeholder="jobs.example.com">
                   @error('domain')
                     <p class="form-error">{{ $message }}</p>
                   @enderror
                 </div>
                 <div class="form-actions">
-                  <button class="dash-btn dash-btn--ghost" type="submit">Domein toevoegen</button>
+                  <button class="dash-btn dash-btn--ghost" type="submit">Add domain</button>
                 </div>
               </form>
             </article>
           @empty
             <div class="tenant-environment tenant-environment--empty">
-              <h3>Nog geen omgeving</h3>
-              <p>Maak je eerste jobboard omgeving aan en koppel direct een domein of subdomein.</p>
+              <h3>No environment yet</h3>
+              <p>Create your first job board environment and connect a domain or subdomain right away.</p>
             </div>
           @endforelse
         </section>
@@ -103,12 +103,12 @@
 
       <aside class="dash-sidebar">
         <section class="dash-card">
-          <h2>Nieuwe omgeving</h2>
-          <p>Start met het gekozen pakket. Billing loopt lokaal in trialmodus totdat Stripe price IDs zijn ingesteld.</p>
+          <h2>New environment</h2>
+          <p>Start with the selected package. Billing runs locally in trial mode until Stripe price IDs are configured.</p>
           <form class="form tenant-create-form" method="POST" action="{{ route('tenant.environments.store') }}">
             @csrf
             <div class="form-field">
-              <label class="form-label" for="name">Naam jobboard</label>
+              <label class="form-label" for="name">Job board name</label>
               <input class="form-control" id="name" name="name" type="text" value="{{ old('name') }}" placeholder="Acme Careers" required>
               @error('name')
                 <p class="form-error">{{ $message }}</p>
@@ -122,22 +122,22 @@
               @enderror
             </div>
             <div class="form-field">
-              <label class="form-label" for="domain">Domein</label>
-              <input class="form-control" id="domain" name="domain" type="text" value="{{ old('domain') }}" placeholder="vacatures.voorbeeld.nl">
-              <p class="form-help">Laat leeg als je later een domein wilt koppelen.</p>
+              <label class="form-label" for="domain">Domain</label>
+              <input class="form-control" id="domain" name="domain" type="text" value="{{ old('domain') }}" placeholder="jobs.example.com">
+              <p class="form-help">Leave empty if you want to connect a domain later.</p>
               @error('domain')
                 <p class="form-error">{{ $message }}</p>
               @enderror
             </div>
             <div class="form-actions">
-              <button class="dash-btn dash-btn--primary" type="submit">Omgeving aanmaken</button>
+              <button class="dash-btn dash-btn--primary" type="submit">Create environment</button>
             </div>
           </form>
         </section>
 
         <section class="dash-card">
-          <h2>DNS instructie</h2>
-          <p>Laat klanten hun domein of subdomein als CNAME naar jullie SaaS target wijzen.</p>
+          <h2>DNS instruction</h2>
+          <p>Ask customers to point their domain or subdomain as a CNAME to your SaaS target.</p>
           <ul class="dash-list">
             <li>
               <div>
@@ -148,7 +148,7 @@
             </li>
             <li>
               <div>
-                <strong>Waarde</strong>
+                <strong>Value</strong>
                 <span>cname.jobboardsoftware.co</span>
               </div>
               <span>Target</span>

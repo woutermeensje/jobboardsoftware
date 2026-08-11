@@ -1,14 +1,14 @@
 @extends('layouts.app')
 
-@section('title', 'Werkzoekende dashboard | JobBoardSoftware')
-@section('meta_description', 'Werkzoekendedashboard voor aanbevolen vacatures, sollicitaties, job alerts en bewaarde vacatures.')
+@section('title', 'Job seeker dashboard | JobBoardSoftware')
+@section('meta_description', 'Job seeker dashboard for recommended jobs, applications, job alerts and saved jobs.')
 
 @php
   $stats = [
-    ['label' => 'Nieuwe matches', 'value' => '12'],
-    ['label' => 'Bewaarde vacatures', 'value' => '7'],
-    ['label' => 'Sollicitaties', 'value' => '4'],
-    ['label' => 'Actieve alerts', 'value' => '3'],
+    ['label' => 'New matches', 'value' => '12'],
+    ['label' => 'Saved jobs', 'value' => '7'],
+    ['label' => 'Applications', 'value' => '4'],
+    ['label' => 'Active alerts', 'value' => '3'],
   ];
 
   $matches = [
@@ -18,9 +18,9 @@
   ];
 
   $applications = [
-    ['title' => 'Customer Success Manager', 'company' => 'HirePilot', 'status' => 'Gesprek gepland', 'updated' => 'Vandaag'],
-    ['title' => 'Recruitment Marketeer', 'company' => 'TalentFlow', 'status' => 'In behandeling', 'updated' => 'Gisteren'],
-    ['title' => 'Sales Development Representative', 'company' => 'BoardWorks', 'status' => 'Verzonden', 'updated' => '3 dagen geleden'],
+    ['title' => 'Customer Success Manager', 'company' => 'HirePilot', 'status' => 'Interview scheduled', 'updated' => 'Today'],
+    ['title' => 'Recruitment Marketer', 'company' => 'TalentFlow', 'status' => 'In review', 'updated' => 'Yesterday'],
+    ['title' => 'Sales Development Representative', 'company' => 'BoardWorks', 'status' => 'Submitted', 'updated' => '3 days ago'],
   ];
 @endphp
 
@@ -29,14 +29,14 @@
   <div class="dash-shell">
     <header class="dash-topbar">
       <div>
-        <p class="dash-eyebrow">Werkzoekende omgeving</p>
-        <h1 class="dash-title">Welkom terug, {{ $user->name }}</h1>
-        <p class="dash-subtitle">Volg je sollicitaties, bekijk aanbevolen vacatures en beheer job alerts vanuit je persoonlijke dashboard.</p>
+        <p class="dash-eyebrow">Job seeker portal</p>
+        <h1 class="dash-title">Welcome back, {{ $user->name }}</h1>
+        <p class="dash-subtitle">Track your applications, view recommended jobs and manage job alerts from your personal dashboard.</p>
       </div>
-      <aside class="dash-user" aria-label="Ingelogde werkzoekende">
+      <aside class="dash-user" aria-label="Signed-in job seeker">
         <strong>{{ $user->name }}</strong>
         <span>{{ $user->email }}</span>
-        <span>Rol: Werkzoekende</span>
+        <span>Role: Job seeker</span>
       </aside>
     </header>
 
@@ -54,22 +54,22 @@
         <section class="dash-panel" aria-labelledby="candidate-matches-title">
           <div class="dash-panel__head">
             <div>
-              <h2 id="candidate-matches-title">Aanbevolen vacatures</h2>
-              <p>Vacatures die passen bij je profiel, locatie en voorkeuren.</p>
+              <h2 id="candidate-matches-title">Recommended jobs</h2>
+              <p>Jobs that match your profile, location and preferences.</p>
             </div>
-            <a class="dash-btn dash-btn--primary" href="{{ route('welcome') }}#vacatures">
+            <a class="dash-btn dash-btn--primary" href="{{ route('welcome') }}#jobs">
               <i class="ph ph-magnifying-glass"></i>
-              Vacatures zoeken
+              Search jobs
             </a>
           </div>
 
           <table class="dash-table">
             <thead>
               <tr>
-                <th>Vacature</th>
-                <th>Werkgever</th>
+                <th>Job</th>
+                <th>Employer</th>
                 <th>Match</th>
-                <th>Actie</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>
@@ -81,7 +81,7 @@
                   </td>
                   <td>{{ $match['company'] }}</td>
                   <td><span class="dash-status">{{ $match['match'] }}</span></td>
-                  <td><a class="dash-btn dash-btn--ghost" href="{{ route('welcome') }}#vacatures">Bekijken</a></td>
+                  <td><a class="dash-btn dash-btn--ghost" href="{{ route('welcome') }}#jobs">View</a></td>
                 </tr>
               @endforeach
             </tbody>
@@ -91,17 +91,17 @@
         <section class="dash-panel" aria-labelledby="candidate-applications-title">
           <div class="dash-panel__head">
             <div>
-              <h2 id="candidate-applications-title">Sollicitaties</h2>
-              <p>Statussen en laatste activiteit van je sollicitaties.</p>
+              <h2 id="candidate-applications-title">Applications</h2>
+              <p>Statuses and latest activity for your applications.</p>
             </div>
           </div>
 
           <table class="dash-table">
             <thead>
               <tr>
-                <th>Vacature</th>
+                <th>Job</th>
                 <th>Status</th>
-                <th>Bijgewerkt</th>
+                <th>Updated</th>
               </tr>
             </thead>
             <tbody>
@@ -122,55 +122,55 @@
 
       <aside class="dash-sidebar">
         <section class="dash-card">
-          <h2>Snelle acties</h2>
-          <p>Ga direct naar de belangrijkste werkzoekende flows.</p>
+          <h2>Quick actions</h2>
+          <p>Jump straight to the most important job seeker flows.</p>
           <div class="dash-actions dash-actions--spaced">
-            <a class="dash-btn dash-btn--primary" href="{{ route('pages.job-alerts') }}">Job alert maken</a>
-            <a class="dash-btn dash-btn--ghost" href="{{ route('pages.nieuwsbrief') }}">Nieuwsbrief</a>
+            <a class="dash-btn dash-btn--primary" href="{{ route('pages.job-alerts') }}">Create job alert</a>
+            <a class="dash-btn dash-btn--ghost" href="{{ route('pages.nieuwsbrief') }}">Newsletter</a>
           </div>
         </section>
 
         <section class="dash-card">
-          <h2>Profiel voortgang</h2>
-          <p>Een vollediger profiel maakt betere matches mogelijk.</p>
-          <div class="dash-progress" aria-label="Profiel voortgang">
+          <h2>Profile progress</h2>
+          <p>A more complete profile makes better matches possible.</p>
+          <div class="dash-progress" aria-label="Profile progress">
             <div class="dash-progress__track"><span class="dash-progress__bar dash-progress__bar--candidate"></span></div>
-            <span class="dash-cell-meta">74% compleet</span>
+            <span class="dash-cell-meta">74% complete</span>
           </div>
           <ul class="dash-checklist">
-            <li><i class="ph ph-check-circle"></i>Account aangemaakt</li>
-            <li><i class="ph ph-check-circle"></i>E-mailadres bevestigd</li>
-            <li><i class="ph ph-circle"></i>CV uploaden</li>
-            <li><i class="ph ph-circle"></i>Voorkeurslocaties toevoegen</li>
+            <li><i class="ph ph-check-circle"></i>Account created</li>
+            <li><i class="ph ph-check-circle"></i>Email address confirmed</li>
+            <li><i class="ph ph-circle"></i>Upload CV</li>
+            <li><i class="ph ph-circle"></i>Add preferred locations</li>
           </ul>
         </section>
 
         <section class="dash-card">
-          <h2>Actieve job alerts</h2>
+          <h2>Active job alerts</h2>
           <ul class="dash-list">
             <li>
               <div>
                 <strong>Laravel Developer</strong>
                 <span>Amsterdam + remote</span>
               </div>
-              <span>Dagelijks</span>
+              <span>Daily</span>
             </li>
             <li>
               <div>
                 <strong>UX Designer</strong>
-                <span>Freelance opdrachten</span>
+                <span>Freelance assignments</span>
               </div>
-              <span>Wekelijks</span>
+              <span>Weekly</span>
             </li>
           </ul>
         </section>
 
         <form method="POST" action="{{ route('logout') }}" class="dash-card">
           @csrf
-          <h2>Sessie</h2>
-          <p>Je bent ingelogd als werkzoekende.</p>
+          <h2>Session</h2>
+          <p>You are signed in as a job seeker.</p>
           <div class="dash-actions dash-actions--spaced">
-            <button class="dash-btn dash-btn--ghost" type="submit">Uitloggen</button>
+            <button class="dash-btn dash-btn--ghost" type="submit">Log out</button>
           </div>
         </form>
       </aside>

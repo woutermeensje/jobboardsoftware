@@ -15,38 +15,53 @@ $centralRoutes = function (): void {
         return view('welcome');
     })->name('welcome');
 
-    Route::view('/werkzoekende', 'pages.werkzoekende')->name('pages.werkzoekende');
+    Route::view('/job-seeker', 'pages.werkzoekende')->name('pages.werkzoekende');
     Route::view('/job-alerts', 'pages.job-alerts')->name('pages.job-alerts');
-    Route::view('/nieuwsbrief', 'pages.nieuwsbrief')->name('pages.nieuwsbrief');
-    Route::view('/werkgever', 'pages.werkgever')->name('pages.werkgever');
-    Route::view('/vacature-plaatsen', 'pages.vacature-plaatsen')->name('pages.vacature-plaatsen');
-    Route::view('/tarieven', 'pages.tarieven')->name('pages.tarieven');
-    Route::view('/over-ons', 'pages.over-ons')->name('pages.over-ons');
+    Route::view('/newsletter', 'pages.nieuwsbrief')->name('pages.nieuwsbrief');
+    Route::view('/employer', 'pages.werkgever')->name('pages.werkgever');
+    Route::view('/post-a-job', 'pages.vacature-plaatsen')->name('pages.vacature-plaatsen');
+    Route::view('/pricing', 'pages.tarieven')->name('pages.tarieven');
+    Route::view('/about-us', 'pages.over-ons')->name('pages.over-ons');
     Route::view('/contact', 'pages.contact')->name('pages.contact');
 
-    Route::redirect('/inloggen/', '/inloggen');
-    Route::redirect('/inloggen/werkzoekende/', '/inloggen');
-    Route::redirect('/inloggen/werkgever/', '/inloggen');
-    Route::redirect('/aanmelden/', '/aanmelden');
-    Route::redirect('/aanmelden/werkzoekende/', '/aanmelden');
-    Route::redirect('/aanmelden/werkgever/', '/aanmelden');
-    Route::redirect('/admin/inloggen/', '/admin/inloggen');
+    Route::redirect('/werkzoekende', '/job-seeker');
+    Route::redirect('/nieuwsbrief', '/newsletter');
+    Route::redirect('/werkgever', '/employer');
+    Route::redirect('/vacature-plaatsen', '/post-a-job');
+    Route::redirect('/tarieven', '/pricing');
+    Route::redirect('/over-ons', '/about-us');
+
+    Route::redirect('/inloggen', '/login');
+    Route::redirect('/inloggen/', '/login');
+    Route::redirect('/inloggen/werkzoekende', '/login');
+    Route::redirect('/inloggen/werkzoekende/', '/login');
+    Route::redirect('/inloggen/werkgever', '/login');
+    Route::redirect('/inloggen/werkgever/', '/login');
+    Route::redirect('/aanmelden', '/sign-up');
+    Route::redirect('/aanmelden/', '/sign-up');
+    Route::redirect('/aanmelden/werkzoekende', '/sign-up');
+    Route::redirect('/aanmelden/werkzoekende/', '/sign-up');
+    Route::redirect('/aanmelden/werkgever', '/sign-up');
+    Route::redirect('/aanmelden/werkgever/', '/sign-up');
+    Route::redirect('/admin/inloggen', '/admin/login');
+    Route::redirect('/admin/inloggen/', '/admin/login');
 
     Route::controller(PortalAuthController::class)->group(function () {
-        Route::get('/inloggen', 'showLoginChoice')->name('login.choice');
-        Route::post('/inloggen', 'login')->defaults('role', User::ROLE_TENANT_OWNER)->name('login.submit');
-        Route::redirect('/inloggen/werkzoekende', '/inloggen')->name('login.werkzoekende');
-        Route::redirect('/inloggen/werkgever', '/inloggen')->name('login.werkgever');
+        Route::get('/login', 'showLoginChoice')->name('login.choice');
+        Route::post('/login', 'login')->defaults('role', User::ROLE_TENANT_OWNER)->name('login.submit');
+        Route::redirect('/login/job-seeker', '/login')->name('login.werkzoekende');
+        Route::redirect('/login/employer', '/login')->name('login.werkgever');
 
-        Route::get('/aanmelden', 'showRegisterChoice')->name('register.choice');
-        Route::post('/aanmelden', 'register')->defaults('role', User::ROLE_TENANT_OWNER)->name('register.submit');
-        Route::redirect('/aanmelden/werkzoekende', '/aanmelden')->name('register.werkzoekende');
-        Route::redirect('/aanmelden/werkgever', '/aanmelden')->name('register.werkgever');
+        Route::get('/sign-up', 'showRegisterChoice')->name('register.choice');
+        Route::post('/sign-up', 'register')->defaults('role', User::ROLE_TENANT_OWNER)->name('register.submit');
+        Route::redirect('/sign-up/job-seeker', '/sign-up')->name('register.werkzoekende');
+        Route::redirect('/sign-up/employer', '/sign-up')->name('register.werkgever');
 
-        Route::get('/admin/inloggen', 'showAdminLogin')->name('admin.login');
-        Route::post('/admin/inloggen', 'login')->defaults('role', User::ROLE_ADMIN)->name('admin.login.submit');
+        Route::get('/admin/login', 'showAdminLogin')->name('admin.login');
+        Route::post('/admin/login', 'login')->defaults('role', User::ROLE_ADMIN)->name('admin.login.submit');
 
-        Route::post('/uitloggen', 'logout')->middleware('auth')->name('logout');
+        Route::post('/logout', 'logout')->middleware('auth')->name('logout');
+        Route::post('/uitloggen', 'logout')->middleware('auth');
 
         Route::redirect('/werkzoekende/dashboard', '/dashboard');
         Route::redirect('/werkgever/dashboard', '/dashboard');
@@ -57,7 +72,12 @@ $centralRoutes = function (): void {
         Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->middleware(['auth', 'role:admin'])->name('admin.dashboard');
     });
 
-    Route::redirect('/dashboard/werkgever/omgeving', '/dashboard/omgeving');
+    Route::redirect('/dashboard/werkgever/omgeving', '/dashboard/environments');
+    Route::redirect('/dashboard/omgeving', '/dashboard/environments');
+    Route::get('/dashboard/omgeving/{tenant}/vacatures', fn (string $tenant) => redirect("/dashboard/environments/{$tenant}/jobs"));
+    Route::get('/dashboard/omgeving/{tenant}/vacatures/nieuw', fn (string $tenant) => redirect("/dashboard/environments/{$tenant}/jobs/new"));
+    Route::get('/dashboard/omgeving/{tenant}/vacatures/{job}/bewerken', fn (string $tenant, string $job) => redirect("/dashboard/environments/{$tenant}/jobs/{$job}/edit"));
+    Route::get('/dashboard/omgeving/{tenant}/sollicitaties', fn (string $tenant) => redirect("/dashboard/environments/{$tenant}/applications"));
 
     Route::middleware(['auth', 'role:tenant_owner'])->group(function () {
         Route::get('/dashboard/onboarding', [OnboardingController::class, 'index'])->name('onboarding.index');
@@ -66,21 +86,31 @@ $centralRoutes = function (): void {
         Route::post('/dashboard/billing/plan', [BillingController::class, 'selectPlan'])->name('billing.plan.select');
         Route::get('/dashboard/billing/success', [BillingController::class, 'success'])->name('billing.success');
 
-        Route::get('/dashboard/omgeving', [TenantEnvironmentController::class, 'index'])->name('tenant.environments.index');
-        Route::post('/dashboard/omgeving', [TenantEnvironmentController::class, 'store'])->name('tenant.environments.store');
-        Route::post('/dashboard/omgeving/{tenant}/domeinen', [TenantEnvironmentController::class, 'storeDomain'])->name('tenant.environments.domains.store');
-        Route::post('/dashboard/omgeving/{tenant}/domeinen/{domain}/controleer', [TenantEnvironmentController::class, 'checkDomain'])->name('tenant.environments.domains.check');
-        Route::post('/dashboard/omgeving/{tenant}/domeinen/{domain}/ssl', [TenantEnvironmentController::class, 'issueSsl'])->name('tenant.environments.domains.ssl');
+        Route::get('/dashboard/environments', [TenantEnvironmentController::class, 'index'])->name('tenant.environments.index');
+        Route::post('/dashboard/environments', [TenantEnvironmentController::class, 'store'])->name('tenant.environments.store');
+        Route::post('/dashboard/environments/{tenant}/domains', [TenantEnvironmentController::class, 'storeDomain'])->name('tenant.environments.domains.store');
+        Route::post('/dashboard/environments/{tenant}/domains/{domain}/check', [TenantEnvironmentController::class, 'checkDomain'])->name('tenant.environments.domains.check');
+        Route::post('/dashboard/environments/{tenant}/domains/{domain}/ssl', [TenantEnvironmentController::class, 'issueSsl'])->name('tenant.environments.domains.ssl');
 
-        Route::get('/dashboard/omgeving/{tenant}/vacatures', [TenantJobController::class, 'index'])->name('tenant.jobs.index');
-        Route::get('/dashboard/omgeving/{tenant}/vacatures/nieuw', [TenantJobController::class, 'create'])->name('tenant.jobs.create');
-        Route::post('/dashboard/omgeving/{tenant}/vacatures', [TenantJobController::class, 'store'])->name('tenant.jobs.store');
-        Route::get('/dashboard/omgeving/{tenant}/vacatures/{job}/bewerken', [TenantJobController::class, 'edit'])->name('tenant.jobs.edit');
-        Route::put('/dashboard/omgeving/{tenant}/vacatures/{job}', [TenantJobController::class, 'update'])->name('tenant.jobs.update');
-        Route::delete('/dashboard/omgeving/{tenant}/vacatures/{job}', [TenantJobController::class, 'destroy'])->name('tenant.jobs.destroy');
+        Route::post('/dashboard/omgeving', [TenantEnvironmentController::class, 'store']);
+        Route::post('/dashboard/omgeving/{tenant}/domeinen', [TenantEnvironmentController::class, 'storeDomain']);
+        Route::post('/dashboard/omgeving/{tenant}/domeinen/{domain}/controleer', [TenantEnvironmentController::class, 'checkDomain']);
+        Route::post('/dashboard/omgeving/{tenant}/domeinen/{domain}/ssl', [TenantEnvironmentController::class, 'issueSsl']);
 
-        Route::get('/dashboard/omgeving/{tenant}/sollicitaties', [TenantApplicationController::class, 'index'])->name('tenant.applications.index');
-        Route::patch('/dashboard/omgeving/{tenant}/sollicitaties/{application}', [TenantApplicationController::class, 'update'])->name('tenant.applications.update');
+        Route::get('/dashboard/environments/{tenant}/jobs', [TenantJobController::class, 'index'])->name('tenant.jobs.index');
+        Route::get('/dashboard/environments/{tenant}/jobs/new', [TenantJobController::class, 'create'])->name('tenant.jobs.create');
+        Route::post('/dashboard/environments/{tenant}/jobs', [TenantJobController::class, 'store'])->name('tenant.jobs.store');
+        Route::get('/dashboard/environments/{tenant}/jobs/{job}/edit', [TenantJobController::class, 'edit'])->name('tenant.jobs.edit');
+        Route::put('/dashboard/environments/{tenant}/jobs/{job}', [TenantJobController::class, 'update'])->name('tenant.jobs.update');
+        Route::delete('/dashboard/environments/{tenant}/jobs/{job}', [TenantJobController::class, 'destroy'])->name('tenant.jobs.destroy');
+
+        Route::post('/dashboard/omgeving/{tenant}/vacatures', [TenantJobController::class, 'store']);
+        Route::put('/dashboard/omgeving/{tenant}/vacatures/{job}', [TenantJobController::class, 'update']);
+        Route::delete('/dashboard/omgeving/{tenant}/vacatures/{job}', [TenantJobController::class, 'destroy']);
+
+        Route::get('/dashboard/environments/{tenant}/applications', [TenantApplicationController::class, 'index'])->name('tenant.applications.index');
+        Route::patch('/dashboard/environments/{tenant}/applications/{application}', [TenantApplicationController::class, 'update'])->name('tenant.applications.update');
+        Route::patch('/dashboard/omgeving/{tenant}/sollicitaties/{application}', [TenantApplicationController::class, 'update']);
     });
 };
 

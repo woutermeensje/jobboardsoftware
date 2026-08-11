@@ -17,8 +17,8 @@
       'active' => request()->routeIs('welcome'),
       'children' => [
         ['label' => 'Jobboard website', 'url' => route('welcome').'#jobboard'],
-        ['label' => 'Beheeromgeving', 'url' => route('welcome').'#beheer'],
-        ['label' => 'Eigen domein', 'url' => route('welcome').'#domeinen'],
+        ['label' => 'Management portal', 'url' => route('welcome').'#management'],
+        ['label' => 'Custom domain', 'url' => route('welcome').'#domains'],
       ],
     ],
     [
@@ -26,51 +26,51 @@
       'url' => route('welcome').'#features',
       'active' => false,
       'children' => [
-        ['label' => 'Tenant beheer', 'url' => route('welcome').'#beheer'],
-        ['label' => 'DNS koppeling', 'url' => route('welcome').'#domeinen'],
+        ['label' => 'Tenant management', 'url' => route('welcome').'#management'],
+        ['label' => 'DNS connection', 'url' => route('welcome').'#domains'],
         ['label' => 'Start account', 'url' => route('register.choice')],
       ],
     ],
-    ['label' => 'Tarieven', 'url' => route('pages.tarieven'), 'active' => request()->routeIs('pages.tarieven')],
-    ['label' => 'Over Ons', 'url' => route('pages.over-ons'), 'active' => request()->routeIs('pages.over-ons')],
+    ['label' => 'Pricing', 'url' => route('pages.tarieven'), 'active' => request()->routeIs('pages.tarieven')],
+    ['label' => 'About us', 'url' => route('pages.over-ons'), 'active' => request()->routeIs('pages.over-ons')],
     ['label' => 'Contact', 'url' => route('pages.contact'), 'active' => request()->routeIs('pages.contact')],
   ];
 
   $utilityLinks = $authUser
     ? [
-      ['label' => 'Mijn dashboard', 'url' => $dashboardUrl],
-      ['label' => 'Omgeving beheren', 'url' => route('tenant.environments.index')],
+      ['label' => 'My dashboard', 'url' => $dashboardUrl],
+      ['label' => 'Manage environment', 'url' => route('tenant.environments.index')],
       ['label' => 'Contact', 'url' => route('pages.contact')],
     ]
     : [
-      ['label' => 'Aanmelden', 'url' => route('register.choice')],
-      ['label' => 'Inloggen', 'url' => route('login.choice')],
-      ['label' => 'Tarieven', 'url' => route('pages.tarieven')],
-      ['label' => 'Demo plannen', 'url' => route('pages.contact')],
+      ['label' => 'Sign up', 'url' => route('register.choice')],
+      ['label' => 'Log in', 'url' => route('login.choice')],
+      ['label' => 'Pricing', 'url' => route('pages.tarieven')],
+      ['label' => 'Book a demo', 'url' => route('pages.contact')],
     ];
 @endphp
 
 <header id="rn-header" class="rn-header" role="banner">
-  <div class="rn-topbar" aria-label="Snelle links">
+  <div class="rn-topbar" aria-label="Quick links">
     <div class="rn-topbar__inner">
       <div class="rn-topbar__group rn-topbar__group--left">
         @if($authUser)
-          <a class="rn-topbar__link" href="{{ $dashboardUrl }}">Mijn dashboard</a>
+          <a class="rn-topbar__link" href="{{ $dashboardUrl }}">My dashboard</a>
           <span class="rn-topbar__sep" aria-hidden="true">|</span>
           <form method="POST" action="{{ route('logout') }}" class="rn-topbar__logout-form">
             @csrf
-            <button class="rn-topbar__link rn-topbar__link--button" type="submit">Uitloggen</button>
+            <button class="rn-topbar__link rn-topbar__link--button" type="submit">Log out</button>
           </form>
         @else
-          <a class="rn-topbar__link" href="{{ route('register.choice') }}">Aanmelden</a>
+          <a class="rn-topbar__link" href="{{ route('register.choice') }}">Sign up</a>
           <span class="rn-topbar__sep" aria-hidden="true">|</span>
-          <a class="rn-topbar__link" href="{{ route('login.choice') }}">Inloggen</a>
+          <a class="rn-topbar__link" href="{{ route('login.choice') }}">Log in</a>
         @endif
       </div>
       <div class="rn-topbar__group rn-topbar__group--right">
-        <a class="rn-topbar__link" href="{{ route('welcome') }}#domeinen">Eigen domein koppelen</a>
+        <a class="rn-topbar__link" href="{{ route('welcome') }}#domains">Connect a custom domain</a>
         <span class="rn-topbar__sep" aria-hidden="true">|</span>
-        <a class="rn-topbar__link" href="{{ route('pages.contact') }}">Demo plannen</a>
+        <a class="rn-topbar__link" href="{{ route('pages.contact') }}">Book a demo</a>
       </div>
     </div>
   </div>
@@ -83,7 +83,7 @@
       </a>
     </div>
 
-    <nav class="rn-header__nav" aria-label="Primaire navigatie">
+    <nav class="rn-header__nav" aria-label="Primary navigation">
       <ul class="rn-nav__list">
         @foreach($primaryNav as $item)
           @php
@@ -119,18 +119,18 @@
 
     <div class="rn-header__cta">
       @if($authUser)
-        <a href="{{ $dashboardUrl }}" class="rn-btn rn-btn--accent">Mijn dashboard</a>
+        <a href="{{ $dashboardUrl }}" class="rn-btn rn-btn--accent">My dashboard</a>
         <form method="POST" action="{{ route('logout') }}" class="rn-header__logout-form">
           @csrf
-          <button class="rn-btn rn-btn--outline" type="submit">Uitloggen</button>
+          <button class="rn-btn rn-btn--outline" type="submit">Log out</button>
         </form>
       @else
-        <a href="{{ route('register.choice') }}" class="rn-btn rn-btn--accent">Start gratis</a>
-        <a href="{{ route('login.choice') }}" class="rn-btn rn-btn--outline">Inloggen</a>
+        <a href="{{ route('register.choice') }}" class="rn-btn rn-btn--accent">Start free</a>
+        <a href="{{ route('login.choice') }}" class="rn-btn rn-btn--outline">Log in</a>
       @endif
     </div>
 
-    <button class="rn-header__hamburger" type="button" aria-label="Menu openen" aria-expanded="false" aria-controls="rn-mobile-nav">
+    <button class="rn-header__hamburger" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="rn-mobile-nav">
       <span class="rn-hamburger__bar"></span>
       <span class="rn-hamburger__bar"></span>
       <span class="rn-hamburger__bar"></span>
@@ -140,7 +140,7 @@
 
 <div id="rn-mobile-nav" class="rn-mobile-nav" aria-hidden="true">
   <div class="rn-mobile-nav__panel">
-    <button class="rn-mobile-nav__close" type="button" aria-label="Menu sluiten">
+    <button class="rn-mobile-nav__close" type="button" aria-label="Close menu">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22" aria-hidden="true">
         <line x1="18" y1="6" x2="6" y2="18"/>
         <line x1="6" y1="6" x2="18" y2="18"/>
@@ -175,8 +175,8 @@
     <div class="rn-mobile-nav__divider"></div>
 
     <div class="rn-mobile-nav__section">
-      <p class="rn-mobile-nav__label">Snel naar</p>
-      <div class="rn-mobile-nav__utility" aria-label="Snelle links mobiel">
+      <p class="rn-mobile-nav__label">Quick links</p>
+      <div class="rn-mobile-nav__utility" aria-label="Mobile quick links">
         @foreach($utilityLinks as $link)
           <a href="{{ $link['url'] }}">{{ $link['label'] }}</a>
         @endforeach
@@ -186,17 +186,17 @@
     <div class="rn-mobile-nav__divider"></div>
 
     <div class="rn-mobile-nav__section">
-      <p class="rn-mobile-nav__label">Actie</p>
+      <p class="rn-mobile-nav__label">Action</p>
       <div class="rn-mobile-nav__ctas">
         @if($authUser)
-          <a href="{{ $dashboardUrl }}" class="rn-btn rn-btn--accent rn-mobile-nav__cta">Mijn dashboard</a>
+          <a href="{{ $dashboardUrl }}" class="rn-btn rn-btn--accent rn-mobile-nav__cta">My dashboard</a>
           <form method="POST" action="{{ route('logout') }}" class="rn-mobile-nav__logout-form">
             @csrf
-            <button class="rn-btn rn-btn--outline rn-mobile-nav__cta" type="submit">Uitloggen</button>
+            <button class="rn-btn rn-btn--outline rn-mobile-nav__cta" type="submit">Log out</button>
           </form>
         @else
-          <a href="{{ route('register.choice') }}" class="rn-btn rn-btn--accent rn-mobile-nav__cta">Start gratis</a>
-          <a href="{{ route('login.choice') }}" class="rn-btn rn-btn--outline rn-mobile-nav__cta">Inloggen</a>
+          <a href="{{ route('register.choice') }}" class="rn-btn rn-btn--accent rn-mobile-nav__cta">Start free</a>
+          <a href="{{ route('login.choice') }}" class="rn-btn rn-btn--outline rn-mobile-nav__cta">Log in</a>
         @endif
       </div>
     </div>

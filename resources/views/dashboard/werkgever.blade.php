@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Jobboard beheer | JobBoardSoftware')
-@section('meta_description', 'SaaS dashboard voor jobboard licenties, tenant omgevingen, domeinen en beheerinstellingen.')
+@section('title', 'Job board management | JobBoardSoftware')
+@section('meta_description', 'SaaS dashboard for job board licenses, tenant environments, domains and management settings.')
 
 @php
   $tenantCollection = $tenants ?? collect();
@@ -11,16 +11,16 @@
 
   $stats = [
     ['label' => 'Jobboards', 'value' => (string) $tenantCollection->count()],
-    ['label' => 'Domeinen', 'value' => (string) $domainCount],
-    ['label' => 'Actieve licenties', 'value' => (string) $activeTenants],
+    ['label' => 'Domains', 'value' => (string) $domainCount],
+    ['label' => 'Active licenses', 'value' => (string) $activeTenants],
     ['label' => 'Trials', 'value' => (string) $trialTenants],
   ];
 
   $steps = [
-    ['label' => 'SaaS account aangemaakt', 'done' => true],
-    ['label' => 'Jobboard omgeving starten', 'done' => $tenantCollection->isNotEmpty()],
-    ['label' => 'Eigen domein koppelen', 'done' => $domainCount > 0],
-    ['label' => 'Licentie activeren', 'done' => $activeTenants > 0],
+    ['label' => 'SaaS account created', 'done' => true],
+    ['label' => 'Start job board environment', 'done' => $tenantCollection->isNotEmpty()],
+    ['label' => 'Connect custom domain', 'done' => $domainCount > 0],
+    ['label' => 'Activate license', 'done' => $activeTenants > 0],
   ];
 @endphp
 
@@ -32,14 +32,14 @@
     <div class="dash-content">
     <header class="dash-topbar">
       <div>
-        <p class="dash-eyebrow">SaaS beheeromgeving</p>
-        <h1 class="dash-title">Welkom terug, {{ $user->name }}</h1>
-        <p class="dash-subtitle">Beheer hier je jobboard software, licentie, tenant omgevingen en gekoppelde domeinen.</p>
+        <p class="dash-eyebrow">SaaS management portal</p>
+        <h1 class="dash-title">Welcome back, {{ $user->name }}</h1>
+        <p class="dash-subtitle">Manage your job board software, license, tenant environments and connected domains.</p>
       </div>
-      <aside class="dash-user" aria-label="Ingelogde gebruiker">
+      <aside class="dash-user" aria-label="Signed-in user">
         <strong>{{ $user->company_name ?: 'Jobboard account' }}</strong>
         <span>{{ $user->email }}</span>
-        <span>Rol: SaaS gebruiker</span>
+        <span>Role: SaaS user</span>
       </aside>
     </header>
 
@@ -57,20 +57,20 @@
         <section class="dash-panel" aria-labelledby="owner-boards-title">
           <div class="dash-panel__head">
             <div>
-              <h2 id="owner-boards-title">Mijn jobboards</h2>
-              <p>Omgevingen die straks op het domein van je klant of merk draaien.</p>
+              <h2 id="owner-boards-title">My job boards</h2>
+              <p>Environments that will run on your customer or brand domain.</p>
             </div>
             <a class="dash-btn dash-btn--primary" href="{{ route('tenant.environments.index') }}">
               <i class="ph ph-plus"></i>
-              Omgeving beheren
+              Manage environment
             </a>
           </div>
 
           @if($tenantCollection->isEmpty())
             <div class="dash-empty">
-              <h3>Nog geen jobboard omgeving</h3>
-              <p>Maak je eerste omgeving aan, koppel een domein en laat de vacaturefrontend daar live komen.</p>
-              <a class="dash-btn dash-btn--primary" href="{{ route('tenant.environments.index') }}">Eerste omgeving aanmaken</a>
+              <h3>No job board environment yet</h3>
+              <p>Create your first environment, connect a domain and publish the job frontend there.</p>
+              <a class="dash-btn dash-btn--primary" href="{{ route('tenant.environments.index') }}">Create first environment</a>
             </div>
           @else
             <table class="dash-table">
@@ -79,7 +79,7 @@
                   <th>Jobboard</th>
                   <th>Plan</th>
                   <th>Status</th>
-                  <th>Domeinen</th>
+                  <th>Domains</th>
                 </tr>
               </thead>
               <tbody>
@@ -104,8 +104,8 @@
         <section class="dash-panel" aria-labelledby="owner-flow-title">
           <div class="dash-panel__head">
             <div>
-              <h2 id="owner-flow-title">Implementatie voortgang</h2>
-              <p>De basisflow voor een klant die jobboard software koopt en publiceert.</p>
+              <h2 id="owner-flow-title">Implementation progress</h2>
+              <p>The base flow for a customer buying and publishing job board software.</p>
             </div>
           </div>
 
@@ -122,19 +122,19 @@
 
       <aside class="dash-sidebar">
         <section class="dash-card">
-          <h2>Snelle acties</h2>
-          <p>Ga direct naar de belangrijkste onderdelen van de SaaS omgeving.</p>
+          <h2>Quick actions</h2>
+          <p>Jump straight to the most important parts of the SaaS portal.</p>
           <div class="dash-actions dash-actions--spaced">
             <a class="dash-btn dash-btn--primary" href="{{ route('onboarding.index') }}">Onboarding</a>
-            <a class="dash-btn dash-btn--primary" href="{{ route('tenant.environments.index') }}">Omgevingen beheren</a>
-            <a class="dash-btn dash-btn--ghost" href="{{ route('billing.index') }}">Licentie bekijken</a>
-            <a class="dash-btn dash-btn--ghost" href="{{ route('pages.contact') }}">Support vragen</a>
+            <a class="dash-btn dash-btn--primary" href="{{ route('tenant.environments.index') }}">Manage environments</a>
+            <a class="dash-btn dash-btn--ghost" href="{{ route('billing.index') }}">View license</a>
+            <a class="dash-btn dash-btn--ghost" href="{{ route('pages.contact') }}">Ask support</a>
           </div>
         </section>
 
         <section class="dash-card">
-          <h2>Domein koppelen</h2>
-          <p>De jobboard frontend wordt pas zichtbaar op het domein dat aan een tenant is gekoppeld.</p>
+          <h2>Connect domain</h2>
+          <p>The job board frontend only becomes visible on the domain connected to a tenant.</p>
           <ul class="dash-list">
             <li>
               <div>
@@ -146,7 +146,7 @@
             <li>
               <div>
                 <strong>SSL status</strong>
-                <span>Wordt per domein voorbereid</span>
+                <span>Prepared per domain</span>
               </div>
               <span>Auto</span>
             </li>
@@ -155,10 +155,10 @@
 
         <form method="POST" action="{{ route('logout') }}" class="dash-card">
           @csrf
-          <h2>Sessie</h2>
-          <p>Je bent ingelogd in de centrale SaaS beheeromgeving.</p>
+          <h2>Session</h2>
+          <p>You are signed in to the central SaaS management portal.</p>
           <div class="dash-actions dash-actions--spaced">
-            <button class="dash-btn dash-btn--ghost" type="submit">Uitloggen</button>
+            <button class="dash-btn dash-btn--ghost" type="submit">Log out</button>
           </div>
         </form>
       </aside>

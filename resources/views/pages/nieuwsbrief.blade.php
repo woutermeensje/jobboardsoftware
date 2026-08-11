@@ -1,27 +1,27 @@
 @extends('layouts.app')
 
-@section('title', 'Nieuwsbrief | JobBoardSoftware')
-@section('meta_description', 'Schrijf je in voor vacature-updates, platformnieuws en relevante tips voor werkzoekenden.')
+@section('title', 'Newsletter | JobBoardSoftware')
+@section('meta_description', 'Sign up for job updates, platform news and relevant tips for job seekers.')
 
 @section('content')
 <section class="form-block">
   <div class="form-block__box">
-    <h1 class="form-block__title">Inschrijven nieuwsbrief</h1>
+    <h1 class="form-block__title">Subscribe to the newsletter</h1>
 
     <form class="content-form" method="GET" action="{{ route('register.werkzoekende') }}">
       <div class="content-form__grid">
         <div class="content-field">
-          <label for="newsletter-firstname">Voornaam</label>
-          <input id="newsletter-firstname" name="firstname" type="text" placeholder="Voornaam">
+          <label for="newsletter-firstname">First name</label>
+          <input id="newsletter-firstname" name="firstname" type="text" placeholder="First name">
         </div>
         <div class="content-field">
-          <label for="newsletter-email">E-mailadres</label>
-          <input id="newsletter-email" name="email" type="email" placeholder="jij@example.com">
+          <label for="newsletter-email">Email address</label>
+          <input id="newsletter-email" name="email" type="email" placeholder="you@example.com">
         </div>
       </div>
 
       <div class="content-actions">
-        <button class="content-btn content-btn--primary" type="submit">Account aanmaken</button>
+        <button class="content-btn content-btn--primary" type="submit">Create account</button>
       </div>
     </form>
   </div>

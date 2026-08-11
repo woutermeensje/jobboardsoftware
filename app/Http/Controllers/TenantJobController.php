@@ -51,7 +51,7 @@ class TenantJobController extends Controller
 
         return redirect()
             ->route('tenant.jobs.index', $tenant)
-            ->with('status', 'Vacature aangemaakt.');
+            ->with('status', 'Job created.');
     }
 
     public function edit(Request $request, Tenant $tenant, TenantJob $job): View
@@ -82,7 +82,7 @@ class TenantJobController extends Controller
 
         return redirect()
             ->route('tenant.jobs.index', $tenant)
-            ->with('status', 'Vacature bijgewerkt.');
+            ->with('status', 'Job updated.');
     }
 
     public function destroy(Request $request, Tenant $tenant, TenantJob $job): RedirectResponse
@@ -93,7 +93,7 @@ class TenantJobController extends Controller
 
         return redirect()
             ->route('tenant.jobs.index', $tenant)
-            ->with('status', 'Vacature verwijderd.');
+            ->with('status', 'Job deleted.');
     }
 
     /**

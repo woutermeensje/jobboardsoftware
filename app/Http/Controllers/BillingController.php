@@ -50,7 +50,7 @@ class BillingController extends Controller
 
         return redirect()
             ->route('onboarding.index')
-            ->with('status', 'Je pakket is opgeslagen. Stripe checkout wordt gebruikt zodra price IDs en Stripe keys zijn ingevuld.');
+            ->with('status', 'Your package has been saved. Stripe checkout will be used once price IDs and Stripe keys are configured.');
     }
 
     public function success(Request $request): RedirectResponse
@@ -70,6 +70,6 @@ class BillingController extends Controller
 
         return redirect()
             ->route('onboarding.index')
-            ->with('status', 'Betaling ontvangen. Je licentie is actief.');
+            ->with('status', 'Payment received. Your license is active.');
     }
 }

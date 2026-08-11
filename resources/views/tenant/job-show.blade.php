@@ -1,7 +1,7 @@
 @extends('layouts.tenant')
 
 @section('title', $job->title.' | '.($tenant->name ?? 'Jobboard'))
-@section('meta_description', $job->intro ?? 'Bekijk deze vacature en solliciteer direct.')
+@section('meta_description', $job->intro ?? 'View this job and apply directly.')
 
 @php
   $settings = $tenant->settings ?? [];
@@ -17,7 +17,7 @@
       <strong>{{ $brandName }}</strong>
     </a>
     <nav>
-      <a href="{{ route('tenant.jobs') }}">Vacatures</a>
+      <a href="{{ route('tenant.jobs') }}">Jobs</a>
       <a href="{{ route('tenant.contact') }}">Contact</a>
     </nav>
   </header>
@@ -28,7 +28,7 @@
     @endif
 
     <article class="tenant-panel tenant-detail">
-      <a class="tenant-back" href="{{ route('tenant.jobs') }}">Terug naar vacatures</a>
+      <a class="tenant-back" href="{{ route('tenant.jobs') }}">Back to jobs</a>
       <p class="tenant-eyebrow">{{ $job->department }}</p>
       <h1>{{ $job->title }}</h1>
       <p class="tenant-detail__meta">{{ $job->location }} - {{ $job->employment_type }} @if($job->salary_range)- {{ $job->salary_range }}@endif</p>
@@ -41,34 +41,34 @@
     </article>
 
     <aside class="tenant-panel tenant-apply">
-      <p class="tenant-eyebrow">Solliciteren</p>
-      <h2>Reageer op deze vacature</h2>
+      <p class="tenant-eyebrow">Apply</p>
+      <h2>Apply for this job</h2>
       <form method="POST" action="{{ route('tenant.jobs.apply', $job) }}" enctype="multipart/form-data">
         @csrf
         <label>
-          Naam
+          Name
           <input name="name" value="{{ old('name') }}" required>
           @error('name')<span>{{ $message }}</span>@enderror
         </label>
         <label>
-          E-mailadres
+          Email address
           <input name="email" type="email" value="{{ old('email') }}" required>
           @error('email')<span>{{ $message }}</span>@enderror
         </label>
         <label>
-          Telefoon
+          Phone
           <input name="phone" value="{{ old('phone') }}">
         </label>
         <label>
-          Motivatie
+          Motivation
           <textarea name="motivation" rows="5">{{ old('motivation') }}</textarea>
         </label>
         <label>
-          CV uploaden
+          Upload CV
           <input name="cv" type="file" accept=".pdf,.doc,.docx">
           @error('cv')<span>{{ $message }}</span>@enderror
         </label>
-        <button class="tenant-btn tenant-btn--primary" type="submit">Sollicitatie versturen</button>
+        <button class="tenant-btn tenant-btn--primary" type="submit">Submit application</button>
       </form>
     </aside>
   </main>

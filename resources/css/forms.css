@@ -304,7 +304,7 @@ input[type="file"]::file-selector-button:hover{
 
 /* ===============================
    Optional: legacy support
-   (als je nog class="basis-input" gebruikt)
+   (when class="basis-input" is still used)
 ================================ */
 
 .basis-input{
@@ -823,7 +823,7 @@ input[type="file"]::file-selector-button:hover{
   background: var(--color-bg);
 }
 
-/* Keep upload controls inside narrow sidebar cards (e.g. werkgever profiel) */
+/* Keep upload controls inside narrow sidebar cards, such as employer profiles. */
 .portal-layout__side .file-field{
   max-width: 100%;
   overflow: hidden;

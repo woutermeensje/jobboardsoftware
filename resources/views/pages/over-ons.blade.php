@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Over Ons | JobBoardSoftware')
-@section('meta_description', 'Over JobBoardSoftware.')
+@section('title', 'About us | JobBoardSoftware')
+@section('meta_description', 'About JobBoardSoftware.')
 
 @section('content')
 @endsection

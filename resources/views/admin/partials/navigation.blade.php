@@ -2,12 +2,12 @@
   $adminUser = auth()->user();
 
   $items = [
-    ['label' => 'Platformbeheer', 'icon' => 'ph-squares-four', 'url' => route('admin.dashboard'), 'active' => request()->routeIs('admin.dashboard')],
+    ['label' => 'Platform management', 'icon' => 'ph-squares-four', 'url' => route('admin.dashboard'), 'active' => request()->routeIs('admin.dashboard')],
     ['label' => 'Website', 'icon' => 'ph-house', 'url' => route('welcome'), 'active' => false],
   ];
 @endphp
 
-<aside class="dash-nav" aria-label="Admin navigatie">
+<aside class="dash-nav" aria-label="Admin navigation">
   <div class="dash-nav__brand">
     <span>AD</span>
     <div>
@@ -29,7 +29,7 @@
     @csrf
     <button type="submit">
       <i class="ph ph-sign-out"></i>
-      Uitloggen
+      Log out
     </button>
   </form>
 </aside>

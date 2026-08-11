@@ -17,8 +17,8 @@ class PortalAuthController extends Controller
         return view('auth.login', [
             'role' => User::ROLE_TENANT_OWNER,
             'eyebrow' => 'SaaS account',
-            'title' => 'Inloggen op JobBoardSoftware',
-            'subtitle' => 'Log in om je jobboard, domeinen, licentie en instellingen te beheren.',
+            'title' => 'Log in to JobBoardSoftware',
+            'subtitle' => 'Log in to manage your job board, domains, license and settings.',
             'action' => route('login.submit'),
             'registerUrl' => route('register.choice'),
         ]);
@@ -29,11 +29,11 @@ class PortalAuthController extends Controller
         return view('auth.register', [
             'role' => User::ROLE_TENANT_OWNER,
             'eyebrow' => 'SaaS account',
-            'title' => 'Start je eigen jobboard',
-            'subtitle' => 'Maak een beheeraccount aan om je licentie te starten en je eigen domein te koppelen.',
+            'title' => 'Start your own job board',
+            'subtitle' => 'Create an admin account to start your license and connect your own domain.',
             'action' => route('register.submit'),
             'loginUrl' => route('login.choice'),
-            'companyLabel' => 'Organisatie of label',
+            'companyLabel' => 'Organization or brand',
         ]);
     }
 
@@ -51,8 +51,8 @@ class PortalAuthController extends Controller
     {
         return view('auth.login', [
             'role' => User::ROLE_ADMIN,
-            'title' => 'Admin inloggen',
-            'subtitle' => 'Beheer SaaS gebruikers, tenants, domeinen en platforminstellingen.',
+            'title' => 'Admin login',
+            'subtitle' => 'Manage SaaS users, tenants, domains and platform settings.',
             'action' => route('admin.login.submit'),
             'registerUrl' => null,
         ]);
@@ -74,7 +74,7 @@ class PortalAuthController extends Controller
 
         if (! Auth::attempt($credentials, $request->boolean('remember'))) {
             return back()
-                ->withErrors(['email' => 'Deze inloggegevens kloppen niet voor deze omgeving.'])
+                ->withErrors(['email' => 'These login credentials do not match this portal.'])
                 ->onlyInput('email');
         }
 

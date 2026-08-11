@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Vacatures beheren | JobBoardSoftware')
-@section('meta_description', 'Beheer vacatures voor een tenant jobboard.')
+@section('title', 'Manage jobs | JobBoardSoftware')
+@section('meta_description', 'Manage jobs for a tenant job board.')
 
 @section('content')
 <section class="dash-page">
@@ -12,11 +12,11 @@
     <header class="dash-topbar">
       <div>
         <p class="dash-eyebrow">{{ $tenant->name }}</p>
-        <h1 class="dash-title">Vacatures beheren</h1>
-        <p class="dash-subtitle">Maak vacatures aan, publiceer ze op het klantdomein en volg reacties op.</p>
+        <h1 class="dash-title">Manage jobs</h1>
+        <p class="dash-subtitle">Create jobs, publish them on the customer domain and follow up on applications.</p>
       </div>
       <aside class="dash-user">
-        <strong>{{ $jobs->count() }} vacatures</strong>
+        <strong>{{ $jobs->count() }} jobs</strong>
         <span>{{ $tenant->slug }}</span>
         <span>{{ ucfirst($tenant->status) }}</span>
       </aside>
@@ -29,29 +29,29 @@
     <section class="dash-panel">
       <div class="dash-panel__head">
         <div>
-          <h2>Vacatures</h2>
-          <p>Concepten en gepubliceerde vacatures voor deze omgeving.</p>
+          <h2>Jobs</h2>
+          <p>Draft and published jobs for this environment.</p>
         </div>
         <a class="dash-btn dash-btn--primary" href="{{ route('tenant.jobs.create', $tenant) }}">
           <i class="ph ph-plus"></i>
-          Nieuwe vacature
+          New job
         </a>
       </div>
 
       @if($jobs->isEmpty())
         <div class="dash-empty">
-          <h3>Nog geen vacatures</h3>
-          <p>Maak je eerste vacature aan om de tenant frontend te vullen.</p>
-          <a class="dash-btn dash-btn--primary" href="{{ route('tenant.jobs.create', $tenant) }}">Vacature aanmaken</a>
+          <h3>No jobs yet</h3>
+          <p>Create your first job to populate the tenant frontend.</p>
+          <a class="dash-btn dash-btn--primary" href="{{ route('tenant.jobs.create', $tenant) }}">Create job</a>
         </div>
       @else
         <table class="dash-table">
           <thead>
             <tr>
-              <th>Vacature</th>
+              <th>Job</th>
               <th>Status</th>
-              <th>Sollicitaties</th>
-              <th>Actie</th>
+              <th>Applications</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
@@ -64,7 +64,7 @@
                 <td><span class="dash-status {{ $job->status !== \App\Models\TenantJob::STATUS_PUBLISHED ? 'dash-status--accent' : '' }}">{{ ucfirst($job->status) }}</span></td>
                 <td>{{ $job->applications_count }}</td>
                 <td>
-                  <a class="dash-btn dash-btn--ghost" href="{{ route('tenant.jobs.edit', [$tenant, $job]) }}">Bewerken</a>
+                  <a class="dash-btn dash-btn--ghost" href="{{ route('tenant.jobs.edit', [$tenant, $job]) }}">Edit</a>
                 </td>
               </tr>
             @endforeach

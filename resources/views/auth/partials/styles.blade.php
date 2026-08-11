@@ -122,6 +122,19 @@
   padding: 24px;
 }
 
+.auth-form-head {
+  margin-bottom: 18px;
+}
+
+.auth-form-head h1 {
+  margin: 0;
+  color: var(--color-text);
+  font-family: var(--font-heading);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
 .auth-form {
   display: grid;
   gap: 14px;

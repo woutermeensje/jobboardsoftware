@@ -1,43 +1,43 @@
 @extends('layouts.app')
 
 @section('title', 'Job alerts | JobBoardSoftware')
-@section('meta_description', 'Stel job alerts in voor nieuwe vacatures binnen je vakgebied, regio en gewenste dienstverband.')
+@section('meta_description', 'Set up job alerts for new roles in your field, region and preferred employment type.')
 
 @section('content')
 <section class="job-alerts">
   <div class="job-alerts__box">
-    <h1 class="job-alerts__title">Job alert instellen</h1>
+    <h1 class="job-alerts__title">Create a job alert</h1>
 
     <form class="content-form" method="GET" action="{{ route('register.werkzoekende') }}">
       <div class="content-form__grid">
         <div class="content-field">
-          <label for="alert-firstname">Voornaam</label>
-          <input id="alert-firstname" name="firstname" type="text" placeholder="Voornaam">
+          <label for="alert-firstname">First name</label>
+          <input id="alert-firstname" name="firstname" type="text" placeholder="First name">
         </div>
         <div class="content-field">
-          <label for="alert-email">E-mailadres</label>
-          <input id="alert-email" name="email" type="email" placeholder="jij@example.com">
+          <label for="alert-email">Email address</label>
+          <input id="alert-email" name="email" type="email" placeholder="you@example.com">
         </div>
       </div>
 
       <div class="content-field">
-        <label for="alert-categories-input">Interesses</label>
+        <label for="alert-categories-input">Interests</label>
 
         <select id="alert-categories" name="categories[]" multiple class="sr-only" data-multiselect-source>
           <option value="Nature">Nature</option>
-          <option value="Ecologie">Ecologie</option>
+          <option value="Ecology">Ecology</option>
         </select>
 
         <div class="js-multiselect-field" data-multiselect-for="alert-categories">
           <div class="js-multiselect-control">
-            <input type="text" id="alert-categories-input" class="js-multiselect-input" autocomplete="off" placeholder="Kies interesses…">
+            <input type="text" id="alert-categories-input" class="js-multiselect-input" autocomplete="off" placeholder="Choose interests...">
           </div>
           <div class="js-multiselect-dropdown" hidden></div>
         </div>
       </div>
 
       <div class="content-actions">
-        <button class="content-btn content-btn--primary" type="submit">Account aanmaken</button>
+        <button class="content-btn content-btn--primary" type="submit">Create account</button>
       </div>
     </form>
   </div>
@@ -95,7 +95,7 @@
 
             var remove = document.createElement('button');
             remove.type = 'button';
-            remove.setAttribute('aria-label', 'Verwijder ' + option.label);
+            remove.setAttribute('aria-label', 'Remove ' + option.label);
             remove.style.cssText = 'border:0;background:none;padding:0;margin-left:2px;cursor:pointer;line-height:1;color:inherit;font-size:14px;';
             remove.textContent = '×';
             remove.addEventListener('click', function (event) {

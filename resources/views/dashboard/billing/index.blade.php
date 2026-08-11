@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Billing en licentie | JobBoardSoftware')
-@section('meta_description', 'Beheer het SaaS pakket en de billingstatus voor je jobboard software.')
+@section('title', 'Billing and license | JobBoardSoftware')
+@section('meta_description', 'Manage the SaaS package and billing status for your job board software.')
 
 @section('content')
 <section class="dash-page">
@@ -12,11 +12,11 @@
     <header class="dash-topbar">
       <div>
         <p class="dash-eyebrow">Billing</p>
-        <h1 class="dash-title">Licentie en pakket</h1>
-        <p class="dash-subtitle">Kies het pakket waarmee je jobboard omgevingen wilt beheren. Stripe checkout wordt automatisch gebruikt zodra price IDs zijn ingesteld.</p>
+        <h1 class="dash-title">License and package</h1>
+        <p class="dash-subtitle">Choose the package you want to use to manage job board environments. Stripe checkout is used automatically once price IDs are configured.</p>
       </div>
       <aside class="dash-user">
-        <strong>{{ $user->billingPlan?->name ?? 'Geen pakket gekozen' }}</strong>
+        <strong>{{ $user->billingPlan?->name ?? 'No package selected' }}</strong>
         <span>Status: {{ ucfirst($user->billing_status ?? 'trial') }}</span>
         <span>{{ $user->email }}</span>
       </aside>
@@ -43,7 +43,7 @@
             @csrf
             <input type="hidden" name="plan_key" value="{{ $plan->key }}">
             <button class="dash-btn {{ $user->billing_plan_id === $plan->id ? 'dash-btn--ghost' : 'dash-btn--primary' }}" type="submit">
-              {{ $user->billing_plan_id === $plan->id ? 'Huidig pakket' : 'Pakket kiezen' }}
+              {{ $user->billing_plan_id === $plan->id ? 'Current package' : 'Choose package' }}
             </button>
           </form>
         </article>

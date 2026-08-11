@@ -24,25 +24,25 @@ class DatabaseSeeder extends Seeder
             [
                 'key' => Tenant::PLAN_STARTER,
                 'name' => 'Starter',
-                'description' => 'Voor een niche jobboard of MVP met een eigen domein.',
+                'description' => 'For a niche job board or MVP with a custom domain.',
                 'monthly_price_cents' => 4900,
-                'features' => ['1 jobboard', 'Eigen domein', 'Basis beheeromgeving', 'Vacatures beheren'],
+                'features' => ['1 job board', 'Custom domain', 'Basic management portal', 'Job management'],
                 'limits' => ['tenants' => 1, 'jobs' => 50, 'domains' => 1],
             ],
             [
                 'key' => Tenant::PLAN_GROWTH,
                 'name' => 'Growth',
-                'description' => 'Voor bureaus en communities die meerdere jobboards beheren.',
+                'description' => 'For agencies and communities managing multiple job boards.',
                 'monthly_price_cents' => 14900,
-                'features' => ['3 jobboards', 'Meerdere domeinen', 'Uitgebreid beheer', 'Prioriteit support'],
+                'features' => ['3 job boards', 'Multiple domains', 'Advanced management', 'Priority support'],
                 'limits' => ['tenants' => 3, 'jobs' => 250, 'domains' => 6],
             ],
             [
                 'key' => Tenant::PLAN_ENTERPRISE,
                 'name' => 'Platform',
-                'description' => 'Voor white label software, maatwerk integraties en grotere volumes.',
+                'description' => 'For white-label software, custom integrations and higher volumes.',
                 'monthly_price_cents' => 0,
-                'features' => ['Onbeperkte tenants', 'Maatwerk integraties', 'Dedicated onboarding'],
+                'features' => ['Unlimited tenants', 'Custom integrations', 'Dedicated onboarding'],
                 'limits' => ['tenants' => null, 'jobs' => null, 'domains' => null],
             ],
         ])->map(fn (array $plan) => BillingPlan::updateOrCreate(
@@ -74,7 +74,7 @@ class DatabaseSeeder extends Seeder
         $owner = User::updateOrCreate(
             ['email' => 'demo@jobboardsoftware.co'],
             [
-                'name' => 'Demo Eigenaar',
+                'name' => 'Demo Owner',
                 'company_name' => 'Acme Careers',
                 'password' => 'DemoPassword!2026',
                 'role' => User::ROLE_TENANT_OWNER,
@@ -98,7 +98,7 @@ class DatabaseSeeder extends Seeder
                 'settings' => [
                     'brand_name' => 'Acme Careers',
                     'accent_color' => '#2f5f80',
-                    'intro' => 'Vind je volgende rol bij Acme Careers.',
+                    'intro' => 'Find your next role at Acme Careers.',
                 ],
             ],
         );
@@ -126,9 +126,9 @@ class DatabaseSeeder extends Seeder
                     'department' => $department,
                     'location' => $location,
                     'employment_type' => $type,
-                    'salary_range' => 'In overleg',
-                    'intro' => 'Werk mee aan een groeiend platform en maak direct impact.',
-                    'description' => 'Je werkt samen met een compact team aan concrete projecten, duidelijke doelen en een prettige kandidaatervaring.',
+                    'salary_range' => 'Upon request',
+                    'intro' => 'Help build a growing platform and make an immediate impact.',
+                    'description' => 'You work with a compact team on concrete projects, clear goals and a smooth candidate experience.',
                     'status' => TenantJob::STATUS_PUBLISHED,
                     'published_at' => now()->subDay(),
                 ],

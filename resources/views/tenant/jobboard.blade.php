@@ -1,13 +1,13 @@
 @extends('layouts.tenant')
 
-@section('title', ($tenant->name ?? 'Jobboard').' | Vacatures')
-@section('meta_description', 'Vacatures, filters en sollicitaties voor dit jobboard.')
+@section('title', ($tenant->name ?? 'Jobboard').' | Jobs')
+@section('meta_description', 'Jobs, filters and applications for this job board.')
 
 @php
   $settings = $tenant->settings ?? [];
   $brandName = $settings['brand_name'] ?? $tenant->name ?? 'Jobboard';
   $accent = $settings['accent_color'] ?? '#2f5f80';
-  $intro = $settings['intro'] ?? 'Bekijk actuele vacatures en solliciteer direct.';
+  $intro = $settings['intro'] ?? 'View current jobs and apply directly.';
 @endphp
 
 @section('content')
@@ -18,7 +18,7 @@
       <strong>{{ $brandName }}</strong>
     </a>
     <nav>
-      <a href="{{ route('tenant.jobs') }}">Vacatures</a>
+      <a href="{{ route('tenant.jobs') }}">Jobs</a>
       <a href="{{ route('tenant.contact') }}">Contact</a>
     </nav>
   </header>
@@ -26,38 +26,38 @@
   <main class="tenant-shell">
     <section class="tenant-hero">
       <div>
-        <p class="tenant-eyebrow">Vacatureplatform</p>
+        <p class="tenant-eyebrow">Job platform</p>
         <h1>{{ $brandName }}</h1>
         <p>{{ $intro }}</p>
         <div class="tenant-actions">
-          <a class="tenant-btn tenant-btn--primary" href="#vacatures">Vacatures bekijken</a>
+          <a class="tenant-btn tenant-btn--primary" href="#jobs">View jobs</a>
           <a class="tenant-btn tenant-btn--ghost" href="#contact">Contact</a>
         </div>
       </div>
       <aside class="tenant-card">
-        <span>Openstaande functies</span>
+        <span>Open roles</span>
         <strong>{{ $jobs->count() }}</strong>
         <p>Plan: {{ ucfirst($tenant->plan ?? 'starter') }}</p>
       </aside>
     </section>
 
-    <section class="tenant-panel" id="vacatures" aria-labelledby="tenant-jobs-title">
+    <section class="tenant-panel" id="jobs" aria-labelledby="tenant-jobs-title">
       <div class="tenant-panel__head">
         <div>
-          <p class="tenant-eyebrow">Vacatures</p>
-          <h2 id="tenant-jobs-title">Openstaande functies</h2>
+          <p class="tenant-eyebrow">Jobs</p>
+          <h2 id="tenant-jobs-title">Open roles</h2>
         </div>
       </div>
 
       <form class="tenant-filter" method="GET" action="{{ route('tenant.jobs') }}">
-        <input name="search" value="{{ request('search') }}" placeholder="Zoek op titel, afdeling of locatie">
+        <input name="search" value="{{ request('search') }}" placeholder="Search by title, department or location">
         <select name="department">
-          <option value="">Alle afdelingen</option>
+          <option value="">All departments</option>
           @foreach($departments as $department)
             <option value="{{ $department }}" @selected(request('department') === $department)>{{ $department }}</option>
           @endforeach
         </select>
-        <button type="submit">Zoeken</button>
+        <button type="submit">Search</button>
       </form>
 
       <div class="tenant-jobs">
@@ -70,13 +70,13 @@
                 <span>{{ $job->intro }}</span>
               @endif
             </div>
-            <a href="{{ route('tenant.jobs.show', $job) }}">Bekijk vacature</a>
+            <a href="{{ route('tenant.jobs.show', $job) }}">View job</a>
           </article>
         @empty
           <article class="tenant-job tenant-job--empty">
             <div>
-              <h3>Geen vacatures gevonden</h3>
-              <p>Pas je filters aan of kom later terug.</p>
+              <h3>No jobs found</h3>
+              <p>Adjust your filters or come back later.</p>
             </div>
           </article>
         @endforelse
@@ -85,8 +85,8 @@
 
     <section class="tenant-panel" id="contact" aria-labelledby="tenant-contact-title">
       <p class="tenant-eyebrow">Contact</p>
-      <h2 id="tenant-contact-title">Solliciteren of meer weten?</h2>
-      <p>Reageer direct op een vacature of neem contact op met het recruitmentteam van {{ $brandName }}.</p>
+      <h2 id="tenant-contact-title">Apply or want to know more?</h2>
+      <p>Apply directly for a job or contact the recruitment team at {{ $brandName }}.</p>
     </section>
   </main>
 </section>

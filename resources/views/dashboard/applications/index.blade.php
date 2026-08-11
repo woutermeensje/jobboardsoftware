@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Sollicitaties | JobBoardSoftware')
-@section('meta_description', 'Bekijk sollicitaties voor een tenant jobboard.')
+@section('title', 'Applications | JobBoardSoftware')
+@section('meta_description', 'View applications for a tenant job board.')
 
 @section('content')
 <section class="dash-page">
@@ -12,11 +12,11 @@
     <header class="dash-topbar">
       <div>
         <p class="dash-eyebrow">{{ $tenant->name }}</p>
-        <h1 class="dash-title">Sollicitaties</h1>
-        <p class="dash-subtitle">Alle binnengekomen reacties via de tenant frontend.</p>
+        <h1 class="dash-title">Applications</h1>
+        <p class="dash-subtitle">All incoming applications from the tenant frontend.</p>
       </div>
       <aside class="dash-user">
-        <strong>{{ $applications->count() }} reacties</strong>
+        <strong>{{ $applications->count() }} applications</strong>
         <span>{{ $tenant->slug }}</span>
       </aside>
     </header>
@@ -28,24 +28,24 @@
     <section class="dash-panel">
       <div class="dash-panel__head">
         <div>
-          <h2>Reacties</h2>
-          <p>Kandidaten, vacature en opvolgstatus.</p>
+          <h2>Applications</h2>
+          <p>Candidates, job and follow-up status.</p>
         </div>
       </div>
 
       @if($applications->isEmpty())
         <div class="dash-empty">
-          <h3>Nog geen sollicitaties</h3>
-          <p>Sollicitaties verschijnen hier zodra kandidaten reageren via het klantdomein.</p>
+          <h3>No applications yet</h3>
+          <p>Applications will appear here as soon as candidates apply through the customer domain.</p>
         </div>
       @else
         <table class="dash-table">
           <thead>
             <tr>
-              <th>Kandidaat</th>
-              <th>Vacature</th>
+              <th>Candidate</th>
+              <th>Job</th>
               <th>Status</th>
-              <th>Bijwerken</th>
+              <th>Update</th>
             </tr>
           </thead>
           <tbody>

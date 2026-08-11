@@ -36,6 +36,6 @@ class TenantApplicationController extends Controller
 
         $application->update($validated);
 
-        return back()->with('status', 'Sollicitatiestatus bijgewerkt.');
+        return back()->with('status', 'Application status updated.');
     }
 }
