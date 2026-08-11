@@ -5,7 +5,10 @@
 
 @section('content')
 <section class="dash-page">
-  <div class="dash-shell">
+  <div class="dash-shell dash-app">
+    @include('dashboard.partials.navigation')
+
+    <div class="dash-content">
     <header class="dash-topbar">
       <div>
         <p class="dash-eyebrow">Billing</p>
@@ -45,6 +48,7 @@
           </form>
         </article>
       @endforeach
+    </div>
     </div>
   </div>
 </section>

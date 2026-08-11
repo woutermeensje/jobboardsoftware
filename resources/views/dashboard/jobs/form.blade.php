@@ -5,7 +5,10 @@
 
 @section('content')
 <section class="dash-page">
-  <div class="dash-shell">
+  <div class="dash-shell dash-app">
+    @include('dashboard.partials.navigation', ['activeTenant' => $tenant])
+
+    <div class="dash-content">
     <header class="dash-topbar">
       <div>
         <p class="dash-eyebrow">{{ $tenant->name }}</p>
@@ -28,12 +31,12 @@
         <div class="form-grid form-grid--two">
           <div class="form-field">
             <label class="form-label" for="title">Titel</label>
-            <input class="form-control" id="title" name="title" value="{{ old('title', $job->title) }}" required>
+            <input class="form-control" id="title" name="title" type="text" value="{{ old('title', $job->title) }}" required>
             @error('title')<p class="form-error">{{ $message }}</p>@enderror
           </div>
           <div class="form-field">
             <label class="form-label" for="slug">Slug</label>
-            <input class="form-control" id="slug" name="slug" value="{{ old('slug', $job->slug) }}" placeholder="wordt automatisch uit titel gemaakt">
+            <input class="form-control" id="slug" name="slug" type="text" value="{{ old('slug', $job->slug) }}" placeholder="wordt automatisch uit titel gemaakt">
             @error('slug')<p class="form-error">{{ $message }}</p>@enderror
           </div>
         </div>
@@ -41,22 +44,22 @@
         <div class="form-grid form-grid--three">
           <div class="form-field">
             <label class="form-label" for="department">Afdeling</label>
-            <input class="form-control" id="department" name="department" value="{{ old('department', $job->department) }}">
+            <input class="form-control" id="department" name="department" type="text" value="{{ old('department', $job->department) }}">
           </div>
           <div class="form-field">
             <label class="form-label" for="location">Locatie</label>
-            <input class="form-control" id="location" name="location" value="{{ old('location', $job->location) }}">
+            <input class="form-control" id="location" name="location" type="text" value="{{ old('location', $job->location) }}">
           </div>
           <div class="form-field">
             <label class="form-label" for="employment_type">Dienstverband</label>
-            <input class="form-control" id="employment_type" name="employment_type" value="{{ old('employment_type', $job->employment_type) }}" placeholder="Fulltime">
+            <input class="form-control" id="employment_type" name="employment_type" type="text" value="{{ old('employment_type', $job->employment_type) }}" placeholder="Fulltime">
           </div>
         </div>
 
         <div class="form-grid form-grid--two">
           <div class="form-field">
             <label class="form-label" for="salary_range">Salarisindicatie</label>
-            <input class="form-control" id="salary_range" name="salary_range" value="{{ old('salary_range', $job->salary_range) }}">
+            <input class="form-control" id="salary_range" name="salary_range" type="text" value="{{ old('salary_range', $job->salary_range) }}">
           </div>
           <div class="form-field">
             <label class="form-label" for="status">Status</label>
@@ -85,6 +88,7 @@
         </div>
       </form>
     </section>
+    </div>
   </div>
 </section>
 @endsection

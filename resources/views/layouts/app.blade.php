@@ -22,11 +22,11 @@
       --color-bg: #f7f6f2;
       --color-bg-white: #ffffff;
       --color-card: #ffffff;
-      --color-border: #dfe7ee;
-      --color-border-strong: #c8d7e3;
-      --color-text: #27313a;
-      --color-text-muted: #5f6f7a;
-      --color-text-soft: #8a9aa6;
+      --color-border: #DEDEDE;
+      --color-border-strong: #cbd5e1;
+      --color-text: #333;
+      --color-text-muted: #555;
+      --color-text-soft: #94a3b8;
       --color-primary: #3f7296;
       --color-primary-strong: #2f5f80;
       --color-primary-soft: rgba(63, 114, 150, 0.09);
@@ -36,11 +36,14 @@
       --color-accent-soft: rgba(217, 154, 91, 0.13);
       --font-ui: 'Inter', sans-serif;
       --font-text: 'Poppins', sans-serif;
-      --font-heading: 'Work Sans', sans-serif;
+      --font-heading: 'Inter', sans-serif;
       --shadow-sm: 0 1px 2px rgba(17, 24, 39, 0.05);
       --shadow-md: 0 14px 32px rgba(17, 24, 39, 0.08);
       --radius-sm: 6px;
-      --radius-md: 8px;
+      --radius-md: 5px;
+      --radius-lg: 5px;
+      --radius-default: 5px;
+      --border-default: 1px solid var(--color-border);
     }
 
     *,

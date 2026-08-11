@@ -55,9 +55,14 @@
         </div>
 
         <div class="auth-actions">
-          <button class="btn btn-primary" type="submit">Account aanmaken</button>
-          <a class="auth-link" href="{{ $loginUrl }}">Ik heb al een account</a>
-          <a class="auth-link" href="{{ route('welcome') }}">Terug naar website</a>
+          <button class="auth-button auth-button--primary" type="submit">
+            <i class="ph ph-rocket-launch"></i>
+            Account aanmaken
+          </button>
+          <div class="auth-secondary-actions">
+            <a class="auth-link" href="{{ $loginUrl }}">Ik heb al een account</a>
+            <a class="auth-link" href="{{ route('welcome') }}">Terug naar website</a>
+          </div>
         </div>
       </form>
     </div>

@@ -37,11 +37,16 @@
         </label>
 
         <div class="auth-actions">
-          <button class="btn btn-primary" type="submit">Inloggen</button>
-          @if($registerUrl)
-            <a class="auth-link" href="{{ $registerUrl }}">Account aanmaken</a>
-          @endif
-          <a class="auth-link" href="{{ route('welcome') }}">Terug naar website</a>
+          <button class="auth-button auth-button--primary" type="submit">
+            <i class="ph ph-sign-in"></i>
+            Inloggen
+          </button>
+          <div class="auth-secondary-actions">
+            @if($registerUrl)
+              <a class="auth-link" href="{{ $registerUrl }}">Account aanmaken</a>
+            @endif
+            <a class="auth-link" href="{{ route('welcome') }}">Terug naar website</a>
+          </div>
         </div>
       </form>
     </div>

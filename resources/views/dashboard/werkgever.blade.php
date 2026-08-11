@@ -26,7 +26,10 @@
 
 @section('content')
 <section class="dash-page">
-  <div class="dash-shell">
+  <div class="dash-shell dash-app">
+    @include('dashboard.partials.navigation')
+
+    <div class="dash-content">
     <header class="dash-topbar">
       <div>
         <p class="dash-eyebrow">SaaS beheeromgeving</p>
@@ -159,6 +162,7 @@
           </div>
         </form>
       </aside>
+    </div>
     </div>
   </div>
 </section>

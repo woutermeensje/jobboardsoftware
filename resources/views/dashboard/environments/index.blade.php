@@ -5,7 +5,10 @@
 
 @section('content')
 <section class="dash-page">
-  <div class="dash-shell">
+  <div class="dash-shell dash-app">
+    @include('dashboard.partials.navigation')
+
+    <div class="dash-content">
     <header class="dash-topbar">
       <div>
         <p class="dash-eyebrow">SaaS omgeving</p>
@@ -153,6 +156,7 @@
           </ul>
         </section>
       </aside>
+    </div>
     </div>
   </div>
 </section>

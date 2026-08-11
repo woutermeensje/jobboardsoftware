@@ -5,7 +5,10 @@
 
 @section('content')
 <section class="dash-page">
-  <div class="dash-shell">
+  <div class="dash-shell dash-app">
+    @include('dashboard.partials.navigation', ['activeTenant' => $tenant])
+
+    <div class="dash-content">
     <header class="dash-topbar">
       <div>
         <p class="dash-eyebrow">{{ $tenant->name }}</p>
@@ -71,6 +74,7 @@
         </table>
       @endif
     </section>
+    </div>
   </div>
 </section>
 @endsection

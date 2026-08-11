@@ -11,6 +11,114 @@
   gap: 22px;
 }
 
+.dash-app {
+  grid-template-columns: 240px minmax(0, 1fr);
+  align-items: start;
+}
+
+.dash-content {
+  min-width: 0;
+  display: grid;
+  gap: 22px;
+}
+
+.dash-nav {
+  position: sticky;
+  top: 96px;
+  display: grid;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: var(--shadow-sm);
+}
+
+.dash-nav__brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.dash-nav__brand span {
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: var(--color-primary-strong);
+  color: #ffffff;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.dash-nav__brand strong,
+.dash-nav__brand small {
+  display: block;
+}
+
+.dash-nav__brand strong {
+  color: var(--color-text);
+  font-family: var(--font-ui);
+  font-size: 14px;
+}
+
+.dash-nav__brand small {
+  color: var(--color-text-muted);
+  font-size: 12px;
+}
+
+.dash-nav__links {
+  display: grid;
+  gap: 6px;
+}
+
+.dash-nav__links a,
+.dash-nav__logout button {
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 10px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 800;
+  text-align: left;
+  text-decoration: none;
+}
+
+.dash-nav__links a:hover,
+.dash-nav__links a.is-active,
+.dash-nav__logout button:hover {
+  background: var(--color-primary-soft);
+  color: var(--color-primary-strong);
+  text-decoration: none;
+}
+
+.dash-nav__links i,
+.dash-nav__logout i {
+  font-size: 18px;
+}
+
+.dash-nav__logout {
+  margin: 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--color-border);
+}
+
+.dash-nav__logout button {
+  width: 100%;
+  cursor: pointer;
+}
+
 .dash-topbar {
   display: flex;
   align-items: flex-start;
@@ -386,7 +494,8 @@
 
 @media (max-width: 1080px) {
   .dash-layout,
-  .dash-topbar {
+  .dash-topbar,
+  .dash-app {
     grid-template-columns: 1fr;
   }
 
@@ -396,6 +505,20 @@
 
   .dash-user {
     min-width: 0;
+  }
+
+  .dash-nav {
+    position: static;
+  }
+
+  .dash-nav__links {
+    display: flex;
+    overflow-x: auto;
+    padding-bottom: 2px;
+  }
+
+  .dash-nav__links a {
+    white-space: nowrap;
   }
 }
 
