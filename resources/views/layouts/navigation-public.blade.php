@@ -1,48 +1,74 @@
 @php
+  $authUser = auth()->user();
+  $dashboardUrl = null;
+
+  if ($authUser) {
+    $dashboardUrl = match ($authUser->role) {
+      \App\Models\User::ROLE_ADMIN => route('admin.dashboard'),
+      \App\Models\User::ROLE_WERKGEVER => route('werkgever.dashboard'),
+      default => route('werkzoekende.dashboard'),
+    };
+  }
+
   $primaryNav = [
     [
-      'label' => 'Vacaturebank',
-      'url' => route('welcome'),
-      'active' => request()->routeIs('welcome'),
+      'label' => 'Werkzoekende',
+      'url' => route('pages.werkzoekende'),
+      'active' => request()->routeIs('pages.werkzoekende') || request()->routeIs('pages.job-alerts') || request()->routeIs('pages.nieuwsbrief') || request()->routeIs('register.werkzoekende'),
       'children' => [
-        ['label' => 'Alle vacatures', 'url' => route('welcome')],
-        ['label' => 'Categorieen', 'url' => route('welcome').'#filters'],
-        ['label' => 'Werkgevers', 'url' => route('welcome').'#werkgevers'],
+        ['label' => 'Job alerts', 'url' => route('pages.job-alerts')],
+        ['label' => 'Nieuwsbrief', 'url' => route('pages.nieuwsbrief')],
+        ['label' => 'Account aanmaken', 'url' => route('register.werkzoekende')],
       ],
     ],
     [
-      'label' => 'Platform',
-      'url' => route('welcome').'#workflow',
-      'active' => false,
+      'label' => 'Werkgever',
+      'url' => route('pages.werkgever'),
+      'active' => request()->routeIs('pages.werkgever') || request()->routeIs('pages.vacature-plaatsen') || request()->routeIs('register.werkgever'),
       'children' => [
-        ['label' => 'Publiceren', 'url' => route('welcome').'#workflow'],
-        ['label' => 'Sollicitaties', 'url' => route('welcome').'#workflow'],
-        ['label' => 'Analytics', 'url' => route('welcome').'#features'],
+        ['label' => 'Vacature plaatsen', 'url' => route('pages.vacature-plaatsen')],
+        ['label' => 'Tarieven', 'url' => route('pages.tarieven')],
+        ['label' => 'Account aanmaken', 'url' => route('register.werkgever')],
       ],
     ],
-    ['label' => 'Features', 'url' => route('welcome').'#features', 'active' => false],
-    ['label' => 'Prijzen', 'url' => route('welcome').'#pricing', 'active' => false],
-    ['label' => 'Contact', 'url' => route('welcome').'#contact', 'active' => false],
+    ['label' => 'Tarieven', 'url' => route('pages.tarieven'), 'active' => request()->routeIs('pages.tarieven')],
+    ['label' => 'Over Ons', 'url' => route('pages.over-ons'), 'active' => request()->routeIs('pages.over-ons')],
+    ['label' => 'Contact', 'url' => route('pages.contact'), 'active' => request()->routeIs('pages.contact')],
   ];
 
-  $utilityLinks = [
-    ['label' => 'Demo aanvragen', 'url' => route('welcome').'#contact'],
-    ['label' => 'Inloggen', 'url' => route('welcome').'#login'],
-    ['label' => 'Vacature plaatsen', 'url' => route('welcome').'#pricing'],
-    ['label' => 'Vacaturebank bekijken', 'url' => route('welcome').'#vacatures'],
-  ];
+  $utilityLinks = $authUser
+    ? [
+      ['label' => 'Mijn dashboard', 'url' => $dashboardUrl],
+      ['label' => 'Vacaturebank bekijken', 'url' => route('welcome').'#vacatures'],
+      ['label' => 'Contact', 'url' => route('pages.contact')],
+    ]
+    : [
+      ['label' => 'Aanmelden', 'url' => route('register.choice')],
+      ['label' => 'Inloggen', 'url' => route('login.choice')],
+      ['label' => 'Vacature plaatsen', 'url' => route('pages.vacature-plaatsen')],
+      ['label' => 'Vacaturebank bekijken', 'url' => route('welcome').'#vacatures'],
+    ];
 @endphp
 
 <header id="rn-header" class="rn-header" role="banner">
   <div class="rn-topbar" aria-label="Snelle links">
     <div class="rn-topbar__inner">
       <div class="rn-topbar__group rn-topbar__group--left">
-        <a class="rn-topbar__link" href="{{ route('welcome') }}#contact">Demo aanvragen</a>
-        <span class="rn-topbar__sep" aria-hidden="true">|</span>
-        <a class="rn-topbar__link" href="{{ route('welcome') }}#login">Inloggen</a>
+        @if($authUser)
+          <a class="rn-topbar__link" href="{{ $dashboardUrl }}">Mijn dashboard</a>
+          <span class="rn-topbar__sep" aria-hidden="true">|</span>
+          <form method="POST" action="{{ route('logout') }}" class="rn-topbar__logout-form">
+            @csrf
+            <button class="rn-topbar__link rn-topbar__link--button" type="submit">Uitloggen</button>
+          </form>
+        @else
+          <a class="rn-topbar__link" href="{{ route('register.choice') }}">Aanmelden</a>
+          <span class="rn-topbar__sep" aria-hidden="true">|</span>
+          <a class="rn-topbar__link" href="{{ route('login.choice') }}">Inloggen</a>
+        @endif
       </div>
       <div class="rn-topbar__group rn-topbar__group--right">
-        <a class="rn-topbar__link" href="{{ route('welcome') }}#pricing">Vacature plaatsen</a>
+        <a class="rn-topbar__link" href="{{ route('pages.vacature-plaatsen') }}">Vacature plaatsen</a>
         <span class="rn-topbar__sep" aria-hidden="true">|</span>
         <a class="rn-topbar__link" href="{{ route('welcome') }}#vacatures">Vacaturebank bekijken</a>
       </div>
@@ -92,8 +118,16 @@
     <div class="rn-header__divider"></div>
 
     <div class="rn-header__cta">
-      <a href="{{ route('welcome') }}#contact" class="rn-btn rn-btn--accent">Demo aanvragen</a>
-      <a href="{{ route('welcome') }}#login" class="rn-btn rn-btn--outline">Inloggen</a>
+      @if($authUser)
+        <a href="{{ $dashboardUrl }}" class="rn-btn rn-btn--accent">Mijn dashboard</a>
+        <form method="POST" action="{{ route('logout') }}" class="rn-header__logout-form">
+          @csrf
+          <button class="rn-btn rn-btn--outline" type="submit">Uitloggen</button>
+        </form>
+      @else
+        <a href="{{ route('register.choice') }}" class="rn-btn rn-btn--accent">Aanmelden</a>
+        <a href="{{ route('login.choice') }}" class="rn-btn rn-btn--outline">Inloggen</a>
+      @endif
     </div>
 
     <button class="rn-header__hamburger" type="button" aria-label="Menu openen" aria-expanded="false" aria-controls="rn-mobile-nav">
@@ -154,8 +188,16 @@
     <div class="rn-mobile-nav__section">
       <p class="rn-mobile-nav__label">Actie</p>
       <div class="rn-mobile-nav__ctas">
-        <a href="{{ route('welcome') }}#contact" class="rn-btn rn-btn--accent rn-mobile-nav__cta">Demo aanvragen</a>
-        <a href="{{ route('welcome') }}#login" class="rn-btn rn-btn--outline rn-mobile-nav__cta">Inloggen</a>
+        @if($authUser)
+          <a href="{{ $dashboardUrl }}" class="rn-btn rn-btn--accent rn-mobile-nav__cta">Mijn dashboard</a>
+          <form method="POST" action="{{ route('logout') }}" class="rn-mobile-nav__logout-form">
+            @csrf
+            <button class="rn-btn rn-btn--outline rn-mobile-nav__cta" type="submit">Uitloggen</button>
+          </form>
+        @else
+          <a href="{{ route('register.choice') }}" class="rn-btn rn-btn--accent rn-mobile-nav__cta">Aanmelden</a>
+          <a href="{{ route('login.choice') }}" class="rn-btn rn-btn--outline rn-mobile-nav__cta">Inloggen</a>
+        @endif
       </div>
     </div>
   </div>
@@ -308,6 +350,20 @@
   font-size: 12px;
   font-weight: 500;
   line-height: 1;
+}
+
+.rn-topbar__logout-form,
+.rn-header__logout-form,
+.rn-mobile-nav__logout-form {
+  display: inline-flex;
+  margin: 0;
+}
+
+.rn-topbar__link--button {
+  appearance: none;
+  border: none;
+  background: transparent;
+  cursor: pointer;
 }
 
 .rn-header__inner {
@@ -712,6 +768,10 @@
 }
 
 .rn-mobile-nav__cta {
+  width: 100%;
+}
+
+.rn-mobile-nav__logout-form {
   width: 100%;
 }
 

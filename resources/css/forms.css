@@ -1,0 +1,518 @@
+:root {
+    --form-bg: #ffffff;
+    --form-border: var(--color-border-strong, #c8d7e3);
+    --form-border-focus: var(--color-primary, #3f7296);
+    --form-text: var(--color-text, #27313a);
+    --form-muted: var(--color-text-muted, #5f6f7a);
+    --form-error: #a9652f;
+    --form-radius: 8px;
+    --form-shadow-focus: 0 0 0 3px var(--color-primary-soft, rgba(63, 114, 150, 0.09));
+    --form-accent-soft: var(--color-primary-soft, rgba(63, 114, 150, 0.09));
+    --form-upload-bg: #fbfdff;
+}
+
+form {
+    margin: 0;
+}
+
+fieldset {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+legend {
+    margin: 0 0 12px;
+    color: var(--form-text);
+    font-family: var(--font-ui, sans-serif);
+    font-size: 16px;
+    font-weight: 800;
+}
+
+label {
+    color: var(--form-text);
+    font-family: var(--font-ui, sans-serif);
+    font-size: 13px;
+    font-weight: 800;
+}
+
+input,
+select,
+textarea {
+    font: inherit;
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+select,
+textarea,
+.form-control {
+    width: 100%;
+    min-height: 48px;
+    padding: 0 13px;
+    border: 1px solid var(--form-border);
+    border-radius: var(--form-radius);
+    background-color: var(--form-bg);
+    color: var(--form-text);
+    font-size: 15px;
+    line-height: 1.4;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+textarea,
+textarea.form-control {
+    min-height: 124px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+    resize: vertical;
+}
+
+select,
+select.form-control {
+    cursor: pointer;
+}
+
+input::placeholder,
+textarea::placeholder,
+.form-control::placeholder {
+    color: #7c8790;
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):focus,
+select:focus,
+textarea:focus,
+.form-control:focus {
+    outline: none;
+    border-color: var(--form-border-focus);
+    box-shadow: var(--form-shadow-focus);
+}
+
+input:disabled,
+select:disabled,
+textarea:disabled,
+.form-control:disabled {
+    cursor: not-allowed;
+    background-color: #f4f7fa;
+    color: var(--form-muted);
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    accent-color: var(--form-border-focus);
+    cursor: pointer;
+}
+
+input[type="checkbox"]:disabled,
+input[type="radio"]:disabled {
+    cursor: not-allowed;
+}
+
+.form {
+    display: grid;
+    gap: 16px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.form-field {
+    display: grid;
+    gap: 7px;
+}
+
+.form-label {
+    color: var(--form-text);
+    font-family: var(--font-ui, sans-serif);
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.form-help {
+    margin: 0;
+    color: var(--form-muted);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.form-error {
+    margin: 0;
+    color: var(--form-error);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.form-check {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--form-muted);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.form-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px 14px;
+    padding-top: 4px;
+}
+
+.form-control[aria-invalid="true"],
+.form-control.is-invalid,
+input[aria-invalid="true"],
+select[aria-invalid="true"],
+textarea[aria-invalid="true"] {
+    border-color: var(--form-error);
+}
+
+/* Quill rich text editor */
+.form-rich-text,
+.form-quill {
+    display: grid;
+    gap: 0;
+}
+
+.form-rich-text .ql-toolbar.ql-snow,
+.form-quill .ql-toolbar.ql-snow,
+.ql-toolbar.ql-snow.form-quill__toolbar {
+    border: 1px solid var(--form-border);
+    border-bottom: 0;
+    border-radius: var(--form-radius) var(--form-radius) 0 0;
+    background: #fbfdff;
+    font-family: var(--font-ui, sans-serif);
+}
+
+.form-rich-text .ql-container.ql-snow,
+.form-quill .ql-container.ql-snow,
+.ql-container.ql-snow.form-quill__editor {
+    min-height: 180px;
+    border: 1px solid var(--form-border);
+    border-radius: 0 0 var(--form-radius) var(--form-radius);
+    background: var(--form-bg);
+    color: var(--form-text);
+    font-family: var(--font-text, sans-serif);
+    font-size: 15px;
+}
+
+.form-rich-text .ql-editor,
+.form-quill .ql-editor {
+    min-height: 180px;
+    padding: 14px;
+    line-height: 1.65;
+}
+
+.form-rich-text .ql-editor.ql-blank::before,
+.form-quill .ql-editor.ql-blank::before {
+    color: #7c8790;
+    font-style: normal;
+}
+
+.form-rich-text .ql-toolbar button,
+.form-quill .ql-toolbar button,
+.form-rich-text .ql-toolbar .ql-picker,
+.form-quill .ql-toolbar .ql-picker {
+    color: var(--form-text);
+}
+
+.form-rich-text:focus-within .ql-toolbar.ql-snow,
+.form-rich-text:focus-within .ql-container.ql-snow,
+.form-quill:focus-within .ql-toolbar.ql-snow,
+.form-quill:focus-within .ql-container.ql-snow {
+    border-color: var(--form-border-focus);
+}
+
+.form-rich-text:focus-within .ql-container.ql-snow,
+.form-quill:focus-within .ql-container.ql-snow {
+    box-shadow: var(--form-shadow-focus);
+}
+
+.form-rich-text.is-invalid .ql-toolbar.ql-snow,
+.form-rich-text.is-invalid .ql-container.ql-snow,
+.form-quill.is-invalid .ql-toolbar.ql-snow,
+.form-quill.is-invalid .ql-container.ql-snow {
+    border-color: var(--form-error);
+}
+
+/* JavaScript search and multiselect fields */
+.form-search,
+.form-multiselect,
+.js-search-field,
+.js-multiselect-field {
+    position: relative;
+    width: 100%;
+}
+
+.form-search__control,
+.js-search-input {
+    padding-left: 40px !important;
+}
+
+.form-search::before,
+.js-search-field::before {
+    content: "";
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    z-index: 1;
+    width: 16px;
+    height: 16px;
+    transform: translateY(-50%);
+    background-color: var(--form-border-focus);
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E") center / contain no-repeat;
+    pointer-events: none;
+}
+
+.form-multiselect__control,
+.js-multiselect-control,
+.choices__inner,
+.ts-control,
+.select2-container--default .select2-selection--multiple,
+.select2-container--default .select2-selection--single {
+    min-height: 48px;
+    width: 100%;
+    border: 1px solid var(--form-border);
+    border-radius: var(--form-radius);
+    background: var(--form-bg);
+    color: var(--form-text);
+    font-size: 15px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-multiselect__control,
+.js-multiselect-control,
+.choices__inner,
+.ts-control,
+.select2-container--default .select2-selection--multiple {
+    display: flex;
+    min-height: 48px;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 6px 9px;
+}
+
+.form-multiselect__control:focus-within,
+.js-multiselect-control:focus-within,
+.choices.is-focused .choices__inner,
+.ts-wrapper.focus .ts-control,
+.select2-container--focus .select2-selection,
+.select2-container--open .select2-selection {
+    border-color: var(--form-border-focus);
+    box-shadow: var(--form-shadow-focus);
+}
+
+.form-multiselect__tag,
+.js-multiselect-tag,
+.choices__list--multiple .choices__item,
+.ts-wrapper.multi .ts-control > div,
+.select2-container--default .select2-selection--multiple .select2-selection__choice {
+    display: inline-flex;
+    min-height: 28px;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    padding: 4px 9px;
+    border: 1px solid var(--color-primary-muted, rgba(63, 114, 150, 0.22));
+    border-radius: 999px;
+    background: var(--form-accent-soft);
+    color: var(--color-primary-strong, #2f5f80);
+    font-family: var(--font-ui, sans-serif);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.form-multiselect__input,
+.js-multiselect-input,
+.choices__input,
+.ts-control > input,
+.select2-search__field {
+    min-height: 30px !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+}
+
+.form-multiselect__dropdown,
+.js-multiselect-dropdown,
+.choices__list--dropdown,
+.ts-dropdown,
+.select2-dropdown {
+    overflow: hidden;
+    margin-top: 6px;
+    border: 1px solid var(--form-border);
+    border-radius: var(--form-radius);
+    background: var(--form-bg);
+    box-shadow: var(--shadow-md, 0 14px 32px rgba(17, 24, 39, 0.08));
+}
+
+.form-multiselect__option,
+.js-multiselect-option,
+.choices__list--dropdown .choices__item,
+.ts-dropdown .option,
+.select2-results__option {
+    padding: 10px 12px;
+    color: var(--form-text);
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.form-multiselect__option:hover,
+.form-multiselect__option.is-highlighted,
+.js-multiselect-option:hover,
+.js-multiselect-option.is-highlighted,
+.choices__list--dropdown .choices__item--selectable.is-highlighted,
+.ts-dropdown .active,
+.select2-results__option--highlighted {
+    background: var(--form-accent-soft);
+    color: var(--color-primary-strong, #2f5f80);
+}
+
+.form-multiselect__option.is-selected,
+.js-multiselect-option.is-selected,
+.choices__item.is-selected,
+.ts-dropdown .selected,
+.select2-results__option[aria-selected="true"] {
+    font-weight: 800;
+}
+
+/* Upload fields */
+input[type="file"],
+.form-file-control {
+    width: 100%;
+    min-height: 48px;
+    padding: 8px;
+    border: 1px solid var(--form-border);
+    border-radius: var(--form-radius);
+    background: var(--form-bg);
+    color: var(--form-muted);
+    font-size: 14px;
+}
+
+input[type="file"]::file-selector-button,
+.form-file-button {
+    min-height: 32px;
+    margin-right: 12px;
+    padding: 0 12px;
+    border: 1px solid var(--form-border-focus);
+    border-radius: 6px;
+    background: var(--form-border-focus);
+    color: #ffffff;
+    font-family: var(--font-ui, sans-serif);
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.form-upload,
+.js-upload-field {
+    display: grid;
+    gap: 10px;
+}
+
+.form-upload__dropzone,
+.js-upload-dropzone,
+.dropzone,
+.filepond--root .filepond--drop-label {
+    display: grid;
+    min-height: 160px;
+    place-items: center;
+    gap: 10px;
+    padding: 24px;
+    border: 1px dashed var(--form-border);
+    border-radius: var(--form-radius);
+    background: var(--form-upload-bg);
+    color: var(--form-muted);
+    text-align: center;
+    transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-upload__dropzone:hover,
+.form-upload__dropzone.is-dragover,
+.js-upload-dropzone:hover,
+.js-upload-dropzone.is-dragover,
+.dropzone:hover,
+.dropzone.dz-drag-hover {
+    border-color: var(--form-border-focus);
+    background: var(--form-accent-soft);
+    box-shadow: var(--form-shadow-focus);
+}
+
+.form-upload__icon {
+    display: inline-flex;
+    width: 44px;
+    height: 44px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    background: var(--form-accent-soft);
+    color: var(--color-primary-strong, #2f5f80);
+    font-size: 22px;
+}
+
+.form-upload__title {
+    margin: 0;
+    color: var(--form-text);
+    font-family: var(--font-ui, sans-serif);
+    font-size: 15px;
+    font-weight: 800;
+}
+
+.form-upload__meta {
+    margin: 0;
+    color: var(--form-muted);
+    font-size: 13px;
+}
+
+.form-upload__preview,
+.js-upload-preview {
+    display: grid;
+    gap: 8px;
+}
+
+.form-upload__file,
+.js-upload-file,
+.filepond--item,
+.dz-preview {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 12px;
+    border: 1px solid var(--form-border);
+    border-radius: var(--form-radius);
+    background: var(--form-bg);
+    color: var(--form-text);
+    font-size: 14px;
+}
+
+.form-upload__progress {
+    overflow: hidden;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--form-accent-soft);
+}
+
+.form-upload__progress span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--form-border-focus);
+}
+
+.filepond--panel-root {
+    background: var(--form-upload-bg);
+    border: 1px dashed var(--form-border);
+}
+
+@media (max-width: 760px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+}

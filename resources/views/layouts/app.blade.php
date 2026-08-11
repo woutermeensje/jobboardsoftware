@@ -10,7 +10,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@700&family=Work+Sans:wght@600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@400;500;700&family=Work+Sans:wght@600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css">
 
   @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
@@ -19,7 +19,7 @@
 
   <style>
     :root {
-      --color-bg: #f7f9fb;
+      --color-bg: #f7f6f2;
       --color-bg-white: #ffffff;
       --color-card: #ffffff;
       --color-border: #dfe7ee;
@@ -36,7 +36,7 @@
       --color-accent-soft: rgba(217, 154, 91, 0.13);
       --font-ui: 'Inter', sans-serif;
       --font-text: 'Poppins', sans-serif;
-      --font-heading: 'Inter', sans-serif;
+      --font-heading: 'Work Sans', sans-serif;
       --shadow-sm: 0 1px 2px rgba(17, 24, 39, 0.05);
       --shadow-md: 0 14px 32px rgba(17, 24, 39, 0.08);
       --radius-sm: 6px;
@@ -54,8 +54,9 @@
       margin: 0;
       min-height: 100%;
       background: var(--color-bg);
-      color: var(--color-text);
+      color: #333;
       font-family: var(--font-text);
+      font-weight: 400;
       line-height: 1.6;
     }
 
@@ -86,8 +87,9 @@
     h1,
     h2,
     h3 {
-      color: var(--color-text);
+      color: #333;
       font-family: var(--font-heading);
+      font-weight: 600;
       letter-spacing: 0;
       line-height: 1.15;
     }

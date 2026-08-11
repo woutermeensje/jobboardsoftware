@@ -16,10 +16,10 @@
           <li>Demo omgeving voor vacaturebank software</li>
         </ul>
         <div class="si-footer__socials" aria-label="Social media">
-          <a href="{{ route('welcome') }}#contact" aria-label="LinkedIn">
+          <a href="{{ route('pages.contact') }}" aria-label="LinkedIn">
             <i class="ph ph-linkedin-logo"></i>
           </a>
-          <a href="{{ route('welcome') }}#contact" aria-label="Instagram">
+          <a href="{{ route('pages.contact') }}" aria-label="Instagram">
             <i class="ph ph-instagram-logo"></i>
           </a>
         </div>
@@ -29,19 +29,19 @@
         <h3 class="si-footer__heading">Product</h3>
         <ul class="si-footer__list">
           <li><a href="{{ route('welcome') }}#vacatures">Vacaturebank</a></li>
-          <li><a href="{{ route('welcome') }}#workflow">Workflow</a></li>
-          <li><a href="{{ route('welcome') }}#features">Features</a></li>
-          <li><a href="{{ route('welcome') }}#pricing">Prijzen</a></li>
+          <li><a href="{{ route('pages.werkzoekende') }}">Werkzoekende</a></li>
+          <li><a href="{{ route('pages.werkgever') }}">Werkgever</a></li>
+          <li><a href="{{ route('pages.tarieven') }}">Tarieven</a></li>
         </ul>
       </section>
 
       <section class="si-footer__col">
         <h3 class="si-footer__heading">Werkgevers</h3>
         <ul class="si-footer__list">
-          <li><a href="{{ route('welcome') }}#pricing">Vacature plaatsen</a></li>
-          <li><a href="{{ route('welcome') }}#features">Bedrijfspagina</a></li>
-          <li><a href="{{ route('welcome') }}#features">Kandidaten beheren</a></li>
-          <li><a href="{{ route('welcome') }}#contact">Demo plannen</a></li>
+          <li><a href="{{ route('pages.vacature-plaatsen') }}">Vacature plaatsen</a></li>
+          <li><a href="{{ route('pages.tarieven') }}">Tarieven</a></li>
+          <li><a href="{{ route('register.werkgever') }}">Account aanmaken</a></li>
+          <li><a href="{{ route('pages.contact') }}">Demo plannen</a></li>
         </ul>
       </section>
 
