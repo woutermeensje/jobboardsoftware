@@ -275,8 +275,8 @@
       margin: 0;
       padding: 18px;
       border: 1px solid var(--color-border);
-      border-radius: 8px;
-      background: #fbfdff;
+      border-radius: var(--radius-default);
+      background: #ffffff;
     }
 
     .onboarding-plan.is-selected {
@@ -316,7 +316,7 @@
       gap: 14px;
       padding: 18px 20px;
       border-top: 1px solid var(--color-border);
-      background: #fbfdff;
+      background: #ffffff;
     }
 
     .onboarding-complete-row:first-child {

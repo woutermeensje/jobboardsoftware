@@ -213,8 +213,8 @@
     .tenant-domain {
       padding: 12px;
       border: 1px solid var(--color-border);
-      border-radius: 8px;
-      background: #fbfdff;
+      border-radius: var(--radius-default);
+      background: #ffffff;
     }
 
     .tenant-domain strong,

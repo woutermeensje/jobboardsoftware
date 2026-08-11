@@ -76,13 +76,13 @@
       min-height: 360px;
       padding: 24px;
       border: 1px solid var(--color-border);
-      border-radius: 8px;
+      border-radius: var(--radius-default);
       background: #ffffff;
     }
 
     .dash-plan-card.is-selected {
-      border-color: var(--color-primary-strong);
-      box-shadow: var(--shadow-md);
+      border-color: var(--color-primary-muted);
+      background: var(--color-primary-soft);
     }
 
     .dash-plan-card h2,

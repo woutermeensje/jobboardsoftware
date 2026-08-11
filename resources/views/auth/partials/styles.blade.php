@@ -11,7 +11,7 @@
 
 .auth-head {
   max-width: 640px;
-  margin: 0 0 24px;
+  margin: 0 auto 24px;
 }
 
 .auth-eyebrow {
@@ -118,6 +118,7 @@
 
 .auth-form-card {
   width: min(460px, 100%);
+  margin: 0 auto;
   padding: 24px;
 }
 
