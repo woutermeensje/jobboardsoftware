@@ -117,7 +117,7 @@
 }
 
 .auth-form-card {
-  width: min(460px, 100%);
+  width: min(720px, 100%);
   margin: 0 auto;
   padding: 24px;
 }
@@ -138,6 +138,15 @@
 .auth-form {
   display: grid;
   gap: 14px;
+}
+
+.auth-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.auth-grid--two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .auth-field {
@@ -299,6 +308,10 @@
   }
 
   .auth-choice-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .auth-grid--two {
     grid-template-columns: 1fr;
   }
 

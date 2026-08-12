@@ -33,7 +33,6 @@ class PortalAuthController extends Controller
             'subtitle' => 'Create an admin account to start your license and connect your own domain.',
             'action' => route('register.submit'),
             'loginUrl' => route('login.choice'),
-            'companyLabel' => 'Organization or brand',
         ]);
     }
 
@@ -97,19 +96,24 @@ class PortalAuthController extends Controller
     {
         abort_unless(in_array($role, [User::ROLE_WERKZOEKENDE, User::ROLE_WERKGEVER, User::ROLE_TENANT_OWNER], true), 404);
 
-        $requiresCompanyName = in_array($role, [User::ROLE_WERKGEVER, User::ROLE_TENANT_OWNER], true);
-
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'company_name' => [$requiresCompanyName ? 'required' : 'nullable', 'string', 'max:255'],
+            'first_name' => ['required', 'string', 'max:255'],
+            'last_name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
+            'phone_number' => ['required', 'string', 'max:40'],
+            'heard_about_us' => ['required', 'string', 'max:255'],
             'password' => ['required', 'confirmed', Password::min(8)],
         ]);
 
+        $name = trim($validated['first_name'].' '.$validated['last_name']);
+
         $user = User::create([
-            'name' => $validated['name'],
-            'company_name' => $requiresCompanyName ? $validated['company_name'] : null,
+            'name' => $name,
+            'first_name' => $validated['first_name'],
+            'last_name' => $validated['last_name'],
             'email' => $validated['email'],
+            'phone_number' => $validated['phone_number'],
+            'heard_about_us' => $validated['heard_about_us'],
             'password' => $validated['password'],
             'role' => $role,
         ]);

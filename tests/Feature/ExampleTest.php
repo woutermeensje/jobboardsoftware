@@ -161,9 +161,11 @@ class ExampleTest extends TestCase
     public function test_saas_user_can_register_and_reaches_dashboard(): void
     {
         $response = $this->post('/sign-up', [
-            'name' => 'New SaaS user',
-            'company_name' => 'Hire Labs',
+            'first_name' => 'New',
+            'last_name' => 'User',
             'email' => 'owner@example.com',
+            'phone_number' => '+1 555 123 4567',
+            'heard_about_us' => 'LinkedIn',
             'password' => 'password123',
             'password_confirmation' => 'password123',
         ]);
@@ -172,8 +174,12 @@ class ExampleTest extends TestCase
         $this->assertSame('/dashboard/onboarding', parse_url(route('onboarding.index'), PHP_URL_PATH));
         $this->assertAuthenticated();
         $this->assertDatabaseHas('users', [
+            'name' => 'New User',
+            'first_name' => 'New',
+            'last_name' => 'User',
             'email' => 'owner@example.com',
-            'company_name' => 'Hire Labs',
+            'phone_number' => '+1 555 123 4567',
+            'heard_about_us' => 'LinkedIn',
             'role' => User::ROLE_TENANT_OWNER,
         ]);
 

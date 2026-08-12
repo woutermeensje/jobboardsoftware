@@ -15,7 +15,11 @@ use Laravel\Cashier\Billable;
 
 #[Fillable([
     'name',
+    'first_name',
+    'last_name',
     'email',
+    'phone_number',
+    'heard_about_us',
     'password',
     'role',
     'company_name',
