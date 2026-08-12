@@ -21,6 +21,18 @@ Laravel is a web application framework with expressive, elegant syntax. We belie
 
 Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
+## Deployment Notes
+
+This app uses Stancl Tenancy with domain-based tenant identification. Set `CENTRAL_DOMAINS` to every host that should serve the central SaaS app. On Laravel Cloud, include the generated `*.laravel.cloud` environment domain as well as the production custom domain.
+
+For the current production environment:
+
+```env
+CENTRAL_DOMAINS=127.0.0.1,localhost,jobboardsoftware.co,jobboardsoftware-production-adjzkt.laravel.cloud
+```
+
+After changing environment variables in Laravel Cloud, redeploy the environment so the new values are loaded.
+
 ## Learning Laravel
 
 Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
