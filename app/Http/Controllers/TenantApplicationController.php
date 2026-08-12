@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Tenant;
 use App\Models\JobApplication;
+use App\Models\Tenant;
+use App\Support\AdminActionNotifier;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
@@ -35,6 +36,14 @@ class TenantApplicationController extends Controller
         ]);
 
         $application->update($validated);
+
+        app(AdminActionNotifier::class)->notify('Sollicitatiestatus bijgewerkt', [
+            'tenant_id' => $tenant->id,
+            'tenant_naam' => $tenant->name,
+            'sollicitant' => $application->name,
+            'email' => $application->email,
+            'status' => $application->status,
+        ], $request->user());
 
         return back()->with('status', 'Application status updated.');
     }

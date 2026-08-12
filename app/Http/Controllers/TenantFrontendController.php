@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\JobApplication;
 use App\Models\TenantJob;
+use App\Support\AdminActionNotifier;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class TenantFrontendController extends Controller
@@ -57,7 +57,7 @@ class TenantFrontendController extends Controller
             $cvPath = $request->file('cv')->store('applications/'.tenant('id'), 'public');
         }
 
-        JobApplication::create([
+        $application = JobApplication::create([
             'tenant_id' => tenant('id'),
             'tenant_job_id' => $job->id,
             'name' => $validated['name'],
@@ -66,6 +66,16 @@ class TenantFrontendController extends Controller
             'motivation' => $validated['motivation'] ?? null,
             'cv_path' => $cvPath,
             'status' => JobApplication::STATUS_NEW,
+        ]);
+
+        app(AdminActionNotifier::class)->notify('Nieuwe sollicitatie ontvangen', [
+            'tenant_id' => tenant('id'),
+            'tenant_naam' => tenant('name'),
+            'vacature' => $job->title,
+            'sollicitant' => $application->name,
+            'email' => $application->email,
+            'telefoon' => $application->phone,
+            'cv_geupload' => (bool) $application->cv_path,
         ]);
 
         return redirect()

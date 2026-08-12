@@ -70,6 +70,18 @@ $centralRoutes = function (): void {
         Route::redirect('/dashboard/werkzoekende', '/dashboard')->name('werkzoekende.dashboard');
         Route::redirect('/dashboard/werkgever', '/dashboard')->name('werkgever.dashboard');
         Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->middleware(['auth', 'role:admin'])->name('admin.dashboard');
+        Route::middleware(['auth', 'role:admin'])->prefix('/admin')->name('admin.')->group(function () {
+            Route::get('/users', [AdminDashboardController::class, 'users'])->name('users.index');
+            Route::patch('/users/{managedUser}', [AdminDashboardController::class, 'updateUser'])->name('users.update');
+            Route::get('/tenants', [AdminDashboardController::class, 'tenants'])->name('tenants.index');
+            Route::patch('/tenants/{tenant}', [AdminDashboardController::class, 'updateTenant'])->name('tenants.update');
+            Route::get('/domains', [AdminDashboardController::class, 'domains'])->name('domains.index');
+            Route::patch('/domains/{domain}', [AdminDashboardController::class, 'updateDomain'])->name('domains.update');
+            Route::get('/jobs', [AdminDashboardController::class, 'jobs'])->name('jobs.index');
+            Route::patch('/jobs/{job}', [AdminDashboardController::class, 'updateJob'])->name('jobs.update');
+            Route::get('/applications', [AdminDashboardController::class, 'applications'])->name('applications.index');
+            Route::patch('/applications/{application}', [AdminDashboardController::class, 'updateApplication'])->name('applications.update');
+        });
     });
 
     Route::redirect('/dashboard/werkgever/omgeving', '/dashboard/environments');

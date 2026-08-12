@@ -3,6 +3,11 @@
 
   $items = [
     ['label' => 'Platform management', 'icon' => 'ph-squares-four', 'url' => route('admin.dashboard'), 'active' => request()->routeIs('admin.dashboard')],
+    ['label' => 'Users', 'icon' => 'ph-users', 'url' => route('admin.users.index'), 'active' => request()->routeIs('admin.users.*')],
+    ['label' => 'Tenants', 'icon' => 'ph-buildings', 'url' => route('admin.tenants.index'), 'active' => request()->routeIs('admin.tenants.*')],
+    ['label' => 'Domains', 'icon' => 'ph-globe', 'url' => route('admin.domains.index'), 'active' => request()->routeIs('admin.domains.*')],
+    ['label' => 'Jobs', 'icon' => 'ph-briefcase', 'url' => route('admin.jobs.index'), 'active' => request()->routeIs('admin.jobs.*')],
+    ['label' => 'Applications', 'icon' => 'ph-file-text', 'url' => route('admin.applications.index'), 'active' => request()->routeIs('admin.applications.*')],
     ['label' => 'Website', 'icon' => 'ph-house', 'url' => route('welcome'), 'active' => false],
   ];
 @endphp

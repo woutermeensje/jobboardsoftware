@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\BillingPlan;
 use App\Models\Tenant;
+use App\Support\AdminActionNotifier;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -28,6 +29,12 @@ class BillingController extends Controller
         $user = $request->user();
 
         if ($plan->stripe_price_id && config('cashier.key') && config('cashier.secret')) {
+            app(AdminActionNotifier::class)->notify('Stripe checkout gestart', [
+                'pakket' => $plan->name,
+                'pakket_key' => $plan->key,
+                'stripe_price_id' => $plan->stripe_price_id,
+            ], $user);
+
             return $user
                 ->newSubscription('default', $plan->stripe_price_id)
                 ->trialDays(14)
@@ -48,6 +55,14 @@ class BillingController extends Controller
             'billing_status' => 'trial',
         ]);
 
+        app(AdminActionNotifier::class)->notify('Pakket gekozen', [
+            'pakket' => $plan->name,
+            'pakket_key' => $plan->key,
+            'bedrag_per_maand_cent' => $plan->monthly_price_cents,
+            'billing_status' => $user->billing_status,
+            'onboarding_step' => $user->onboarding_step,
+        ], $user);
+
         return redirect()
             ->route('onboarding.index')
             ->with('status', 'Your package has been saved. Stripe checkout will be used once price IDs and Stripe keys are configured.');
@@ -67,6 +82,12 @@ class BillingController extends Controller
             'status' => Tenant::STATUS_ACTIVE,
             'subscribed_at' => now(),
         ]);
+
+        app(AdminActionNotifier::class)->notify('Licentie geactiveerd', [
+            'billing_status' => $user->billing_status,
+            'onboarding_step' => $user->onboarding_step,
+            'tenant_count' => $user->ownedTenants()->count(),
+        ], $user);
 
         return redirect()
             ->route('onboarding.index')

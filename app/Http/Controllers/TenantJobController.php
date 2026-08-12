@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Tenant;
 use App\Models\TenantJob;
+use App\Support\AdminActionNotifier;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -41,13 +42,22 @@ class TenantJobController extends Controller
         $validated = $this->validatedJob($request, $tenant);
         $status = $validated['status'];
 
-        $tenant->jobs()->create([
+        $job = $tenant->jobs()->create([
             ...$validated,
             'slug' => Str::slug(($validated['slug'] ?? '') ?: $validated['title']),
             'published_at' => $status === TenantJob::STATUS_PUBLISHED ? now() : null,
         ]);
 
         $this->refreshOnboarding($request);
+
+        app(AdminActionNotifier::class)->notify('Vacature aangemaakt', [
+            'tenant_id' => $tenant->id,
+            'tenant_naam' => $tenant->name,
+            'vacature' => $job->title,
+            'slug' => $job->slug,
+            'status' => $job->status,
+            'onboarding_step' => $request->user()->onboarding_step,
+        ], $request->user());
 
         return redirect()
             ->route('tenant.jobs.index', $tenant)
@@ -80,6 +90,14 @@ class TenantJobController extends Controller
             'published_at' => $status === TenantJob::STATUS_PUBLISHED && ! $wasPublished ? now() : $job->published_at,
         ]);
 
+        app(AdminActionNotifier::class)->notify('Vacature bijgewerkt', [
+            'tenant_id' => $tenant->id,
+            'tenant_naam' => $tenant->name,
+            'vacature' => $job->title,
+            'slug' => $job->slug,
+            'status' => $job->status,
+        ], $request->user());
+
         return redirect()
             ->route('tenant.jobs.index', $tenant)
             ->with('status', 'Job updated.');
@@ -89,7 +107,17 @@ class TenantJobController extends Controller
     {
         $this->authorizeTenantJob($request, $tenant, $job);
 
+        $deletedJob = [
+            'tenant_id' => $tenant->id,
+            'tenant_naam' => $tenant->name,
+            'vacature' => $job->title,
+            'slug' => $job->slug,
+            'status' => $job->status,
+        ];
+
         $job->delete();
+
+        app(AdminActionNotifier::class)->notify('Vacature verwijderd', $deletedJob, $request->user());
 
         return redirect()
             ->route('tenant.jobs.index', $tenant)

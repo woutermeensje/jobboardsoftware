@@ -52,6 +52,9 @@
                 <a class="dash-btn dash-btn--primary" href="{{ route('tenant.jobs.index', $tenant) }}">Manage jobs</a>
                 <a class="dash-btn dash-btn--ghost" href="{{ route('tenant.applications.index', $tenant) }}">Applications</a>
                 <a class="dash-btn dash-btn--ghost" href="{{ route('onboarding.index') }}">Onboarding</a>
+                @if($primaryDomain = $tenant->domains->firstWhere('is_primary', true))
+                  <a class="dash-btn dash-btn--ghost" href="https://{{ $primaryDomain->domain }}" target="_blank" rel="noopener">Visit job board</a>
+                @endif
               </div>
 
               <div class="tenant-domain-list">
@@ -61,17 +64,19 @@
                       <strong>{{ $domain->domain }}</strong>
                       <span>{{ $domain->is_primary ? 'Primary domain' : 'Additional domain' }} - DNS: {{ ucfirst($domain->status) }} - SSL: {{ ucfirst($domain->ssl_status) }}</span>
                     </div>
-                    <div class="tenant-domain__ops">
-                      <code>CNAME {{ $domain->domain }} -> cname.jobboardsoftware.co</code>
-                      <form method="POST" action="{{ route('tenant.environments.domains.check', [$tenant, $domain]) }}">
-                        @csrf
-                        <button class="dash-btn dash-btn--ghost" type="submit">DNS check</button>
-                      </form>
-                      <form method="POST" action="{{ route('tenant.environments.domains.ssl', [$tenant, $domain]) }}">
-                        @csrf
-                        <button class="dash-btn dash-btn--ghost" type="submit" @disabled(! in_array($domain->status, [\App\Models\Domain::STATUS_VERIFIED, \App\Models\Domain::STATUS_ACTIVE], true))>Activate SSL</button>
-                      </form>
-                    </div>
+                    @unless(str_ends_with($domain->domain, '.jobboardsoftware.co'))
+                      <div class="tenant-domain__ops">
+                        <code>CNAME {{ $domain->domain }} -> cname.jobboardsoftware.co</code>
+                        <form method="POST" action="{{ route('tenant.environments.domains.check', [$tenant, $domain]) }}">
+                          @csrf
+                          <button class="dash-btn dash-btn--ghost" type="submit">DNS check</button>
+                        </form>
+                        <form method="POST" action="{{ route('tenant.environments.domains.ssl', [$tenant, $domain]) }}">
+                          @csrf
+                          <button class="dash-btn dash-btn--ghost" type="submit" @disabled(! in_array($domain->status, [\App\Models\Domain::STATUS_VERIFIED, \App\Models\Domain::STATUS_ACTIVE], true))>Activate SSL</button>
+                        </form>
+                      </div>
+                    @endunless
                   </div>
                 @empty
                   <p class="dash-cell-meta">No domain connected yet.</p>
@@ -117,15 +122,8 @@
             <div class="form-field">
               <label class="form-label" for="slug">Slug</label>
               <input class="form-control" id="slug" name="slug" type="text" value="{{ old('slug') }}" placeholder="acme-careers" required>
+              <p class="form-help">Your job board will be live at <strong>{{ old('slug', 'acme-careers') }}.jobboardsoftware.co</strong> immediately.</p>
               @error('slug')
-                <p class="form-error">{{ $message }}</p>
-              @enderror
-            </div>
-            <div class="form-field">
-              <label class="form-label" for="domain">Domain</label>
-              <input class="form-control" id="domain" name="domain" type="text" value="{{ old('domain') }}" placeholder="jobs.example.com">
-              <p class="form-help">Leave empty if you want to connect a domain later.</p>
-              @error('domain')
                 <p class="form-error">{{ $message }}</p>
               @enderror
             </div>
@@ -136,24 +134,8 @@
         </section>
 
         <section class="dash-card">
-          <h2>DNS instruction</h2>
-          <p>Ask customers to point their domain or subdomain as a CNAME to your SaaS target.</p>
-          <ul class="dash-list">
-            <li>
-              <div>
-                <strong>Type</strong>
-                <span>CNAME</span>
-              </div>
-              <span>DNS</span>
-            </li>
-            <li>
-              <div>
-                <strong>Value</strong>
-                <span>cname.jobboardsoftware.co</span>
-              </div>
-              <span>Target</span>
-            </li>
-          </ul>
+          <h2>Custom domains</h2>
+          <p>Every environment starts on a free <code>*.jobboardsoftware.co</code> subdomain, live right away with no DNS setup. You can connect your own domain per environment later from the list on the left.</p>
         </section>
       </aside>
     </div>

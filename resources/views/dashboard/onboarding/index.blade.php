@@ -110,12 +110,7 @@
                     @error('slug')<p class="form-error">{{ $message }}</p>@enderror
                   </div>
                 </div>
-                <div class="form-field">
-                  <label class="form-label" for="domain">Domain or subdomain</label>
-                  <input class="form-control" id="domain" name="domain" type="text" value="{{ old('domain') }}" placeholder="jobs.example.com">
-                  <p class="form-help">You can connect this later as well.</p>
-                  @error('domain')<p class="form-error">{{ $message }}</p>@enderror
-                </div>
+                <p class="form-help">Your job board goes live immediately at <strong>{{ old('slug', 'acme-careers') }}.jobboardsoftware.co</strong> &mdash; you can connect your own domain later.</p>
                 <div class="form-actions">
                   <button class="dash-btn dash-btn--primary" type="submit">Create environment</button>
                 </div>
@@ -126,8 +121,8 @@
           <section class="dash-panel" id="domain">
             <div class="dash-panel__head">
               <div>
-                <h2>3. Connect domain</h2>
-                <p>Point the customer domain to your SaaS target.</p>
+                <h2>3. Domain</h2>
+                <p>Your job board's address. Connect your own domain whenever you're ready.</p>
               </div>
             </div>
 
@@ -141,10 +136,12 @@
                       <strong>{{ $domain->domain }}</strong>
                       <span>DNS: {{ ucfirst($domain->status) }} - SSL: {{ ucfirst($domain->ssl_status) }}</span>
                     </div>
-                    <form method="POST" action="{{ route('tenant.environments.domains.check', [$tenant, $domain]) }}">
-                      @csrf
-                      <button class="dash-btn dash-btn--ghost" type="submit">DNS check</button>
-                    </form>
+                    @unless(str_ends_with($domain->domain, '.jobboardsoftware.co'))
+                      <form method="POST" action="{{ route('tenant.environments.domains.check', [$tenant, $domain]) }}">
+                        @csrf
+                        <button class="dash-btn dash-btn--ghost" type="submit">DNS check</button>
+                      </form>
+                    @endunless
                   </div>
                 @empty
                   <p class="onboarding-muted">No domain connected yet.</p>

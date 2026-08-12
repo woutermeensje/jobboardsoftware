@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Support\AdminActionNotifier;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -117,6 +118,14 @@ class PortalAuthController extends Controller
             'password' => $validated['password'],
             'role' => $role,
         ]);
+
+        app(AdminActionNotifier::class)->notify('Nieuwe gebruiker aangemeld', [
+            'naam' => $user->name,
+            'email' => $user->email,
+            'telefoon' => $user->phone_number,
+            'rol' => $user->role,
+            'bron' => $user->heard_about_us,
+        ], $user);
 
         Auth::login($user);
         $request->session()->regenerate();
