@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Domains\Schemas;
 
 use Filament\Infolists\Components\IconEntry;
+use Filament\Infolists\Components\KeyValueEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Schema;
 
@@ -13,11 +14,15 @@ class DomainInfolist
         return $schema
             ->components([
                 TextEntry::make('domain'),
-                TextEntry::make('tenant_id'),
+                TextEntry::make('tenant.name')
+                    ->label('Environment'),
                 IconEntry::make('is_primary')
                     ->boolean(),
-                TextEntry::make('status'),
-                TextEntry::make('ssl_status'),
+                TextEntry::make('status')
+                    ->badge(),
+                TextEntry::make('ssl_status')
+                    ->label('SSL status')
+                    ->badge(),
                 TextEntry::make('verified_at')
                     ->dateTime()
                     ->placeholder('-'),
@@ -30,6 +35,9 @@ class DomainInfolist
                 TextEntry::make('updated_at')
                     ->dateTime()
                     ->placeholder('-'),
+                KeyValueEntry::make('verification_payload')
+                    ->placeholder('-')
+                    ->columnSpanFull(),
             ]);
     }
 }

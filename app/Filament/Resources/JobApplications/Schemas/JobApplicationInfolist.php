@@ -12,9 +12,9 @@ class JobApplicationInfolist
         return $schema
             ->components([
                 TextEntry::make('tenant.name')
-                    ->label('Tenant'),
-                TextEntry::make('tenant_job_id')
-                    ->numeric(),
+                    ->label('Environment'),
+                TextEntry::make('job.title')
+                    ->label('Job'),
                 TextEntry::make('name'),
                 TextEntry::make('email')
                     ->label('Email address'),
@@ -25,7 +25,8 @@ class JobApplicationInfolist
                     ->columnSpanFull(),
                 TextEntry::make('cv_path')
                     ->placeholder('-'),
-                TextEntry::make('status'),
+                TextEntry::make('status')
+                    ->badge(),
                 TextEntry::make('created_at')
                     ->dateTime()
                     ->placeholder('-'),

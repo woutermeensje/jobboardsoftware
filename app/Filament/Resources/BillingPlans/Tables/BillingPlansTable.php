@@ -8,6 +8,7 @@ use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 
 class BillingPlansTable
@@ -17,18 +18,30 @@ class BillingPlansTable
         return $table
             ->columns([
                 TextColumn::make('key')
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('name')
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('monthly_price_cents')
-                    ->numeric()
+                    ->label('Monthly price')
+                    ->money('EUR', divideBy: 100)
                     ->sortable(),
                 TextColumn::make('currency')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('stripe_price_id')
-                    ->searchable(),
+                    ->label('Stripe price')
+                    ->searchable()
+                    ->copyable()
+                    ->toggleable(),
                 IconColumn::make('is_active')
                     ->boolean(),
+                TextColumn::make('features')
+                    ->listWithLineBreaks()
+                    ->bulleted()
+                    ->limitList(3)
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -39,7 +52,8 @@ class BillingPlansTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                TernaryFilter::make('is_active')
+                    ->label('Active'),
             ])
             ->recordActions([
                 ViewAction::make(),

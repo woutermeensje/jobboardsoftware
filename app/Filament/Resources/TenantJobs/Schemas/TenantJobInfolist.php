@@ -12,7 +12,7 @@ class TenantJobInfolist
         return $schema
             ->components([
                 TextEntry::make('tenant.name')
-                    ->label('Tenant'),
+                    ->label('Environment'),
                 TextEntry::make('title'),
                 TextEntry::make('slug'),
                 TextEntry::make('department')
@@ -29,7 +29,8 @@ class TenantJobInfolist
                 TextEntry::make('description')
                     ->placeholder('-')
                     ->columnSpanFull(),
-                TextEntry::make('status'),
+                TextEntry::make('status')
+                    ->badge(),
                 TextEntry::make('published_at')
                     ->dateTime()
                     ->placeholder('-'),
