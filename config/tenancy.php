@@ -16,7 +16,7 @@ return [
      *
      * Only relevant if you're using the domain or subdomain identification middleware.
      */
-    'central_domains' => array_values(array_filter(array_map('trim', explode(',', env('CENTRAL_DOMAINS', '127.0.0.1,localhost,jobboardsoftware.co'))))),
+    'central_domains' => array_values(array_filter(array_map('trim', explode(',', env('CENTRAL_DOMAINS', env('APP_ENV', 'production') === 'local' ? '127.0.0.1,localhost,jobboardsoftware.co' : 'jobboardsoftware.co'))))),
 
     /**
      * Tenancy bootstrappers are executed when tenancy is initialized.

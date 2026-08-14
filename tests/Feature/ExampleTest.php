@@ -100,6 +100,14 @@ class ExampleTest extends TestCase
             ->assertSee('Laravel Developer');
     }
 
+    public function test_unknown_tenant_domain_returns_not_found(): void
+    {
+        $this->get('http://sustainablejobs.jobboardsoftware.co/')
+            ->assertNotFound()
+            ->assertSee('Job board not found')
+            ->assertSee('sustainablejobs.jobboardsoftware.co');
+    }
+
     public function test_saas_user_can_create_tenant_environment_with_domain(): void
     {
         $owner = User::factory()->create([
