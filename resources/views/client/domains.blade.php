@@ -27,65 +27,81 @@
         </section>
       @endif
 
-      <section class="dash-panel">
-        <div class="dash-panel__head">
-          <div>
-            <h2>Connect domain</h2>
-            <p>Add a custom domain to one of your job board environments.</p>
-          </div>
-        </div>
-
-        @if($tenants->isEmpty())
-          <div class="dash-empty">
-            <h3>No environments yet</h3>
-            <p>Create an environment before connecting a custom domain.</p>
-            <div class="dash-actions">
-              <a class="dash-link" href="{{ route('client.environments.create') }}">Create environment</a>
-            </div>
-          </div>
-        @else
-          <form class="domain-form" method="POST" action="{{ route('client.domains.store') }}">
-            @csrf
-
-            <div class="domain-form__grid">
-              <label class="domain-field">
-                <span>Environment</span>
-                <select name="tenant_id" required>
-                  @foreach($tenants as $tenant)
-                    <option value="{{ $tenant->id }}" @selected($selectedTenantId === $tenant->id)>
-                      {{ $tenant->name }} ({{ $tenant->slug }})
-                    </option>
-                  @endforeach
-                </select>
-              </label>
-
-              <label class="domain-field">
-                <span>Domain name</span>
-                <input
-                  type="text"
-                  name="domain"
-                  value="{{ old('domain') }}"
-                  placeholder="careers.example.com"
-                  autocomplete="off"
-                  required
-                >
-              </label>
+      <div class="dash-form-layout">
+        <main class="dash-form-layout__main">
+          <section class="dash-panel">
+            <div class="dash-panel__head">
+              <div>
+                <h2>Connect domain</h2>
+                <p>Add a custom domain to one of your job board environments.</p>
+              </div>
             </div>
 
-            <label class="domain-switch">
-              <input type="checkbox" name="is_primary" value="1" @checked(old('is_primary'))>
-              Primary domain for this environment
-            </label>
+            @if($tenants->isEmpty())
+              <div class="dash-empty">
+                <h3>No environments yet</h3>
+                <p>Create an environment before connecting a custom domain.</p>
+                <div class="dash-actions">
+                  <a class="dash-link" href="{{ route('client.environments.create') }}">Create environment</a>
+                </div>
+              </div>
+            @else
+              <form class="domain-form" method="POST" action="{{ route('client.domains.store') }}">
+                @csrf
 
-            <div class="dash-actions dash-actions--spaced">
-              <button class="dash-btn dash-btn--primary" type="submit">
-                <i class="ph ph-link" aria-hidden="true"></i>
-                Connect domain
-              </button>
-            </div>
-          </form>
-        @endif
-      </section>
+                <div class="domain-form__grid">
+                  <label class="domain-field">
+                    <span>Environment</span>
+                    <select name="tenant_id" required>
+                      @foreach($tenants as $tenant)
+                        <option value="{{ $tenant->id }}" @selected($selectedTenantId === $tenant->id)>
+                          {{ $tenant->name }} ({{ $tenant->slug }})
+                        </option>
+                      @endforeach
+                    </select>
+                  </label>
+
+                  <label class="domain-field">
+                    <span>Domain name</span>
+                    <input
+                      type="text"
+                      name="domain"
+                      value="{{ old('domain') }}"
+                      placeholder="careers.example.com"
+                      autocomplete="off"
+                      required
+                    >
+                  </label>
+                </div>
+
+                <label class="domain-switch">
+                  <input type="checkbox" name="is_primary" value="1" @checked(old('is_primary'))>
+                  Primary domain for this environment
+                </label>
+
+                <div class="dash-actions dash-actions--spaced">
+                  <button class="dash-btn dash-btn--primary" type="submit">
+                    <i class="ph ph-link" aria-hidden="true"></i>
+                    Connect domain
+                  </button>
+                </div>
+              </form>
+            @endif
+          </section>
+        </main>
+
+        <aside class="dash-form-layout__aside">
+          <section class="dash-card dash-form-side">
+            <h2>DNS setup</h2>
+            <p>After connecting a domain, DNS records appear in the table below for verification.</p>
+            <ul>
+              <li>Use a subdomain such as careers.example.com.</li>
+              <li>Primary domains become the default environment URL.</li>
+              <li>SSL can be activated after DNS verification succeeds.</li>
+            </ul>
+          </section>
+        </aside>
+      </div>
 
       <section class="dash-panel">
         <div class="dash-panel__head">

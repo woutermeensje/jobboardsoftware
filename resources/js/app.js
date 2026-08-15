@@ -75,3 +75,19 @@ if (tenantHeader) {
   updateTenantHeaderScrollState();
   window.addEventListener('scroll', updateTenantHeaderScrollState, { passive: true });
 }
+
+document.querySelectorAll('[data-file-picker]').forEach((picker) => {
+  const input = picker.querySelector('input[type="file"]');
+  const fileName = picker.querySelector('[data-file-name]');
+
+  if (!input || !fileName) {
+    return;
+  }
+
+  input.addEventListener('change', () => {
+    const selectedFiles = Array.from(input.files || []).map((file) => file.name);
+    fileName.textContent = selectedFiles.length
+      ? selectedFiles.join(', ')
+      : fileName.dataset.emptyLabel || 'No file selected';
+  });
+});

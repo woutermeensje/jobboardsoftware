@@ -115,6 +115,27 @@ class ClientDashboardTest extends TestCase
             ->assertSee('/client/dashboard/jobs-settings/job-type', false);
     }
 
+    public function test_client_dashboard_form_pages_use_the_split_layout(): void
+    {
+        $owner = User::factory()->create(['role' => User::ROLE_TENANT_OWNER]);
+        $this->tenantFor($owner, 'Acme Careers', 'acme-careers');
+
+        foreach ([
+            '/client/dashboard/domains',
+            '/client/dashboard/jobs/create',
+            '/client/dashboard/marketing/landingpagina',
+            '/client/dashboard/jobs-settings/categorie',
+            '/client/dashboard/jobs-settings/job-type',
+            '/client/dashboard/companies/create',
+        ] as $path) {
+            $this->actingAs($owner)
+                ->get($path)
+                ->assertOk()
+                ->assertSee('dash-form-layout', false)
+                ->assertSee('dash-form-layout__aside', false);
+        }
+    }
+
     public function test_tenant_scoped_employer_cannot_access_the_application_wide_client_dashboard(): void
     {
         $owner = User::factory()->create(['role' => User::ROLE_TENANT_OWNER]);
@@ -140,7 +161,11 @@ class ClientDashboardTest extends TestCase
         $this->actingAs($owner)
             ->get('/client/dashboard/companies/create')
             ->assertOk()
+            ->assertSee('dash-form-layout', false)
             ->assertSee('Create company')
+            ->assertSee('Choose file')
+            ->assertSee('No file selected')
+            ->assertSee('Company profile')
             ->assertSee('Logo')
             ->assertSee('Upload a PNG, JPG, WebP or SVG logo.');
 

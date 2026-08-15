@@ -7,13 +7,44 @@
   @include('client.partials.navigation')
 @endsection
 
+@php
+  $usesFormLayout = ($section['layout'] ?? null) === 'form';
+@endphp
+
 @section('content')
-      <section class="dash-panel">
-        <div class="dash-panel__head">
-          <div>
-            <h2>{{ $section['title'] }}</h2>
-            <p>This screen uses your custom Blade stack. You can build the full interface here or split it into your own components.</p>
-          </div>
+      @if($usesFormLayout)
+        <div class="dash-form-layout">
+          <main class="dash-form-layout__main">
+            <section class="dash-panel">
+              <div class="dash-panel__head">
+                <div>
+                  <h2>{{ $section['title'] }}</h2>
+                  <p>{{ $section['description'] }}</p>
+                </div>
+              </div>
+
+              <div class="dash-empty-state">
+                <h3>{{ $section['title'] }} form</h3>
+                <p>The form fields for this section will use this main content area.</p>
+              </div>
+            </section>
+          </main>
+
+          <aside class="dash-form-layout__aside">
+            <section class="dash-card dash-form-side">
+              <h2>{{ $section['aside_title'] ?? $section['title'].' details' }}</h2>
+              <p>{{ $section['aside_description'] ?? $section['description'] }}</p>
+            </section>
+          </aside>
         </div>
-      </section>
+      @else
+        <section class="dash-panel">
+          <div class="dash-panel__head">
+            <div>
+              <h2>{{ $section['title'] }}</h2>
+              <p>{{ $section['description'] }}</p>
+            </div>
+          </div>
+        </section>
+      @endif
 @endsection

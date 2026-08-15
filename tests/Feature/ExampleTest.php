@@ -252,6 +252,10 @@ class ExampleTest extends TestCase
 
         $this->get('http://public-post.test/post-a-job/')
             ->assertOk()
+            ->assertSee('tenant-post-job__main', false)
+            ->assertSee('tenant-post-job__aside', false)
+            ->assertSee('tenant-form-title', false)
+            ->assertSee('tenant-form-section-title', false)
             ->assertSee('Submit a vacancy')
             ->assertSee('Category')
             ->assertSee('Job type')

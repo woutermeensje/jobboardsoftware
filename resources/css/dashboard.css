@@ -460,6 +460,53 @@
   line-height: 1.6;
 }
 
+.dash-form-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 65fr) minmax(280px, 35fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.dash-form-layout__main,
+.dash-form-layout__aside {
+  min-width: 0;
+}
+
+.dash-form-layout__aside {
+  position: sticky;
+  top: 96px;
+}
+
+.dash-form-side h2 {
+  font-size: 17px;
+}
+
+.dash-form-side ul {
+  display: grid;
+  gap: 9px;
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dash-form-side li {
+  display: flex;
+  gap: 8px;
+  color: var(--color-text-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.dash-form-side li::before {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 auto;
+  margin-top: 7px;
+  border-radius: 999px;
+  background: var(--color-primary);
+  content: "";
+}
+
 .domain-form {
   display: grid;
   gap: 14px;
@@ -540,13 +587,10 @@
   line-height: 1.45;
 }
 
-.company-form {
-  max-width: 860px;
-}
-
 .company-logo-upload {
+  position: relative;
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: auto minmax(0, 1fr) auto;
   gap: 12px;
   align-items: center;
   min-height: 92px;
@@ -583,11 +627,38 @@
 }
 
 .company-logo-upload input {
-  grid-column: 1 / -1;
-  min-height: 0;
-  padding: 0;
-  border: 0;
-  background: transparent;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.dash-file-picker__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 0 13px;
+  border-radius: var(--radius-default);
+  background: var(--color-primary);
+  color: #ffffff;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.dash-file-picker__filename {
+  grid-column: 2 / -1;
+  overflow: hidden;
+  color: var(--color-text-muted);
+  font-family: var(--font-text);
+  font-size: 13px;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .company-cell {
@@ -871,6 +942,14 @@
     overflow-x: auto;
   }
 
+  .dash-form-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .dash-form-layout__aside {
+    position: static;
+  }
+
   .admin-form-grid,
   .admin-form-grid--three {
     grid-template-columns: 1fr;
@@ -883,6 +962,10 @@
 
   .company-logo-upload {
     grid-template-columns: 1fr;
+  }
+
+  .dash-file-picker__filename {
+    grid-column: auto;
   }
 }
 

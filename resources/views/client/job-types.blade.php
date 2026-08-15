@@ -27,60 +27,76 @@
         </section>
       @endif
 
-      <section class="dash-panel">
-        <div class="dash-panel__head">
-          <div>
-            <h2>Job types</h2>
-            <p>Default job types are always available. Add custom types for a specific environment when needed.</p>
-          </div>
-        </div>
-
-        @if($tenants->isEmpty())
-          <div class="dash-empty">
-            <h3>No environments yet</h3>
-            <p>Create an environment before adding custom job types.</p>
-            <div class="dash-actions">
-              <a class="dash-link" href="{{ route('client.environments.create') }}">Create environment</a>
-            </div>
-          </div>
-        @else
-          <form class="domain-form" method="POST" action="{{ route('client.jobs-settings.job-type.store') }}">
-            @csrf
-
-            <div class="domain-form__grid">
-              <label class="domain-field">
-                <span>Environment</span>
-                <select name="tenant_id" required>
-                  @foreach($tenants as $tenant)
-                    <option value="{{ $tenant->id }}" @selected($selectedTenantId === $tenant->id)>
-                      {{ $tenant->name }} ({{ $tenant->slug }})
-                    </option>
-                  @endforeach
-                </select>
-              </label>
-
-              <label class="domain-field">
-                <span>New job type</span>
-                <input
-                  type="text"
-                  name="name"
-                  value="{{ old('name') }}"
-                  placeholder="For example: Volunteer"
-                  autocomplete="off"
-                  required
-                >
-              </label>
+      <div class="dash-form-layout">
+        <main class="dash-form-layout__main">
+          <section class="dash-panel">
+            <div class="dash-panel__head">
+              <div>
+                <h2>Job types</h2>
+                <p>Default job types are always available. Add custom types for a specific environment when needed.</p>
+              </div>
             </div>
 
+            @if($tenants->isEmpty())
+              <div class="dash-empty">
+                <h3>No environments yet</h3>
+                <p>Create an environment before adding custom job types.</p>
+                <div class="dash-actions">
+                  <a class="dash-link" href="{{ route('client.environments.create') }}">Create environment</a>
+                </div>
+              </div>
+            @else
+              <form class="domain-form" method="POST" action="{{ route('client.jobs-settings.job-type.store') }}">
+                @csrf
+
+                <div class="domain-form__grid">
+                  <label class="domain-field">
+                    <span>Environment</span>
+                    <select name="tenant_id" required>
+                      @foreach($tenants as $tenant)
+                        <option value="{{ $tenant->id }}" @selected($selectedTenantId === $tenant->id)>
+                          {{ $tenant->name }} ({{ $tenant->slug }})
+                        </option>
+                      @endforeach
+                    </select>
+                  </label>
+
+                  <label class="domain-field">
+                    <span>New job type</span>
+                    <input
+                      type="text"
+                      name="name"
+                      value="{{ old('name') }}"
+                      placeholder="For example: Volunteer"
+                      autocomplete="off"
+                      required
+                    >
+                  </label>
+                </div>
+
+                <div class="dash-actions dash-actions--spaced">
+                  <button class="dash-btn dash-btn--primary" type="submit">
+                    <i class="ph ph-plus" aria-hidden="true"></i>
+                    Add job type
+                  </button>
+                </div>
+              </form>
+            @endif
+          </section>
+        </main>
+
+        <aside class="dash-form-layout__aside">
+          <section class="dash-card dash-form-side">
+            <h2>Default job types</h2>
+            <p>Every environment always includes the standard job types below.</p>
             <div class="dash-actions dash-actions--spaced">
-              <button class="dash-btn dash-btn--primary" type="submit">
-                <i class="ph ph-plus" aria-hidden="true"></i>
-                Add job type
-              </button>
+              @foreach($defaultJobTypes as $jobType)
+                <span class="dash-status">{{ $jobType }}</span>
+              @endforeach
             </div>
-          </form>
-        @endif
-      </section>
+          </section>
+        </aside>
+      </div>
 
       <section class="dash-panel">
         <div class="dash-panel__head">

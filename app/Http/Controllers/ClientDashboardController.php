@@ -286,7 +286,7 @@ class ClientDashboardController extends Controller
     }
 
     /**
-     * @return array<string, array{title: string, description: string}>
+     * @return array<string, array<string, string>>
      */
     private function sections(): array
     {
@@ -298,6 +298,9 @@ class ClientDashboardController extends Controller
             'create-environment' => [
                 'title' => 'Create environment',
                 'description' => 'Build the custom flow for creating a new job board environment here.',
+                'layout' => 'form',
+                'aside_title' => 'Environment setup',
+                'aside_description' => 'Connect the environment to the brand, domain and job settings that belong to this job board.',
             ],
             'jobs' => [
                 'title' => 'Jobs',
@@ -306,6 +309,9 @@ class ClientDashboardController extends Controller
             'create-job' => [
                 'title' => 'Create job',
                 'description' => 'Build the custom job creation form here.',
+                'layout' => 'form',
+                'aside_title' => 'Job setup',
+                'aside_description' => 'Use the selected environment, category and job type to keep every vacancy consistent on the job board.',
             ],
             'domains' => [
                 'title' => 'Domains',
@@ -314,6 +320,9 @@ class ClientDashboardController extends Controller
             'create-domain' => [
                 'title' => 'Add domain',
                 'description' => 'Build the custom form for connecting a domain here.',
+                'layout' => 'form',
+                'aside_title' => 'DNS setup',
+                'aside_description' => 'Add the domain first, then verify the generated DNS records before routing traffic to the job board.',
             ],
             'applications' => [
                 'title' => 'Applications',
@@ -330,10 +339,16 @@ class ClientDashboardController extends Controller
             'landingpagina' => [
                 'title' => 'Landing pages',
                 'description' => 'Build the custom landing page editor here.',
+                'layout' => 'form',
+                'aside_title' => 'Landing page setup',
+                'aside_description' => 'Landing pages should stay connected to the selected environment and campaign goal.',
             ],
             'socials' => [
                 'title' => 'Social channels',
                 'description' => 'Build the custom social channel settings here.',
+                'layout' => 'form',
+                'aside_title' => 'Channel setup',
+                'aside_description' => 'Keep social channel settings grouped per environment so campaigns remain easy to manage.',
             ],
             'jobs-settings' => [
                 'title' => 'Jobs settings',
@@ -342,10 +357,16 @@ class ClientDashboardController extends Controller
             'sector' => [
                 'title' => 'Sectors',
                 'description' => 'Build the custom sector management screen here.',
+                'layout' => 'form',
+                'aside_title' => 'Sector settings',
+                'aside_description' => 'Sectors help group categories and job content across an environment.',
             ],
             'categorie' => [
                 'title' => 'Categories',
                 'description' => 'Build the custom category management screen here.',
+                'layout' => 'form',
+                'aside_title' => 'Category settings',
+                'aside_description' => 'Categories are used in job filters and vacancy organization on tenant job boards.',
             ],
             'job-type' => [
                 'title' => 'Job types',
@@ -354,6 +375,9 @@ class ClientDashboardController extends Controller
             'organization-type' => [
                 'title' => 'Organization types',
                 'description' => 'Build the custom organization type management screen here.',
+                'layout' => 'form',
+                'aside_title' => 'Organization settings',
+                'aside_description' => 'Organization types make company and employer profiles easier to classify.',
             ],
             'companies' => [
                 'title' => 'Companies',

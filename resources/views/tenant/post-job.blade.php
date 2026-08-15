@@ -24,7 +24,7 @@
       <article class="tenant-panel tenant-post-job__main">
         <div class="tenant-panel__head">
           <p class="tenant-eyebrow">Post a job</p>
-          <h1>Submit a vacancy</h1>
+          <h2 class="tenant-form-title">Submit a vacancy</h2>
           <p>Your job will be saved as a draft first. Publishing and payment can be completed in the next step later.</p>
         </div>
 
@@ -32,7 +32,7 @@
           @csrf
 
           <div class="tenant-post-job-form__section">
-            <h2>Job details</h2>
+            <h2 class="tenant-form-section-title">Job details</h2>
 
             <label>
               Job title
@@ -93,7 +93,7 @@
           </div>
 
           <div class="tenant-post-job-form__section">
-            <h2>Contact details</h2>
+            <h2 class="tenant-form-section-title">Contact details</h2>
 
             <label>
               Company name
@@ -153,7 +153,7 @@
 
       <aside class="tenant-panel tenant-post-job__aside">
         <p class="tenant-eyebrow">Next step</p>
-        <h2>Draft first</h2>
+        <h2 class="tenant-form-section-title">Draft first</h2>
         <p>Submitted jobs are stored as drafts. The payment step will be connected later, before publishing.</p>
         <div class="tenant-post-job__summary">
           <span>Default job types</span>
