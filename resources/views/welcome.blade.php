@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'JobBoardSoftware')
-@section('meta_description', 'JobBoardSoftware SaaS platform.')
+@section('title', 'Starting a job board! | Jobboardsoftware.co')
+@section('meta_description', 'Start and grow your own job board with Jobboardsoftware.co: SEO-ready job pages, employer accounts, applications, and extra revenue models.')
 
 @section('content')
 <div style="padding: 48px 24px;">
