@@ -15,21 +15,11 @@
       'label' => 'Product',
       'url' => route('welcome').'#product',
       'active' => request()->routeIs('welcome'),
-      'children' => [
-        ['label' => 'Jobboard website', 'url' => route('welcome').'#jobboard'],
-        ['label' => 'Management portal', 'url' => route('welcome').'#management'],
-        ['label' => 'Custom domain', 'url' => route('welcome').'#domains'],
-      ],
     ],
     [
       'label' => 'Features',
       'url' => route('welcome').'#features',
       'active' => false,
-      'children' => [
-        ['label' => 'Tenant management', 'url' => route('welcome').'#management'],
-        ['label' => 'DNS connection', 'url' => route('welcome').'#domains'],
-        ['label' => 'Start account', 'url' => route('register.choice')],
-      ],
     ],
     ['label' => 'Pricing', 'url' => route('pages.tarieven'), 'active' => request()->routeIs('pages.tarieven')],
     ['label' => 'About us', 'url' => route('pages.over-ons'), 'active' => request()->routeIs('pages.over-ons')],
