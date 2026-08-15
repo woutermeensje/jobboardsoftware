@@ -24,7 +24,7 @@ class BillingController extends Controller
             'subscribed_at' => now(),
         ]);
 
-        app(AdminActionNotifier::class)->notify('Licentie geactiveerd', [
+        app(AdminActionNotifier::class)->notify('License activated', [
             'billing_status' => $user->billing_status,
             'onboarding_step' => $user->onboarding_step,
             'tenant_count' => $user->ownedTenants()->count(),

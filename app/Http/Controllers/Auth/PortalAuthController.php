@@ -8,6 +8,7 @@ use App\Support\AdminActionNotifier;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
 
@@ -37,14 +38,46 @@ class PortalAuthController extends Controller
         ]);
     }
 
-    public function showWerkzoekendeLogin(): View
+    public function showTenantLoginChoice(): View
     {
-        return $this->showLoginChoice();
+        $brandName = $this->tenantBrandName();
+
+        return view('auth.login-choice', [
+            'layout' => 'layouts.tenant',
+            'tenant' => tenant(),
+            'brandName' => $brandName,
+            'title' => 'Log in',
+            'eyebrow' => 'Tenant account',
+            'heading' => 'Log in to '.$brandName,
+            'subtitle' => 'Choose how you want to continue.',
+            'jobseekerUrl' => route('tenant.login.jobseeker'),
+            'employerUrl' => route('tenant.login.employer'),
+            'registerUrl' => route('tenant.register.choice'),
+            'backUrl' => route('tenant.home'),
+            'backLabel' => 'Back to job board',
+        ]);
     }
 
-    public function showWerkgeverLogin(): View
+    public function showTenantJobseekerLogin(): View
     {
-        return $this->showLoginChoice();
+        return $this->showTenantLoginFor(
+            User::ROLE_JOBSEEKER,
+            'Job seeker login',
+            'Log in as a job seeker',
+            route('tenant.login.jobseeker.submit'),
+            route('tenant.register.jobseeker'),
+        );
+    }
+
+    public function showTenantEmployerLogin(): View
+    {
+        return $this->showTenantLoginFor(
+            User::ROLE_EMPLOYER,
+            'Employer login',
+            'Log in as an employer',
+            route('tenant.login.employer.submit'),
+            route('tenant.register.employer'),
+        );
     }
 
     public function showAdminLogin(): View
@@ -83,24 +116,61 @@ class PortalAuthController extends Controller
         return redirect()->intended($this->dashboardRouteFor($role));
     }
 
-    public function showWerkzoekendeRegister(): View
+    public function showTenantRegisterChoice(): View
     {
-        return $this->showRegisterChoice();
+        $brandName = $this->tenantBrandName();
+
+        return view('auth.register-choice', [
+            'layout' => 'layouts.tenant',
+            'tenant' => tenant(),
+            'brandName' => $brandName,
+            'title' => 'Sign up',
+            'eyebrow' => 'Tenant account',
+            'heading' => 'Create an account for '.$brandName,
+            'subtitle' => 'Choose the account type that fits how you use this job board.',
+            'jobseekerUrl' => route('tenant.register.jobseeker'),
+            'employerUrl' => route('tenant.register.employer'),
+            'loginUrl' => route('tenant.login.choice'),
+            'backUrl' => route('tenant.home'),
+            'backLabel' => 'Back to job board',
+        ]);
     }
 
-    public function showWerkgeverRegister(): View
+    public function showTenantJobseekerRegister(): View
     {
-        return $this->showRegisterChoice();
+        return $this->showTenantRegisterFor(
+            User::ROLE_JOBSEEKER,
+            'Create job seeker account',
+            'Create a job seeker account',
+            route('tenant.register.jobseeker.submit'),
+            route('tenant.login.jobseeker'),
+        );
+    }
+
+    public function showTenantEmployerRegister(): View
+    {
+        return $this->showTenantRegisterFor(
+            User::ROLE_EMPLOYER,
+            'Create employer account',
+            'Create an employer account',
+            route('tenant.register.employer.submit'),
+            route('tenant.login.employer'),
+        );
     }
 
     public function register(Request $request, string $role): RedirectResponse
     {
-        abort_unless(in_array($role, [User::ROLE_WERKZOEKENDE, User::ROLE_WERKGEVER, User::ROLE_TENANT_OWNER], true), 404);
+        abort_unless($role === User::ROLE_TENANT_OWNER, 404);
 
         $validated = $request->validate([
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
+            'email' => [
+                'required',
+                'email',
+                'max:255',
+                Rule::unique('users', 'email')->where(fn ($query) => $query->whereNull('tenant_id')),
+            ],
             'phone_number' => ['required', 'string', 'max:40'],
             'heard_about_us' => ['required', 'string', 'max:255'],
             'password' => ['required', 'confirmed', Password::min(8)],
@@ -119,12 +189,12 @@ class PortalAuthController extends Controller
             'role' => $role,
         ]);
 
-        app(AdminActionNotifier::class)->notify('Nieuwe gebruiker aangemeld', [
-            'naam' => $user->name,
+        app(AdminActionNotifier::class)->notify('New user registered', [
+            'name' => $user->name,
             'email' => $user->email,
-            'telefoon' => $user->phone_number,
-            'rol' => $user->role,
-            'bron' => $user->heard_about_us,
+            'phone' => $user->phone_number,
+            'role' => $user->role,
+            'source' => $user->heard_about_us,
         ], $user);
 
         Auth::login($user);
@@ -137,6 +207,85 @@ class PortalAuthController extends Controller
         return redirect()->route($this->dashboardRouteNameFor($role));
     }
 
+    public function tenantLogin(Request $request, string $role): RedirectResponse
+    {
+        abort_unless(in_array($role, [User::ROLE_JOBSEEKER, User::ROLE_EMPLOYER], true), 404);
+
+        $validated = $request->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required', 'string'],
+            'remember' => ['nullable', 'boolean'],
+        ]);
+
+        $credentials = [
+            'email' => $validated['email'],
+            'password' => $validated['password'],
+            'role' => $role,
+            'tenant_id' => tenant('id'),
+        ];
+
+        if (! Auth::attempt($credentials, $request->boolean('remember'))) {
+            return back()
+                ->withErrors(['email' => 'These login credentials do not match this job board.'])
+                ->onlyInput('email');
+        }
+
+        $request->session()->regenerate();
+
+        return redirect()->intended(route($this->tenantDashboardRouteNameFor($role)));
+    }
+
+    public function tenantRegister(Request $request, string $role): RedirectResponse
+    {
+        abort_unless(in_array($role, [User::ROLE_JOBSEEKER, User::ROLE_EMPLOYER], true), 404);
+
+        $validated = $request->validate([
+            'first_name' => ['required', 'string', 'max:255'],
+            'last_name' => ['required', 'string', 'max:255'],
+            'email' => [
+                'required',
+                'email',
+                'max:255',
+                Rule::unique('users', 'email')->where(fn ($query) => $query->where('tenant_id', tenant('id'))),
+            ],
+            'phone_number' => ['required', 'string', 'max:40'],
+            'company_name' => [Rule::requiredIf($role === User::ROLE_EMPLOYER), 'nullable', 'string', 'max:255'],
+            'heard_about_us' => ['required', 'string', 'max:255'],
+            'password' => ['required', 'confirmed', Password::min(8)],
+        ]);
+
+        $name = trim($validated['first_name'].' '.$validated['last_name']);
+
+        $user = User::create([
+            'tenant_id' => tenant('id'),
+            'name' => $name,
+            'first_name' => $validated['first_name'],
+            'last_name' => $validated['last_name'],
+            'email' => $validated['email'],
+            'phone_number' => $validated['phone_number'],
+            'company_name' => $validated['company_name'] ?? null,
+            'heard_about_us' => $validated['heard_about_us'],
+            'password' => $validated['password'],
+            'role' => $role,
+        ]);
+
+        app(AdminActionNotifier::class)->notify('New tenant user registered', [
+            'tenant_id' => tenant('id'),
+            'tenant_name' => tenant('name'),
+            'name' => $user->name,
+            'email' => $user->email,
+            'phone' => $user->phone_number,
+            'company' => $user->company_name,
+            'role' => $user->role,
+            'source' => $user->heard_about_us,
+        ], $user);
+
+        Auth::login($user);
+        $request->session()->regenerate();
+
+        return redirect()->route($this->tenantDashboardRouteNameFor($role));
+    }
+
     public function logout(Request $request): RedirectResponse
     {
         Auth::logout();
@@ -145,6 +294,16 @@ class PortalAuthController extends Controller
         $request->session()->regenerateToken();
 
         return redirect()->route('login.choice');
+    }
+
+    public function tenantLogout(Request $request): RedirectResponse
+    {
+        Auth::logout();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('tenant.login.choice');
     }
 
     public function dashboard(Request $request): View
@@ -170,8 +329,59 @@ class PortalAuthController extends Controller
     {
         return match ($role) {
             User::ROLE_ADMIN => 'admin.dashboard',
-            User::ROLE_TENANT_OWNER, User::ROLE_WERKGEVER => 'client.dashboard',
+            User::ROLE_TENANT_OWNER => 'client.dashboard',
             default => 'werkzoekende.dashboard',
         };
+    }
+
+    private function tenantDashboardRouteNameFor(string $role): string
+    {
+        return match ($role) {
+            User::ROLE_EMPLOYER => 'tenant.employer.dashboard',
+            default => 'tenant.jobseeker.dashboard',
+        };
+    }
+
+    private function showTenantLoginFor(string $role, string $title, string $formTitle, string $action, string $registerUrl): View
+    {
+        return view('auth.login', [
+            'layout' => 'layouts.tenant',
+            'tenant' => tenant(),
+            'brandName' => $this->tenantBrandName(),
+            'role' => $role,
+            'title' => $title,
+            'formTitle' => $formTitle,
+            'subtitle' => 'Access your account for this job board.',
+            'action' => $action,
+            'registerUrl' => $registerUrl,
+            'backUrl' => route('tenant.home'),
+            'backLabel' => 'Back to job board',
+        ]);
+    }
+
+    private function showTenantRegisterFor(string $role, string $title, string $formTitle, string $action, string $loginUrl): View
+    {
+        return view('auth.register', [
+            'layout' => 'layouts.tenant',
+            'tenant' => tenant(),
+            'brandName' => $this->tenantBrandName(),
+            'role' => $role,
+            'title' => $title,
+            'formTitle' => $formTitle,
+            'subtitle' => 'This account belongs only to this job board.',
+            'action' => $action,
+            'loginUrl' => $loginUrl,
+            'backUrl' => route('tenant.home'),
+            'backLabel' => 'Back to job board',
+            'requiresCompanyName' => $role === User::ROLE_EMPLOYER,
+        ]);
+    }
+
+    private function tenantBrandName(): string
+    {
+        $tenant = tenant();
+        $settings = $tenant?->settings ?? [];
+
+        return $settings['brand_name'] ?? $tenant?->name ?? 'Jobboard';
     }
 }

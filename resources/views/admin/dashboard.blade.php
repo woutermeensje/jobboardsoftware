@@ -7,6 +7,15 @@
   @include('admin.partials.navigation')
 @endsection
 
+@php
+  $roleLabels = [
+    \App\Models\User::ROLE_TENANT_OWNER => 'Tenant owner',
+    \App\Models\User::ROLE_ADMIN => 'Admin',
+    \App\Models\User::ROLE_EMPLOYER => 'Employer',
+    \App\Models\User::ROLE_JOBSEEKER => 'Job seeker',
+  ];
+@endphp
+
 @section('content')
       <div class="dash-stats">
         @foreach($stats as $label => $value)
@@ -116,7 +125,7 @@
                     <strong>{{ $managedUser->name }}</strong>
                     <span>{{ $managedUser->email }}</span>
                   </div>
-                  <span>{{ $managedUser->role }}</span>
+                  <span>{{ $roleLabels[$managedUser->role] ?? $managedUser->role }}</span>
                 </li>
               @empty
                 <li>

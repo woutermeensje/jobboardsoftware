@@ -13,7 +13,7 @@
         <p class="content-hero__intro">Employers get a self-service portal to post jobs, manage applications and improve role visibility.</p>
         <div class="content-actions">
           <a class="content-btn content-btn--primary" href="{{ route('pages.vacature-plaatsen') }}">Post a job</a>
-          <a class="content-btn content-btn--ghost" href="{{ route('register.werkgever') }}">Create account</a>
+          <a class="content-btn content-btn--ghost" href="{{ route('register.employer') }}">Create account</a>
         </div>
       </div>
       <aside class="content-visual" aria-label="Employer overview">

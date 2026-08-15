@@ -1,6 +1,11 @@
 @php
   $usesDashboardLayout = trim($__env->yieldContent('layout')) === 'dashboard';
   $dashboardUser = auth()->user();
+  $dashboardBrandName = $dashboardBrandName ?? 'JobBoardSoftware';
+  $dashboardBrandMark = $dashboardBrandMark ?? 'JB';
+  $dashboardBrandUrl = $dashboardBrandUrl ?? route('welcome');
+  $dashboardBrandAriaLabel = $dashboardBrandAriaLabel ?? $dashboardBrandName.' home';
+  $dashboardLogoutUrl = $dashboardLogoutUrl ?? route('logout');
 @endphp
 
 <!DOCTYPE html>
@@ -135,9 +140,9 @@
   @if($usesDashboardLayout)
     <div class="dashboard-app-shell">
       <header class="dashboard-topbar">
-        <a class="dashboard-brand" href="{{ route('welcome') }}" aria-label="JobBoardSoftware home">
-          <span class="dashboard-brand__mark" aria-hidden="true">JB</span>
-          <span class="dashboard-brand__name">JobBoardSoftware</span>
+        <a class="dashboard-brand" href="{{ $dashboardBrandUrl }}" aria-label="{{ $dashboardBrandAriaLabel }}">
+          <span class="dashboard-brand__mark" aria-hidden="true">{{ $dashboardBrandMark }}</span>
+          <span class="dashboard-brand__name">{{ $dashboardBrandName }}</span>
         </a>
 
         <div class="dashboard-topbar__account">
@@ -146,7 +151,7 @@
             <span>{{ $dashboardUser?->email ?? 'Not signed in' }}</span>
           </div>
           @auth
-            <form method="POST" action="{{ route('logout') }}">
+            <form method="POST" action="{{ $dashboardLogoutUrl }}">
               @csrf
               <button type="submit" aria-label="Log out">
                 <i class="ph ph-sign-out" aria-hidden="true"></i>

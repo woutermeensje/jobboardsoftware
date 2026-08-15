@@ -21,7 +21,7 @@
 
     <section class="content-section" aria-labelledby="posting-title">
       <h2 id="posting-title">Job details</h2>
-      <form class="content-form" method="GET" action="{{ route('register.werkgever') }}">
+      <form class="content-form" method="GET" action="{{ route('register.employer') }}">
         <div class="content-form__grid">
           <div class="content-field">
             <label for="job-title">Job title</label>

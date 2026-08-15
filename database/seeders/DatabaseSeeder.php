@@ -59,7 +59,7 @@ class DatabaseSeeder extends Seeder
         ));
 
         User::updateOrCreate(
-            ['email' => 'wouter@inhuren.com'],
+            ['tenant_id' => null, 'email' => 'wouter@inhuren.com'],
             [
                 'name' => 'Wouter',
                 'company_name' => 'JobBoardSoftware',
@@ -72,7 +72,7 @@ class DatabaseSeeder extends Seeder
         );
 
         $owner = User::updateOrCreate(
-            ['email' => 'demo@jobboardsoftware.co'],
+            ['tenant_id' => null, 'email' => 'demo@jobboardsoftware.co'],
             [
                 'name' => 'Demo Owner',
                 'company_name' => 'Acme Careers',

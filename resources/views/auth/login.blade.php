@@ -1,9 +1,15 @@
-@extends('layouts.app')
-
-@section('title', $title.' | JobBoardSoftware')
+@extends($layout ?? 'layouts.app')
 
 @php
-  $formTitle = $role === \App\Models\User::ROLE_ADMIN ? 'Admin login' : 'Log in';
+  $brandTitle = $brandName ?? 'JobBoardSoftware';
+  $backUrl = $backUrl ?? route('welcome');
+  $backLabel = $backLabel ?? 'Back to website';
+@endphp
+
+@section('title', $title.' | '.$brandTitle)
+
+@php
+  $formTitle = $formTitle ?? ($role === \App\Models\User::ROLE_ADMIN ? 'Admin login' : 'Log in');
 @endphp
 
 @section('content')
@@ -12,6 +18,9 @@
     <div class="auth-form-card">
       <div class="auth-form-head">
         <h1>{{ $formTitle }}</h1>
+        @if(! empty($subtitle))
+          <p>{{ $subtitle }}</p>
+        @endif
       </div>
 
       <form method="POST" action="{{ $action }}" class="auth-form">
@@ -44,10 +53,10 @@
             Log in
           </button>
           <div class="auth-secondary-actions">
-            @if($registerUrl)
+            @if($registerUrl ?? null)
               <a class="auth-link" href="{{ $registerUrl }}">Create account</a>
             @endif
-            <a class="auth-link" href="{{ route('welcome') }}">Back to website</a>
+            <a class="auth-link" href="{{ $backUrl }}">{{ $backLabel }}</a>
           </div>
         </div>
       </form>

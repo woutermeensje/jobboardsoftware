@@ -87,8 +87,8 @@
     <div class="tenant-header__divider"></div>
 
     <div class="tenant-header__cta">
-      <a href="{{ route('tenant.jobs') }}#jobs" class="tenant-header-btn tenant-header-btn--primary">View jobs</a>
-      <a href="{{ route('tenant.contact') }}" class="tenant-header-btn tenant-header-btn--outline">Contact</a>
+      <a href="{{ route('tenant.register.employer') }}" class="tenant-header-btn tenant-header-btn--primary">Post job</a>
+      <a href="{{ route('tenant.login.choice') }}" class="tenant-header-btn tenant-header-btn--outline">Login</a>
     </div>
 
     <button class="tenant-header__hamburger" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="tenant-mobile-nav" data-tenant-menu-toggle>
@@ -150,8 +150,8 @@
     <div class="tenant-mobile-nav__section">
       <p class="tenant-mobile-nav__label">Action</p>
       <div class="tenant-mobile-nav__ctas">
-        <a href="{{ route('tenant.jobs') }}#jobs" class="tenant-header-btn tenant-header-btn--primary tenant-mobile-nav__cta">View jobs</a>
-        <a href="{{ route('tenant.contact') }}" class="tenant-header-btn tenant-header-btn--outline tenant-mobile-nav__cta">Contact</a>
+        <a href="{{ route('tenant.register.employer') }}" class="tenant-header-btn tenant-header-btn--primary tenant-mobile-nav__cta">Post job</a>
+        <a href="{{ route('tenant.login.choice') }}" class="tenant-header-btn tenant-header-btn--outline tenant-mobile-nav__cta">Login</a>
       </div>
     </div>
   </div>

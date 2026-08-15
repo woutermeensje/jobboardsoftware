@@ -11,8 +11,8 @@
   $roles = [
     \App\Models\User::ROLE_TENANT_OWNER => 'Tenant owner',
     \App\Models\User::ROLE_ADMIN => 'Admin',
-    \App\Models\User::ROLE_WERKGEVER => 'Werkgever',
-    \App\Models\User::ROLE_WERKZOEKENDE => 'Werkzoekende',
+    \App\Models\User::ROLE_WERKGEVER => 'Employer',
+    \App\Models\User::ROLE_WERKZOEKENDE => 'Job seeker',
   ];
   $billingStatuses = ['trial' => 'Trial', 'active' => 'Active', 'past_due' => 'Past due', 'canceled' => 'Canceled'];
   $steps = ['plan' => 'Plan', 'environment' => 'Environment', 'domain' => 'Domain', 'jobs' => 'Jobs', 'billing' => 'Billing', 'complete' => 'Complete'];

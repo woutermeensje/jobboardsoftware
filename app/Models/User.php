@@ -14,6 +14,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Cashier\Billable;
 
 #[Fillable([
+    'tenant_id',
     'name',
     'first_name',
     'last_name',
@@ -38,6 +39,10 @@ class User extends Authenticatable
 
     public const ROLE_WERKGEVER = 'werkgever';
 
+    public const ROLE_JOBSEEKER = self::ROLE_WERKZOEKENDE;
+
+    public const ROLE_EMPLOYER = self::ROLE_WERKGEVER;
+
     public const ROLE_TENANT_OWNER = 'tenant_owner';
 
     public const ROLE_ADMIN = 'admin';
@@ -52,6 +57,16 @@ class User extends Authenticatable
         return $this->role === self::ROLE_WERKGEVER;
     }
 
+    public function isJobSeeker(): bool
+    {
+        return $this->isWerkzoekende();
+    }
+
+    public function isEmployer(): bool
+    {
+        return $this->isWerkgever();
+    }
+
     public function isTenantOwner(): bool
     {
         return $this->role === self::ROLE_TENANT_OWNER;
@@ -60,6 +75,17 @@ class User extends Authenticatable
     public function isAdmin(): bool
     {
         return $this->role === self::ROLE_ADMIN;
+    }
+
+    public function isTenantScopedAccount(): bool
+    {
+        return $this->tenant_id !== null
+            && in_array($this->role, [self::ROLE_JOBSEEKER, self::ROLE_EMPLOYER], true);
+    }
+
+    public function tenant(): BelongsTo
+    {
+        return $this->belongsTo(Tenant::class);
     }
 
     public function ownedTenants(): HasMany

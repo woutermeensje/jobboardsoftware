@@ -108,11 +108,11 @@ class ClientDashboardController extends Controller
             ],
         ]);
 
-        $notifier->notify('Nieuw domein gekoppeld', [
+        $notifier->notify('New domain connected', [
             'tenant_id' => $tenant->id,
-            'tenant_naam' => $tenant->name,
-            'domein' => $domain->domain,
-            'primair' => $domain->is_primary,
+            'tenant_name' => $tenant->name,
+            'domain' => $domain->domain,
+            'primary' => $domain->is_primary,
         ], $request->user());
 
         return redirect()

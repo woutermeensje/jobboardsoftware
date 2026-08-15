@@ -46,6 +46,15 @@
   gap: 20px;
 }
 
+.auth-choice-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  margin-top: 20px;
+}
+
 .auth-choice-card,
 .auth-form-card,
 .auth-dashboard-card {

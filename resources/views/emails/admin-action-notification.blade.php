@@ -26,8 +26,8 @@
 
 @if($actor)
   <p>
-    <strong>Gebruiker:</strong>
-    {{ $actor['name'] ?? 'Onbekend' }}
+    <strong>User:</strong>
+    {{ $actor['name'] ?? 'Unknown' }}
     @if(! empty($actor['email']))
       &lt;{{ $actor['email'] }}&gt;
     @endif

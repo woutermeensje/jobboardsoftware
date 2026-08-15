@@ -12,7 +12,7 @@
         <h1>Find relevant jobs faster.</h1>
         <p class="content-hero__intro">Search jobs, save interesting roles and use alerts to stay up to date on new opportunities automatically.</p>
         <div class="content-actions">
-          <a class="content-btn content-btn--primary" href="{{ route('register.werkzoekende') }}">Create account</a>
+          <a class="content-btn content-btn--primary" href="{{ route('register.jobseeker') }}">Create account</a>
           <a class="content-btn content-btn--ghost" href="{{ route('welcome') }}#jobs">View jobs</a>
         </div>
       </div>
@@ -45,7 +45,7 @@
         <h3>Create account</h3>
         <p>Register as a job seeker to manage your profile and application steps in one place.</p>
         <div class="content-actions">
-          <a class="content-btn content-btn--ghost" href="{{ route('register.werkzoekende') }}">Start registration</a>
+          <a class="content-btn content-btn--ghost" href="{{ route('register.jobseeker') }}">Start registration</a>
         </div>
       </article>
     </div>

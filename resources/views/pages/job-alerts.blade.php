@@ -8,7 +8,7 @@
   <div class="job-alerts__box">
     <h1 class="job-alerts__title">Create a job alert</h1>
 
-    <form class="content-form" method="GET" action="{{ route('register.werkzoekende') }}">
+    <form class="content-form" method="GET" action="{{ route('register.jobseeker') }}">
       <div class="content-form__grid">
         <div class="content-field">
           <label for="alert-firstname">First name</label>

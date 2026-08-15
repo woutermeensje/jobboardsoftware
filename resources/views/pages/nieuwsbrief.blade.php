@@ -8,7 +8,7 @@
   <div class="form-block__box">
     <h1 class="form-block__title">Subscribe to the newsletter</h1>
 
-    <form class="content-form" method="GET" action="{{ route('register.werkzoekende') }}">
+    <form class="content-form" method="GET" action="{{ route('register.jobseeker') }}">
       <div class="content-form__grid">
         <div class="content-field">
           <label for="newsletter-firstname">First name</label>

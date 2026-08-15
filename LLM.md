@@ -18,10 +18,14 @@ These notes describe the conventions future AI/code assistants should follow whe
 - Tenant CSS lives under `resources/css/tenants`, split by component where practical, for example `header.css`, `footer.css`, and job overview/filter styles. Import tenant CSS through `resources/css/tenants/index.css`.
 - The tenant homepage should show the professional job overview directly, including search and filters.
 - The tenant header and job overview/filter experience are inspired by the Student Inhuren Platform style: clean, practical, search-focused, and suitable for repeated job browsing.
+- Job seeker and employer accounts are tenant-scoped accounts. They must be created and authenticated through tenant-domain routes, not as application-wide SaaS users.
+- Tenant auth routes include `/login`, `/login/jobseeker`, `/login/employer`, `/sign-up`, `/sign-up/jobseeker`, and `/sign-up/employer`.
+- Tenant dashboard routes are `/jobseeker/dashboard` and `/employer/dashboard`. They should use the same dashboard shell and `dash-*` UI patterns as the central client/admin dashboard files.
 
 ## Implementation Notes
 
 - Keep tenant routes and tenant rendering separate from the central SaaS pages.
 - Prefer English canonical tenant routes such as `/jobs`; keep Dutch redirects only for compatibility when already present.
+- Keep central SaaS owner/admin accounts tenantless. Tenant jobseeker/employer users should have `tenant_id` set and should not get access to the application-wide client dashboard.
 - When changing visible frontend copy, update feature tests so assertions match the English UI.
 - Run `php artisan test` after behavior or view changes that affect rendered output.

@@ -92,6 +92,21 @@ class ClientDashboardTest extends TestCase
             ->assertDontSee('Other Careers');
     }
 
+    public function test_tenant_scoped_employer_cannot_access_the_application_wide_client_dashboard(): void
+    {
+        $owner = User::factory()->create(['role' => User::ROLE_TENANT_OWNER]);
+        $tenant = $this->tenantFor($owner, 'Acme Careers', 'acme-careers');
+
+        $employer = User::factory()->create([
+            'tenant_id' => $tenant->id,
+            'role' => User::ROLE_EMPLOYER,
+        ]);
+
+        $this->actingAs($employer)
+            ->get('/client/dashboard')
+            ->assertForbidden();
+    }
+
     public function test_tenant_owner_can_connect_a_custom_domain(): void
     {
         $owner = User::factory()->create(['role' => User::ROLE_TENANT_OWNER]);

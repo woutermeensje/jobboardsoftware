@@ -52,13 +52,15 @@ $centralRoutes = function (): void {
     Route::controller(PortalAuthController::class)->group(function () {
         Route::get('/login', 'showLoginChoice')->name('login.choice');
         Route::post('/login', 'login')->defaults('role', User::ROLE_TENANT_OWNER)->name('login.submit');
+        Route::redirect('/login/jobseeker', '/login')->name('login.jobseeker');
         Route::redirect('/login/job-seeker', '/login')->name('login.werkzoekende');
-        Route::redirect('/login/employer', '/login')->name('login.werkgever');
+        Route::redirect('/login/employer', '/login')->name('login.employer');
 
         Route::get('/sign-up', 'showRegisterChoice')->name('register.choice');
         Route::post('/sign-up', 'register')->defaults('role', User::ROLE_TENANT_OWNER)->name('register.submit');
+        Route::redirect('/sign-up/jobseeker', '/sign-up')->name('register.jobseeker');
         Route::redirect('/sign-up/job-seeker', '/sign-up')->name('register.werkzoekende');
-        Route::redirect('/sign-up/employer', '/sign-up')->name('register.werkgever');
+        Route::redirect('/sign-up/employer', '/sign-up')->name('register.employer');
 
         Route::get('/admin/login', 'showAdminLogin')->name('admin.login');
         Route::post('/admin/login', 'login')->defaults('role', User::ROLE_ADMIN)->name('admin.login.submit');
@@ -94,7 +96,7 @@ $centralRoutes = function (): void {
     })->where('path', '.*');
 
     Route::redirect('/client/dashboard/login', '/login')->name('client.login');
-    Route::middleware(['auth', 'role:tenant_owner,werkgever,admin'])
+    Route::middleware(['auth', 'role:tenant_owner,admin'])
         ->prefix('client/dashboard')
         ->name('client.')
         ->group(function (): void {

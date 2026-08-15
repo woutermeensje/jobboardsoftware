@@ -50,7 +50,18 @@ class AdminActionNotifier
             'id' => $actor->id,
             'name' => $actor->name,
             'email' => $actor->email,
-            'role' => $actor->role,
+            'role' => $this->roleLabel($actor->role),
         ];
+    }
+
+    private function roleLabel(string $role): string
+    {
+        return match ($role) {
+            User::ROLE_ADMIN => 'Admin',
+            User::ROLE_TENANT_OWNER => 'Tenant owner',
+            User::ROLE_EMPLOYER => 'Employer',
+            User::ROLE_JOBSEEKER => 'Job seeker',
+            default => ucfirst($role),
+        };
     }
 }

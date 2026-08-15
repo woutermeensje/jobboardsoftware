@@ -1,6 +1,10 @@
-@extends('layouts.app')
+@extends($layout ?? 'layouts.app')
 
-@section('title', 'Dashboard | JobBoardSoftware')
+@php
+  $brandTitle = $brandName ?? 'JobBoardSoftware';
+@endphp
+
+@section('title', 'Dashboard | '.$brandTitle)
 
 @php
   $roleLabels = [
@@ -11,6 +15,9 @@
   ];
 
   $roleTitle = $roleLabels[$user->role] ?? ucfirst($user->role);
+  $backUrl = $backUrl ?? route('welcome');
+  $backLabel = $backLabel ?? 'View website';
+  $logoutUrl = $logoutUrl ?? route('logout');
 @endphp
 
 @section('content')
@@ -33,8 +40,8 @@
       </div>
 
       <div class="auth-dashboard-actions">
-        <a class="btn btn-primary" href="{{ route('welcome') }}">View website</a>
-        <form method="POST" action="{{ route('logout') }}">
+        <a class="btn btn-primary" href="{{ $backUrl }}">{{ $backLabel }}</a>
+        <form method="POST" action="{{ $logoutUrl }}">
           @csrf
           <button class="btn btn-ghost" type="submit">Log out</button>
         </form>

@@ -60,6 +60,11 @@ class Tenant extends BaseTenant
         return $this->belongsTo(User::class, 'owner_user_id');
     }
 
+    public function users(): HasMany
+    {
+        return $this->hasMany(User::class);
+    }
+
     public function primaryDomain(): HasOne
     {
         return $this->hasOne(Domain::class)->where('is_primary', true);

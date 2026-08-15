@@ -91,9 +91,9 @@ class AdminManagementTest extends TestCase
         $application = JobApplication::where('email', 'sam@example.com')->firstOrFail();
 
         foreach ([
-            'Nieuwe gebruiker aangemeld',
-            'Licentie geactiveerd',
-            'Nieuwe sollicitatie ontvangen',
+            'New user registered',
+            'License activated',
+            'New application received',
         ] as $title) {
             $this->assertAdminMailWasSent($title);
         }

@@ -77,14 +77,14 @@ class TenantFrontendController extends Controller
             'status' => JobApplication::STATUS_NEW,
         ]);
 
-        app(AdminActionNotifier::class)->notify('Nieuwe sollicitatie ontvangen', [
+        app(AdminActionNotifier::class)->notify('New application received', [
             'tenant_id' => tenant('id'),
-            'tenant_naam' => tenant('name'),
-            'vacature' => $job->title,
-            'sollicitant' => $application->name,
+            'tenant_name' => tenant('name'),
+            'job' => $job->title,
+            'applicant' => $application->name,
             'email' => $application->email,
-            'telefoon' => $application->phone,
-            'cv_geupload' => (bool) $application->cv_path,
+            'phone' => $application->phone,
+            'cv_uploaded' => (bool) $application->cv_path,
         ]);
 
         return redirect()

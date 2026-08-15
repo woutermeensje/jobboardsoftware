@@ -1,13 +1,24 @@
-@extends('layouts.app')
+@extends($layout ?? 'layouts.app')
 
-@section('title', $title.' | JobBoardSoftware')
+@php
+  $brandTitle = $brandName ?? 'JobBoardSoftware';
+  $formTitle = $formTitle ?? 'Create account';
+  $backUrl = $backUrl ?? route('welcome');
+  $backLabel = $backLabel ?? 'Back to website';
+  $requiresCompanyName = $requiresCompanyName ?? false;
+@endphp
+
+@section('title', $title.' | '.$brandTitle)
 
 @section('content')
 <section class="auth-page">
   <div class="auth-shell">
     <div class="auth-form-card">
       <div class="auth-form-head">
-        <h1>Create account</h1>
+        <h1>{{ $formTitle }}</h1>
+        @if(! empty($subtitle))
+          <p>{{ $subtitle }}</p>
+        @endif
       </div>
 
       <form method="POST" action="{{ $action }}" class="auth-form">
@@ -49,6 +60,16 @@
           </div>
         </div>
 
+        @if($requiresCompanyName)
+          <div class="auth-field">
+            <label class="auth-label" for="company_name">Company name</label>
+            <input id="company_name" class="auth-input" name="company_name" type="text" value="{{ old('company_name') }}" autocomplete="organization" placeholder="Company Inc." required>
+            @error('company_name')
+              <p class="auth-error">{{ $message }}</p>
+            @enderror
+          </div>
+        @endif
+
         <div class="auth-field">
           <label class="auth-label" for="heard_about_us">Where did you hear about us?</label>
           <input id="heard_about_us" class="auth-input" name="heard_about_us" type="text" value="{{ old('heard_about_us') }}" placeholder="For example: Google, LinkedIn, a friend, or a podcast" required>
@@ -79,7 +100,7 @@
           </button>
           <div class="auth-secondary-actions">
             <a class="auth-link" href="{{ $loginUrl }}">I already have an account</a>
-            <a class="auth-link" href="{{ route('welcome') }}">Back to website</a>
+            <a class="auth-link" href="{{ $backUrl }}">{{ $backLabel }}</a>
           </div>
         </div>
       </form>

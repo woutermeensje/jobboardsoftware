@@ -17,11 +17,11 @@ class ContactController extends Controller
             'message' => ['required', 'string', 'max:3000'],
         ]);
 
-        app(AdminActionNotifier::class)->notify('Contactformulier verzonden', [
-            'naam' => $validated['name'],
+        app(AdminActionNotifier::class)->notify('Contact form submitted', [
+            'name' => $validated['name'],
             'email' => $validated['email'],
-            'bedrijf' => $validated['company_name'] ?? null,
-            'bericht' => $validated['message'],
+            'company' => $validated['company_name'] ?? null,
+            'message' => $validated['message'],
         ]);
 
         return back()->with('status', 'Thanks! We\'ll get back to you shortly.');
