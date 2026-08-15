@@ -11,6 +11,7 @@ use App\Support\JobTypeOptions;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
@@ -54,10 +55,7 @@ class TenantFrontendController extends Controller
             'tenant' => $tenant,
             'brandName' => $this->tenantBrandName(),
             'categories' => $filterOptions['departments'],
-            'companies' => TenantCompany::query()
-                ->where('tenant_id', $tenant->id)
-                ->orderBy('name')
-                ->get(['id', 'name', 'logo_path']),
+            'companies' => $this->tenantCompaniesForPostJob($tenant->id),
             'jobTypes' => JobTypeOptions::allForTenant($tenant),
         ]);
     }
@@ -66,13 +64,16 @@ class TenantFrontendController extends Controller
     {
         $tenant = tenant();
         $createAccount = $request->boolean('create_account');
+        $companyTableReady = Schema::hasTable('tenant_companies');
+        $tenantCompanyIdRules = ['nullable'];
+
+        if ($companyTableReady) {
+            $tenantCompanyIdRules[] = Rule::exists('tenant_companies', 'id')->where(fn ($query) => $query->where('tenant_id', $tenant->id));
+        }
 
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
-            'tenant_company_id' => [
-                'nullable',
-                Rule::exists('tenant_companies', 'id')->where(fn ($query) => $query->where('tenant_id', $tenant->id)),
-            ],
+            'tenant_company_id' => $tenantCompanyIdRules,
             'company_name' => [Rule::requiredIf(! $request->filled('tenant_company_id')), 'nullable', 'string', 'max:255'],
             'company_logo' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,svg', 'max:2048'],
             'contact_name' => ['required', 'string', 'max:255'],
@@ -92,7 +93,7 @@ class TenantFrontendController extends Controller
         $description = $this->sanitizeRichText($validated['description']);
         $company = null;
 
-        if (! empty($validated['tenant_company_id'])) {
+        if ($companyTableReady && ! empty($validated['tenant_company_id'])) {
             $company = TenantCompany::query()
                 ->where('tenant_id', $tenant->id)
                 ->find($validated['tenant_company_id']);
@@ -106,9 +107,11 @@ class TenantFrontendController extends Controller
                 ->withInput();
         }
 
-        $companyLogoPath = $request->hasFile('company_logo')
+        $tenantJobsHasCompanyLogoPath = Schema::hasColumn('tenant_jobs', 'company_logo_path');
+        $tenantJobsHasTenantCompanyId = Schema::hasColumn('tenant_jobs', 'tenant_company_id');
+        $companyLogoPath = $tenantJobsHasCompanyLogoPath && $request->hasFile('company_logo')
             ? $request->file('company_logo')->store('company-logos', 'public')
-            : $company?->logo_path;
+            : ($tenantJobsHasCompanyLogoPath ? $company?->logo_path : null);
 
         if ($description === null) {
             return back()
@@ -145,11 +148,9 @@ class TenantFrontendController extends Controller
             $request->session()->regenerate();
         }
 
-        $job = TenantJob::create([
+        $jobAttributes = [
             'tenant_id' => $tenant->id,
-            'tenant_company_id' => $company?->id,
             'company_name' => $companyName,
-            'company_logo_path' => $companyLogoPath,
             'contact_name' => $validated['contact_name'],
             'contact_email' => $validated['contact_email'],
             'contact_phone' => $validated['contact_phone'] ?? null,
@@ -163,7 +164,17 @@ class TenantFrontendController extends Controller
             'intro' => $intro,
             'description' => $description,
             'status' => TenantJob::STATUS_DRAFT,
-        ]);
+        ];
+
+        if ($tenantJobsHasTenantCompanyId) {
+            $jobAttributes['tenant_company_id'] = $company?->id;
+        }
+
+        if ($tenantJobsHasCompanyLogoPath) {
+            $jobAttributes['company_logo_path'] = $companyLogoPath;
+        }
+
+        $job = TenantJob::create($jobAttributes);
 
         app(AdminActionNotifier::class)->notify('Public job submitted', [
             'tenant_id' => $tenant->id,
@@ -347,6 +358,21 @@ class TenantFrontendController extends Controller
         $settings = $tenant?->settings ?? [];
 
         return $settings['brand_name'] ?? $tenant?->name ?? 'Jobboard';
+    }
+
+    /**
+     * @return \Illuminate\Support\Collection<int, TenantCompany>
+     */
+    private function tenantCompaniesForPostJob(string $tenantId): \Illuminate\Support\Collection
+    {
+        if (! Schema::hasTable('tenant_companies')) {
+            return collect();
+        }
+
+        return TenantCompany::query()
+            ->where('tenant_id', $tenantId)
+            ->orderBy('name')
+            ->get(['id', 'name', 'logo_path']);
     }
 
     private function sanitizeRichText(?string $value): ?string
