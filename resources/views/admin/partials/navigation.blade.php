@@ -1,6 +1,4 @@
 @php
-  $adminUser = auth()->user();
-
   $items = [
     ['label' => 'Platform management', 'icon' => 'ph-squares-four', 'url' => route('admin.dashboard'), 'active' => request()->routeIs('admin.dashboard')],
     ['label' => 'Users', 'icon' => 'ph-users', 'url' => route('admin.users.index'), 'active' => request()->routeIs('admin.users.*')],
@@ -11,14 +9,6 @@
     ['label' => 'Website', 'icon' => 'ph-house', 'url' => route('welcome'), 'active' => false],
   ];
 @endphp
-
-<div class="dash-nav__brand">
-  <span>AD</span>
-  <div>
-    <strong>Admin</strong>
-    <small>{{ $adminUser?->email ?: 'JobBoardSoftware' }}</small>
-  </div>
-</div>
 
 <nav class="dash-nav__links" aria-label="Admin navigation">
   @foreach($items as $item)

@@ -1,0 +1,17 @@
+/* ===============================
+   Jobboard builder
+   Styling for the customizable job board that tenants build
+   (their public-facing vacancy overview & job pages).
+================================ */
+
+.jobboard-builder,
+.jobboard-builder *,
+.jobboard-builder *::before,
+.jobboard-builder *::after {
+  box-sizing: border-box;
+}
+
+.jobboard-builder {
+  font-family: var(--font-text);
+  color: var(--color-text);
+}

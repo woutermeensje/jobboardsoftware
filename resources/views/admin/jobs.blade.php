@@ -3,9 +3,6 @@
 @section('title', 'Jobs | JobBoardSoftware admin')
 @section('meta_description', 'Manage tenant jobs across the platform.')
 @section('layout', 'dashboard')
-@section('dashboard_label', 'Admin')
-@section('dashboard_title', 'Jobs')
-@section('dashboard_subtitle', 'Monitor and moderate jobs across all tenant environments.')
 @section('dashboard_sidebar')
   @include('admin.partials.navigation')
 @endsection

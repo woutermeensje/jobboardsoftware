@@ -3,18 +3,7 @@
 @section('title', 'Job seeker dashboard | JobBoardSoftware')
 @section('meta_description', 'Job seeker dashboard for recommended jobs, applications, job alerts and saved jobs.')
 @section('layout', 'dashboard')
-@section('dashboard_label', 'Job seeker portal')
-@section('dashboard_title', 'Welcome back, '.$user->name)
-@section('dashboard_subtitle', 'Track your applications, view recommended jobs and manage job alerts from your personal dashboard.')
 @section('dashboard_sidebar')
-  <div class="dash-nav__brand">
-    <span>JS</span>
-    <div>
-      <strong>Job seeker</strong>
-      <small>{{ $user->email }}</small>
-    </div>
-  </div>
-
   <nav class="dash-nav__links" aria-label="Job seeker navigation">
     <a class="is-active" href="{{ route('werkzoekende.dashboard') }}">
       <i class="ph ph-squares-four"></i>

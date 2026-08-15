@@ -23,6 +23,8 @@ class ExampleTest extends TestCase
     {
         $this->get('/')
             ->assertStatus(200)
+            ->assertSee('rn-header', false)
+            ->assertSee('si-footer', false)
             ->assertSee('JobBoardSoftware')
             ->assertDontSee('SaaS job board software')
             ->assertDontSee('Launch your own job board')

@@ -14,7 +14,7 @@
   z-index: 30;
   min-height: 72px;
   display: grid;
-  grid-template-columns: 260px minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 22px;
   padding: 0 28px;
@@ -58,50 +58,6 @@
   font-size: 15px;
   font-weight: 800;
   line-height: 1.2;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.dashboard-topbar__heading {
-  min-width: 0;
-}
-
-.dashboard-topbar__heading p,
-.dashboard-topbar__heading h1,
-.dashboard-topbar__heading span {
-  display: block;
-  margin: 0;
-}
-
-.dashboard-topbar__heading p {
-  color: var(--color-text-muted);
-  font-family: var(--font-ui);
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: .06em;
-  line-height: 1.2;
-  text-transform: uppercase;
-}
-
-.dashboard-topbar__heading h1 {
-  overflow: hidden;
-  margin-top: 3px;
-  color: var(--color-text);
-  font-family: var(--font-heading);
-  font-size: 20px;
-  font-weight: 750;
-  letter-spacing: 0;
-  line-height: 1.15;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.dashboard-topbar__heading span {
-  overflow: hidden;
-  margin-top: 3px;
-  color: var(--color-text-muted);
-  font-size: 12px;
-  line-height: 1.35;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -193,53 +149,6 @@
   display: grid;
   align-content: start;
   gap: 16px;
-}
-
-.dash-nav__brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--color-border);
-}
-
-.dash-nav__brand span {
-  width: 36px;
-  height: 36px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex: 0 0 auto;
-  border-radius: var(--radius-default);
-  background: var(--color-primary);
-  color: #ffffff;
-  font-family: var(--font-ui);
-  font-size: 13px;
-  font-weight: 800;
-}
-
-.dash-nav__brand strong,
-.dash-nav__brand small {
-  display: block;
-  max-width: 160px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.dash-nav__brand strong {
-  color: var(--color-text);
-  font-family: var(--font-ui);
-  font-size: 14px;
-  font-weight: 800;
-  line-height: 1.25;
-}
-
-.dash-nav__brand small {
-  margin-top: 2px;
-  color: var(--color-text-muted);
-  font-size: 12px;
-  line-height: 1.35;
 }
 
 .dash-nav__links {
@@ -734,10 +643,6 @@
 }
 
 @media (max-width: 1120px) {
-  .dashboard-topbar {
-    grid-template-columns: 220px minmax(0, 1fr) auto;
-  }
-
   .dashboard-app-frame {
     grid-template-columns: 220px minmax(0, 1fr);
   }

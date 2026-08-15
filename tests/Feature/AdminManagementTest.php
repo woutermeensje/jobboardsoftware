@@ -117,7 +117,8 @@ class AdminManagementTest extends TestCase
                 ->get($url)
                 ->assertStatus(200)
                 ->assertSee('dashboard-topbar', false)
-                ->assertSee('dashboard-sidebar', false);
+                ->assertSee('dashboard-sidebar', false)
+                ->assertDontSee('dashboard-topbar__heading', false);
         }
 
         $this->actingAs($owner)->get(route('admin.users.index'))->assertForbidden();

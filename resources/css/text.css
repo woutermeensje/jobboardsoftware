@@ -1,0 +1,226 @@
+/* ===============================
+   Rich text content
+   Shared typography for text blocks, descriptions and
+   rendered rich text editor (Quill) output.
+================================ */
+
+.rich-text {
+  font-family: var(--font-text);
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--color-text);
+  word-wrap: break-word;
+}
+
+.rich-text > *:first-child {
+  margin-top: 0;
+}
+
+.rich-text > *:last-child {
+  margin-bottom: 0;
+}
+
+/* Paragraphs & emphasis
+================================ */
+
+.rich-text p {
+  margin: 0 0 1em;
+}
+
+.rich-text strong,
+.rich-text b {
+  font-weight: 600;
+}
+
+.rich-text em,
+.rich-text i {
+  font-style: italic;
+}
+
+.rich-text u {
+  text-decoration: underline;
+}
+
+.rich-text s,
+.rich-text strike {
+  text-decoration: line-through;
+}
+
+.rich-text sub,
+.rich-text sup {
+  font-size: .75em;
+}
+
+/* Headings
+================================ */
+
+.rich-text h1,
+.rich-text h2,
+.rich-text h3,
+.rich-text h4,
+.rich-text h5,
+.rich-text h6 {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  color: #333;
+  line-height: 1.3;
+  margin: 1.4em 0 .5em;
+}
+
+.rich-text h1 { font-size: 1.75em; }
+.rich-text h2 { font-size: 1.5em; }
+.rich-text h3 { font-size: 1.3em; }
+.rich-text h4 { font-size: 1.15em; }
+.rich-text h5 { font-size: 1em; }
+.rich-text h6 { font-size: .9em; }
+
+/* Links
+================================ */
+
+.rich-text a {
+  color: var(--color-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.rich-text a:hover {
+  color: var(--color-primary-strong);
+}
+
+/* Lists
+================================ */
+
+.rich-text ul,
+.rich-text ol {
+  margin: 0 0 1em;
+  padding-left: 1.4em;
+}
+
+.rich-text ul {
+  list-style: disc;
+}
+
+.rich-text ul ul {
+  list-style: circle;
+}
+
+.rich-text ul ul ul {
+  list-style: square;
+}
+
+.rich-text ol {
+  list-style: decimal;
+}
+
+.rich-text ol ol {
+  list-style: lower-alpha;
+}
+
+.rich-text ol ol ol {
+  list-style: lower-roman;
+}
+
+.rich-text li {
+  margin: 0 0 .4em;
+  line-height: 1.6;
+}
+
+.rich-text li::marker {
+  color: var(--color-text-muted);
+}
+
+.rich-text li > ul,
+.rich-text li > ol {
+  margin-top: .4em;
+  margin-bottom: 0;
+}
+
+/* Quill stores nested list depth as flat <li class="ql-indent-N">
+   instead of actually nesting <ul>/<ol> — mirror that here so
+   saved editor output keeps its indent when rendered. */
+.rich-text li.ql-indent-1 { padding-left: 1.5em; }
+.rich-text li.ql-indent-2 { padding-left: 3em; }
+.rich-text li.ql-indent-3 { padding-left: 4.5em; }
+.rich-text li.ql-indent-4 { padding-left: 6em; }
+.rich-text li.ql-indent-5 { padding-left: 7.5em; }
+.rich-text li.ql-indent-6 { padding-left: 9em; }
+.rich-text li.ql-indent-7 { padding-left: 10.5em; }
+.rich-text li.ql-indent-8 { padding-left: 12em; }
+
+.rich-text .ql-align-center { text-align: center; }
+.rich-text .ql-align-right { text-align: right; }
+.rich-text .ql-align-justify { text-align: justify; }
+
+/* Blockquote
+================================ */
+
+.rich-text blockquote {
+  margin: 0 0 1em;
+  padding: .4em 0 .4em 1em;
+  border-left: 3px solid var(--color-primary-muted);
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+/* Code
+================================ */
+
+.rich-text code {
+  background: #f1f3f5;
+  padding: .15em .4em;
+  border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: .9em;
+  color: #a9652f;
+}
+
+.rich-text pre {
+  margin: 0 0 1em;
+  padding: 12px 14px;
+  border-radius: var(--radius-default);
+  background: #282c34;
+  color: #f8f8f2;
+  overflow-x: auto;
+  font-size: .9em;
+  line-height: 1.5;
+}
+
+.rich-text pre code {
+  padding: 0;
+  background: none;
+  color: inherit;
+}
+
+/* Divider, images & tables
+================================ */
+
+.rich-text hr {
+  margin: 1.5em 0;
+  border: 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.rich-text img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-default);
+  margin: .5em 0;
+}
+
+.rich-text table {
+  width: 100%;
+  margin: 0 0 1em;
+  border-collapse: collapse;
+}
+
+.rich-text th,
+.rich-text td {
+  padding: 8px 10px;
+  border: 1px solid var(--color-border);
+  text-align: left;
+}
+
+.rich-text th {
+  background: #f7f6f2;
+  font-weight: 600;
+}

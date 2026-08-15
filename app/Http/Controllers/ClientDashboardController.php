@@ -24,12 +24,6 @@ class ClientDashboardController extends Controller
         return view('client.dashboard', [
             'user' => $user,
             'tenants' => $tenants,
-            'stats' => [
-                'environments' => $tenants->count(),
-                'domains' => Domain::query()->whereIn('tenant_id', $tenantIds)->count(),
-                'jobs' => TenantJob::query()->whereIn('tenant_id', $tenantIds)->count(),
-                'applications' => JobApplication::query()->whereIn('tenant_id', $tenantIds)->count(),
-            ],
             'domains' => Domain::query()->whereIn('tenant_id', $tenantIds)->latest()->take(6)->get(),
             'jobs' => TenantJob::query()->whereIn('tenant_id', $tenantIds)->latest()->take(6)->get(),
             'applications' => JobApplication::query()->whereIn('tenant_id', $tenantIds)->latest()->take(6)->get(),

@@ -3,9 +3,6 @@
 @section('title', 'Applications | JobBoardSoftware admin')
 @section('meta_description', 'Manage tenant job applications across the platform.')
 @section('layout', 'dashboard')
-@section('dashboard_label', 'Admin')
-@section('dashboard_title', 'Applications')
-@section('dashboard_subtitle', 'Review incoming candidate applications across tenant job boards.')
 @section('dashboard_sidebar')
   @include('admin.partials.navigation')
 @endsection

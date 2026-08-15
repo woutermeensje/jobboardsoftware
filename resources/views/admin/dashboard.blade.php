@@ -3,9 +3,6 @@
 @section('title', 'Admin dashboard | JobBoardSoftware')
 @section('meta_description', 'Admin dashboard for SaaS users, tenants, domains, jobs and applications.')
 @section('layout', 'dashboard')
-@section('dashboard_label', 'Admin')
-@section('dashboard_title', 'Platform management')
-@section('dashboard_subtitle', 'Overview of SaaS users, job board environments, domains and activity.')
 @section('dashboard_sidebar')
   @include('admin.partials.navigation')
 @endsection

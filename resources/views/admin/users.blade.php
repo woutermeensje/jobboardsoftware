@@ -3,9 +3,6 @@
 @section('title', 'Users | JobBoardSoftware admin')
 @section('meta_description', 'Manage SaaS users and admin accounts.')
 @section('layout', 'dashboard')
-@section('dashboard_label', 'Admin')
-@section('dashboard_title', 'Users')
-@section('dashboard_subtitle', 'Manage roles, package selection, billing status and onboarding progress.')
 @section('dashboard_sidebar')
   @include('admin.partials.navigation')
 @endsection

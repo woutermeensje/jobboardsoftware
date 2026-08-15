@@ -3,9 +3,6 @@
 @section('title', $section['title'].' | Client dashboard')
 @section('meta_description', $section['description'])
 @section('layout', 'dashboard')
-@section('dashboard_label', 'Client dashboard')
-@section('dashboard_title', $section['title'])
-@section('dashboard_subtitle', $section['description'])
 @section('dashboard_sidebar')
   @include('client.partials.navigation')
 @endsection

@@ -3,9 +3,6 @@
 @section('title', 'Tenants | JobBoardSoftware admin')
 @section('meta_description', 'Manage tenant job board environments.')
 @section('layout', 'dashboard')
-@section('dashboard_label', 'Admin')
-@section('dashboard_title', 'Tenants')
-@section('dashboard_subtitle', 'Manage job board environments, package assignment, status and onboarding progress.')
 @section('dashboard_sidebar')
   @include('admin.partials.navigation')
 @endsection

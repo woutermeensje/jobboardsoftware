@@ -3,40 +3,13 @@
 @section('title', 'Client dashboard | JobBoardSoftware')
 @section('meta_description', 'Client dashboard for managing job board environments, domains, jobs and applications.')
 @section('layout', 'dashboard')
-@section('dashboard_label', 'Client dashboard')
-@section('dashboard_title', 'Your job boards')
-@section('dashboard_subtitle', 'A custom dashboard shell for environments, domains, jobs and applications.')
 @section('dashboard_sidebar')
   @include('client.partials.navigation')
 @endsection
 
 @section('content')
-      <div class="dash-stats">
-        @foreach($stats as $label => $value)
-          <article class="dash-stat">
-            <span>{{ str($label)->headline() }}</span>
-            <strong>{{ $value }}</strong>
-          </article>
-        @endforeach
-      </div>
-
       <div class="dash-layout">
         <main class="dash-main">
-          <section class="dash-panel">
-            <div class="dash-panel__head">
-              <div>
-                <h2>Workspace sections</h2>
-                <p>These client dashboard routes are ready for your own custom UI.</p>
-              </div>
-            </div>
-            <div class="admin-summary-list">
-              <a href="{{ route('client.environments.index') }}"><strong>Environments</strong><span>{{ $stats['environments'] }}</span></a>
-              <a href="{{ route('client.jobs.index') }}"><strong>Jobs</strong><span>{{ $stats['jobs'] }}</span></a>
-              <a href="{{ route('client.domains.index') }}"><strong>Domains</strong><span>{{ $stats['domains'] }}</span></a>
-              <a href="{{ route('client.applications.index') }}"><strong>Applications</strong><span>{{ $stats['applications'] }}</span></a>
-            </div>
-          </section>
-
           <section class="dash-panel">
             <div class="dash-panel__head">
               <div>

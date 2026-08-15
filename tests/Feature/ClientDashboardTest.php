@@ -70,7 +70,8 @@ class ClientDashboardTest extends TestCase
                 ->get($path)
                 ->assertOk()
                 ->assertSee('dashboard-topbar', false)
-                ->assertSee('dashboard-sidebar', false);
+                ->assertSee('dashboard-sidebar', false)
+                ->assertDontSee('dashboard-topbar__heading', false);
         }
     }
 
@@ -86,6 +87,8 @@ class ClientDashboardTest extends TestCase
             ->get('/client/dashboard')
             ->assertOk()
             ->assertSee('Acme Careers')
+            ->assertDontSee('Workspace sections')
+            ->assertDontSee('dash-stats', false)
             ->assertDontSee('Other Careers');
     }
 

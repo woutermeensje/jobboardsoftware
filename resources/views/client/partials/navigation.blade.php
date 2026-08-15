@@ -1,6 +1,4 @@
 @php
-  $clientUser = auth()->user();
-
   $items = [
     ['label' => 'Dashboard', 'icon' => 'ph-squares-four', 'url' => route('client.dashboard'), 'active' => request()->routeIs('client.dashboard')],
     ['label' => 'Environments', 'icon' => 'ph-buildings', 'url' => route('client.environments.index'), 'active' => request()->is('client/dashboard/environments*')],
@@ -14,14 +12,6 @@
     ['label' => 'Website', 'icon' => 'ph-house', 'url' => route('welcome'), 'active' => false],
   ];
 @endphp
-
-<div class="dash-nav__brand">
-  <span>CL</span>
-  <div>
-    <strong>Client</strong>
-    <small>{{ $clientUser?->email ?: 'JobBoardSoftware' }}</small>
-  </div>
-</div>
 
 <nav class="dash-nav__links" aria-label="Client navigation">
   @foreach($items as $item)

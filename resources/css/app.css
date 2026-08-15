@@ -1,5 +1,6 @@
 @import url("https://cdn.jsdelivr.net/npm/quill@2/dist/quill.snow.css");
 @import './forms.css';
+@import './text.css';
 @import 'tailwindcss';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';

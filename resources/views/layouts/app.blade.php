@@ -22,7 +22,7 @@
   @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
     @vite($usesDashboardLayout
       ? ['resources/css/app.css', 'resources/css/dashboard.css', 'resources/js/app.js']
-      : ['resources/css/app.css', 'resources/js/app.js']
+      : ['resources/css/app.css', 'resources/css/header.css', 'resources/css/footer.css', 'resources/js/app.js']
     )
   @endif
 
@@ -140,12 +140,6 @@
           <span class="dashboard-brand__name">JobBoardSoftware</span>
         </a>
 
-        <div class="dashboard-topbar__heading">
-          <p>@yield('dashboard_label', 'Dashboard')</p>
-          <h1>@yield('dashboard_title', 'Dashboard')</h1>
-          <span>@yield('dashboard_subtitle', 'Manage your account.')</span>
-        </div>
-
         <div class="dashboard-topbar__account">
           <div>
             <strong>{{ $dashboardUser?->name ?? 'Account' }}</strong>
@@ -174,13 +168,13 @@
     </div>
   @else
     <div class="app-shell">
-      @include('layouts.navigation-public')
+      <x-header />
 
       <main class="app-main">
         @yield('content')
       </main>
 
-      @include('layouts.footer')
+      <x-footer />
     </div>
   @endif
 

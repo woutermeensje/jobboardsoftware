@@ -3,9 +3,6 @@
 @section('title', 'Domains | JobBoardSoftware admin')
 @section('meta_description', 'Manage tenant domains and SSL status.')
 @section('layout', 'dashboard')
-@section('dashboard_label', 'Admin')
-@section('dashboard_title', 'Domains')
-@section('dashboard_subtitle', 'Review customer domains, DNS verification state and SSL readiness.')
 @section('dashboard_sidebar')
   @include('admin.partials.navigation')
 @endsection
