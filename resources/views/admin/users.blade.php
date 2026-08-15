@@ -2,6 +2,13 @@
 
 @section('title', 'Users | JobBoardSoftware admin')
 @section('meta_description', 'Manage SaaS users and admin accounts.')
+@section('layout', 'dashboard')
+@section('dashboard_label', 'Admin')
+@section('dashboard_title', 'Users')
+@section('dashboard_subtitle', 'Manage roles, package selection, billing status and onboarding progress.')
+@section('dashboard_sidebar')
+  @include('admin.partials.navigation')
+@endsection
 
 @php
   $roles = [
@@ -15,24 +22,6 @@
 @endphp
 
 @section('content')
-<section class="dash-page">
-  <div class="dash-shell dash-app">
-    @include('admin.partials.navigation')
-
-    <div class="dash-content">
-      <header class="dash-topbar">
-        <div>
-          <p class="dash-eyebrow">Admin</p>
-          <h1 class="dash-title">Users</h1>
-          <p class="dash-subtitle">Manage roles, package selection, billing status and onboarding progress.</p>
-        </div>
-        <aside class="dash-user">
-          <strong>{{ $users->count() }} users</strong>
-          <span>{{ $user->email }}</span>
-          <span>User management</span>
-        </aside>
-      </header>
-
       @if(session('status'))
         <section class="dash-card dash-card--success"><strong>{{ session('status') }}</strong></section>
       @endif
@@ -112,12 +101,4 @@
           </tbody>
         </table>
       </section>
-    </div>
-  </div>
-</section>
 @endsection
-
-@push('styles')
-  @include('dashboard.partials.styles')
-  @include('admin.partials.styles')
-@endpush

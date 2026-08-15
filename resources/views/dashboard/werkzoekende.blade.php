@@ -2,6 +2,42 @@
 
 @section('title', 'Job seeker dashboard | JobBoardSoftware')
 @section('meta_description', 'Job seeker dashboard for recommended jobs, applications, job alerts and saved jobs.')
+@section('layout', 'dashboard')
+@section('dashboard_label', 'Job seeker portal')
+@section('dashboard_title', 'Welcome back, '.$user->name)
+@section('dashboard_subtitle', 'Track your applications, view recommended jobs and manage job alerts from your personal dashboard.')
+@section('dashboard_sidebar')
+  <div class="dash-nav__brand">
+    <span>JS</span>
+    <div>
+      <strong>Job seeker</strong>
+      <small>{{ $user->email }}</small>
+    </div>
+  </div>
+
+  <nav class="dash-nav__links" aria-label="Job seeker navigation">
+    <a class="is-active" href="{{ route('werkzoekende.dashboard') }}">
+      <i class="ph ph-squares-four"></i>
+      Dashboard
+    </a>
+    <a href="{{ route('welcome') }}#jobs">
+      <i class="ph ph-magnifying-glass"></i>
+      Search jobs
+    </a>
+    <a href="{{ route('pages.job-alerts') }}">
+      <i class="ph ph-bell"></i>
+      Job alerts
+    </a>
+    <a href="{{ route('pages.nieuwsbrief') }}">
+      <i class="ph ph-envelope"></i>
+      Newsletter
+    </a>
+    <a href="{{ route('welcome') }}">
+      <i class="ph ph-house"></i>
+      Website
+    </a>
+  </nav>
+@endsection
 
 @php
   $stats = [
@@ -25,21 +61,6 @@
 @endphp
 
 @section('content')
-<section class="dash-page">
-  <div class="dash-shell">
-    <header class="dash-topbar">
-      <div>
-        <p class="dash-eyebrow">Job seeker portal</p>
-        <h1 class="dash-title">Welcome back, {{ $user->name }}</h1>
-        <p class="dash-subtitle">Track your applications, view recommended jobs and manage job alerts from your personal dashboard.</p>
-      </div>
-      <aside class="dash-user" aria-label="Signed-in job seeker">
-        <strong>{{ $user->name }}</strong>
-        <span>{{ $user->email }}</span>
-        <span>Role: Job seeker</span>
-      </aside>
-    </header>
-
     <div class="dash-stats">
       @foreach($stats as $stat)
         <article class="dash-stat">
@@ -175,10 +196,4 @@
         </form>
       </aside>
     </div>
-  </div>
-</section>
 @endsection
-
-@push('styles')
-  @include('dashboard.partials.styles')
-@endpush

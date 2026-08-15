@@ -2,26 +2,15 @@
 
 @section('title', 'Admin dashboard | JobBoardSoftware')
 @section('meta_description', 'Admin dashboard for SaaS users, tenants, domains, jobs and applications.')
+@section('layout', 'dashboard')
+@section('dashboard_label', 'Admin')
+@section('dashboard_title', 'Platform management')
+@section('dashboard_subtitle', 'Overview of SaaS users, job board environments, domains and activity.')
+@section('dashboard_sidebar')
+  @include('admin.partials.navigation')
+@endsection
 
 @section('content')
-<section class="dash-page">
-  <div class="dash-shell dash-app">
-    @include('admin.partials.navigation')
-
-    <div class="dash-content">
-      <header class="dash-topbar">
-        <div>
-          <p class="dash-eyebrow">Admin</p>
-          <h1 class="dash-title">Platform management</h1>
-          <p class="dash-subtitle">Overview of SaaS users, job board environments, domains and activity.</p>
-        </div>
-        <aside class="dash-user">
-          <strong>{{ $user->name }}</strong>
-          <span>{{ $user->email }}</span>
-          <span>Admin dashboard</span>
-        </aside>
-      </header>
-
       <div class="dash-stats">
         @foreach($stats as $label => $value)
           <article class="dash-stat">
@@ -166,12 +155,4 @@
           </section>
         </aside>
       </div>
-    </div>
-  </div>
-</section>
 @endsection
-
-@push('styles')
-  @include('dashboard.partials.styles')
-  @include('admin.partials.styles')
-@endpush

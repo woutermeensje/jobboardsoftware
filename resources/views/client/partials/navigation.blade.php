@@ -15,29 +15,27 @@
   ];
 @endphp
 
-<aside class="dash-nav" aria-label="Client navigation">
-  <div class="dash-nav__brand">
-    <span>CL</span>
-    <div>
-      <strong>Client</strong>
-      <small>{{ $clientUser?->email ?: 'JobBoardSoftware' }}</small>
-    </div>
+<div class="dash-nav__brand">
+  <span>CL</span>
+  <div>
+    <strong>Client</strong>
+    <small>{{ $clientUser?->email ?: 'JobBoardSoftware' }}</small>
   </div>
+</div>
 
-  <nav class="dash-nav__links">
-    @foreach($items as $item)
-      <a class="{{ $item['active'] ? 'is-active' : '' }}" href="{{ $item['url'] }}">
-        <i class="ph {{ $item['icon'] }}"></i>
-        {{ $item['label'] }}
-      </a>
-    @endforeach
-  </nav>
+<nav class="dash-nav__links" aria-label="Client navigation">
+  @foreach($items as $item)
+    <a class="{{ $item['active'] ? 'is-active' : '' }}" href="{{ $item['url'] }}">
+      <i class="ph {{ $item['icon'] }}"></i>
+      {{ $item['label'] }}
+    </a>
+  @endforeach
+</nav>
 
-  <form method="POST" action="{{ route('logout') }}" class="dash-nav__logout">
-    @csrf
-    <button type="submit">
-      <i class="ph ph-sign-out"></i>
-      Log out
-    </button>
-  </form>
-</aside>
+<form method="POST" action="{{ route('logout') }}" class="dash-nav__logout">
+  @csrf
+  <button type="submit">
+    <i class="ph ph-sign-out"></i>
+    Log out
+  </button>
+</form>

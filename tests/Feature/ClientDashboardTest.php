@@ -10,16 +10,17 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class WorkspaceDashboardTest extends TestCase
+class ClientDashboardTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_workspace_login_redirects_to_the_custom_login_page(): void
+    public function test_client_dashboard_login_redirects_to_the_custom_login_page(): void
     {
+        $this->get('/client/dashboard/login')->assertRedirect('/login');
         $this->get('/workspace/login')->assertRedirect('/login');
     }
 
-    public function test_tenant_owner_can_access_custom_workspace_pages(): void
+    public function test_tenant_owner_can_access_custom_client_dashboard_pages(): void
     {
         $owner = User::factory()->create([
             'role' => User::ROLE_TENANT_OWNER,
@@ -44,31 +45,36 @@ class WorkspaceDashboardTest extends TestCase
         ]);
 
         foreach ([
-            '/workspace',
-            '/workspace/environments',
-            '/workspace/environments/create',
-            '/workspace/jobs',
-            '/workspace/jobs/create',
-            '/workspace/domains',
-            '/workspace/domains/create',
-            '/workspace/applications',
-            '/workspace/billing',
-            '/workspace/marketing',
-            '/workspace/marketing/landingpagina',
-            '/workspace/marketing/socials',
-            '/workspace/jobs-settings',
-            '/workspace/jobs-settings/sector',
-            '/workspace/jobs-settings/categorie',
-            '/workspace/jobs-settings/job-type',
-            '/workspace/jobs-settings/organization-type',
-            '/workspace/companies',
-            '/workspace/companies/create',
+            '/client/dashboard',
+            '/client/dashboard/',
+            '/client/dashboard/environments',
+            '/client/dashboard/environments/create',
+            '/client/dashboard/jobs',
+            '/client/dashboard/jobs/create',
+            '/client/dashboard/domains',
+            '/client/dashboard/domains/create',
+            '/client/dashboard/applications',
+            '/client/dashboard/billing',
+            '/client/dashboard/marketing',
+            '/client/dashboard/marketing/landingpagina',
+            '/client/dashboard/marketing/socials',
+            '/client/dashboard/jobs-settings',
+            '/client/dashboard/jobs-settings/sector',
+            '/client/dashboard/jobs-settings/categorie',
+            '/client/dashboard/jobs-settings/job-type',
+            '/client/dashboard/jobs-settings/organization-type',
+            '/client/dashboard/companies',
+            '/client/dashboard/companies/create',
         ] as $path) {
-            $this->actingAs($owner)->get($path)->assertOk();
+            $this->actingAs($owner)
+                ->get($path)
+                ->assertOk()
+                ->assertSee('dashboard-topbar', false)
+                ->assertSee('dashboard-sidebar', false);
         }
     }
 
-    public function test_workspace_dashboard_only_shows_owned_environments(): void
+    public function test_client_dashboard_only_shows_owned_environments(): void
     {
         $owner = User::factory()->create(['role' => User::ROLE_TENANT_OWNER]);
         $otherOwner = User::factory()->create(['role' => User::ROLE_TENANT_OWNER]);
@@ -77,10 +83,17 @@ class WorkspaceDashboardTest extends TestCase
         $this->tenantFor($otherOwner, 'Other Careers', 'other-careers');
 
         $this->actingAs($owner)
-            ->get('/workspace')
+            ->get('/client/dashboard')
             ->assertOk()
             ->assertSee('Acme Careers')
             ->assertDontSee('Other Careers');
+    }
+
+    public function test_old_workspace_paths_redirect_to_client_dashboard(): void
+    {
+        $this->get('/workspace')->assertRedirect('/client/dashboard');
+        $this->get('/workspace/environments')->assertRedirect('/client/dashboard/environments');
+        $this->get('/workspace/jobs-settings/sector')->assertRedirect('/client/dashboard/jobs-settings/sector');
     }
 
     public function test_old_panel_routes_are_not_available(): void

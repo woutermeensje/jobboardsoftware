@@ -2,6 +2,13 @@
 
 @section('title', 'Domains | JobBoardSoftware admin')
 @section('meta_description', 'Manage tenant domains and SSL status.')
+@section('layout', 'dashboard')
+@section('dashboard_label', 'Admin')
+@section('dashboard_title', 'Domains')
+@section('dashboard_subtitle', 'Review customer domains, DNS verification state and SSL readiness.')
+@section('dashboard_sidebar')
+  @include('admin.partials.navigation')
+@endsection
 
 @php
   $domainStatuses = [
@@ -18,24 +25,6 @@
 @endphp
 
 @section('content')
-<section class="dash-page">
-  <div class="dash-shell dash-app">
-    @include('admin.partials.navigation')
-
-    <div class="dash-content">
-      <header class="dash-topbar">
-        <div>
-          <p class="dash-eyebrow">Admin</p>
-          <h1 class="dash-title">Domains</h1>
-          <p class="dash-subtitle">Review customer domains, DNS verification state and SSL readiness.</p>
-        </div>
-        <aside class="dash-user">
-          <strong>{{ $domains->count() }} domains</strong>
-          <span>{{ $user->email }}</span>
-          <span>Domain management</span>
-        </aside>
-      </header>
-
       @if(session('status'))
         <section class="dash-card dash-card--success"><strong>{{ session('status') }}</strong></section>
       @endif
@@ -107,12 +96,4 @@
           </tbody>
         </table>
       </section>
-    </div>
-  </div>
-</section>
 @endsection
-
-@push('styles')
-  @include('dashboard.partials.styles')
-  @include('admin.partials.styles')
-@endpush

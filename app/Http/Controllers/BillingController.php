@@ -31,7 +31,7 @@ class BillingController extends Controller
         ], $user);
 
         return redirect()
-            ->route('workspace.billing')
+            ->route('client.billing')
             ->with('status', 'Payment received. Your license is active.');
     }
 }

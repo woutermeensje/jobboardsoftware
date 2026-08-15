@@ -2,26 +2,15 @@
 
 @section('title', 'Client dashboard | JobBoardSoftware')
 @section('meta_description', 'Client dashboard for managing job board environments, domains, jobs and applications.')
+@section('layout', 'dashboard')
+@section('dashboard_label', 'Client dashboard')
+@section('dashboard_title', 'Your job boards')
+@section('dashboard_subtitle', 'A custom dashboard shell for environments, domains, jobs and applications.')
+@section('dashboard_sidebar')
+  @include('client.partials.navigation')
+@endsection
 
 @section('content')
-<section class="dash-page">
-  <div class="dash-shell dash-app">
-    @include('client.partials.navigation')
-
-    <div class="dash-content">
-      <header class="dash-topbar">
-        <div>
-          <p class="dash-eyebrow">Client dashboard</p>
-          <h1 class="dash-title">Your job boards</h1>
-          <p class="dash-subtitle">A custom dashboard shell for environments, domains, jobs and applications.</p>
-        </div>
-        <aside class="dash-user">
-          <strong>{{ $user->name }}</strong>
-          <span>{{ $user->email }}</span>
-          <span>{{ str($user->role)->headline() }}</span>
-        </aside>
-      </header>
-
       <div class="dash-stats">
         @foreach($stats as $label => $value)
           <article class="dash-stat">
@@ -165,12 +154,4 @@
           </section>
         </aside>
       </div>
-    </div>
-  </div>
-</section>
 @endsection
-
-@push('styles')
-  @include('dashboard.partials.styles')
-  @include('admin.partials.styles')
-@endpush

@@ -138,7 +138,7 @@ class ExampleTest extends TestCase
             'password_confirmation' => 'password123',
         ]);
 
-        $response->assertRedirect(route('workspace.dashboard'));
+        $response->assertRedirect(route('client.dashboard'));
         $this->assertAuthenticated();
         $this->assertDatabaseHas('users', [
             'name' => 'New User',
@@ -164,7 +164,7 @@ class ExampleTest extends TestCase
             'password' => 'password123',
         ]);
 
-        $response->assertRedirect(route('workspace.dashboard'));
+        $response->assertRedirect(route('client.dashboard'));
         $this->assertAuthenticatedAs($owner);
     }
 
@@ -177,13 +177,13 @@ class ExampleTest extends TestCase
         $this->actingAs($owner)->get('/dashboard')->assertNotFound();
     }
 
-    public function test_old_dashboard_paths_redirect_to_the_workspace(): void
+    public function test_old_dashboard_paths_redirect_to_the_client_dashboard(): void
     {
-        $this->get('/werkzoekende/dashboard')->assertRedirect('/workspace');
-        $this->get('/werkgever/dashboard')->assertRedirect('/workspace');
-        $this->get('/dashboard/werkgever')->assertRedirect('/workspace');
-        $this->get('/dashboard/werkgever/omgeving')->assertRedirect('/workspace/environments');
-        $this->get('/dashboard/omgeving')->assertRedirect('/workspace/environments');
+        $this->get('/werkzoekende/dashboard')->assertRedirect('/client/dashboard');
+        $this->get('/werkgever/dashboard')->assertRedirect('/client/dashboard');
+        $this->get('/dashboard/werkgever')->assertRedirect('/client/dashboard');
+        $this->get('/dashboard/werkgever/omgeving')->assertRedirect('/client/dashboard/environments');
+        $this->get('/dashboard/omgeving')->assertRedirect('/client/dashboard/environments');
     }
 
     public function test_admin_can_login_and_reaches_admin_dashboard(): void

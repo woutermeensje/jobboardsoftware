@@ -53,7 +53,7 @@
 
     <section class="content-section" id="management">
       <p class="content-eyebrow">Management portal</p>
-      <h2>Run everything from one workspace</h2>
+      <h2>Run everything from one client dashboard</h2>
       <p>The management portal is where you post jobs, review applications and manage your job board environments.</p>
       <div class="content-grid">
         <div class="content-card">

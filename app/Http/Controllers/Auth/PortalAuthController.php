@@ -131,7 +131,7 @@ class PortalAuthController extends Controller
         $request->session()->regenerate();
 
         if ($role === User::ROLE_TENANT_OWNER) {
-            return redirect()->route('workspace.dashboard');
+            return redirect()->route('client.dashboard');
         }
 
         return redirect()->route($this->dashboardRouteNameFor($role));
@@ -170,7 +170,7 @@ class PortalAuthController extends Controller
     {
         return match ($role) {
             User::ROLE_ADMIN => 'admin.dashboard',
-            User::ROLE_TENANT_OWNER, User::ROLE_WERKGEVER => 'workspace.dashboard',
+            User::ROLE_TENANT_OWNER, User::ROLE_WERKGEVER => 'client.dashboard',
             default => 'werkzoekende.dashboard',
         };
     }

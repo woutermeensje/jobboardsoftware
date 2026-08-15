@@ -2,6 +2,13 @@
 
 @section('title', 'Applications | JobBoardSoftware admin')
 @section('meta_description', 'Manage tenant job applications across the platform.')
+@section('layout', 'dashboard')
+@section('dashboard_label', 'Admin')
+@section('dashboard_title', 'Applications')
+@section('dashboard_subtitle', 'Review incoming candidate applications across tenant job boards.')
+@section('dashboard_sidebar')
+  @include('admin.partials.navigation')
+@endsection
 
 @php
   $applicationStatuses = [
@@ -13,24 +20,6 @@
 @endphp
 
 @section('content')
-<section class="dash-page">
-  <div class="dash-shell dash-app">
-    @include('admin.partials.navigation')
-
-    <div class="dash-content">
-      <header class="dash-topbar">
-        <div>
-          <p class="dash-eyebrow">Admin</p>
-          <h1 class="dash-title">Applications</h1>
-          <p class="dash-subtitle">Review incoming candidate applications across tenant job boards.</p>
-        </div>
-        <aside class="dash-user">
-          <strong>{{ $applications->count() }} applications</strong>
-          <span>{{ $user->email }}</span>
-          <span>Application management</span>
-        </aside>
-      </header>
-
       @if(session('status'))
         <section class="dash-card dash-card--success"><strong>{{ session('status') }}</strong></section>
       @endif
@@ -91,12 +80,4 @@
           </tbody>
         </table>
       </section>
-    </div>
-  </div>
-</section>
 @endsection
-
-@push('styles')
-  @include('dashboard.partials.styles')
-  @include('admin.partials.styles')
-@endpush

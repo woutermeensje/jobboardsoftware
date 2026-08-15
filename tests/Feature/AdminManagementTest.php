@@ -41,17 +41,17 @@ class AdminManagementTest extends TestCase
             'heard_about_us' => 'Google',
             'password' => 'password123',
             'password_confirmation' => 'password123',
-        ])->assertRedirect(route('workspace.dashboard'));
+        ])->assertRedirect(route('client.dashboard'));
 
         $owner = User::where('email', 'nina@example.com')->firstOrFail();
         $owner->forceFill(['billing_plan_id' => $plan->id])->save();
 
-        $this->actingAs($owner)->get('/workspace')->assertOk();
-        $this->actingAs($owner)->get('/workspace/billing')->assertOk();
+        $this->actingAs($owner)->get('/client/dashboard')->assertOk();
+        $this->actingAs($owner)->get('/client/dashboard/billing')->assertOk();
 
         $this->actingAs($owner)
             ->get(route('billing.success'))
-            ->assertRedirect(route('workspace.billing'));
+            ->assertRedirect(route('client.billing'));
 
         $tenant = Tenant::create([
             'id' => 'nina-careers',
@@ -113,7 +113,11 @@ class AdminManagementTest extends TestCase
             route('admin.jobs.index'),
             route('admin.applications.index'),
         ] as $url) {
-            $this->actingAs($admin)->get($url)->assertStatus(200);
+            $this->actingAs($admin)
+                ->get($url)
+                ->assertStatus(200)
+                ->assertSee('dashboard-topbar', false)
+                ->assertSee('dashboard-sidebar', false);
         }
 
         $this->actingAs($owner)->get(route('admin.users.index'))->assertForbidden();

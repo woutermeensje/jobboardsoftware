@@ -5,8 +5,8 @@
   if ($authUser) {
     $dashboardUrl = match ($authUser->role) {
       \App\Models\User::ROLE_ADMIN => route('admin.dashboard'),
-      \App\Models\User::ROLE_TENANT_OWNER => route('workspace.dashboard'),
-      default => route('workspace.dashboard'),
+      \App\Models\User::ROLE_TENANT_OWNER => route('client.dashboard'),
+      default => route('client.dashboard'),
     };
   }
 
@@ -22,7 +22,7 @@
   $utilityLinks = $authUser
     ? [
       ['label' => 'My dashboard', 'url' => $dashboardUrl],
-      ['label' => 'Manage environment', 'url' => route('workspace.environments.index')],
+      ['label' => 'Manage environment', 'url' => route('client.environments.index')],
       ['label' => 'Contact', 'url' => route('pages.contact')],
     ]
     : [

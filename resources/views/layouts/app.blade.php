@@ -1,3 +1,8 @@
+@php
+  $usesDashboardLayout = trim($__env->yieldContent('layout')) === 'dashboard';
+  $dashboardUser = auth()->user();
+@endphp
+
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
@@ -15,7 +20,10 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css">
 
   @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite($usesDashboardLayout
+      ? ['resources/css/app.css', 'resources/css/dashboard.css', 'resources/js/app.js']
+      : ['resources/css/app.css', 'resources/js/app.js']
+    )
   @endif
 
   <style>
@@ -123,16 +131,58 @@
 
   @stack('styles')
 </head>
-<body>
-  <div class="app-shell">
-    @include('layouts.navigation-public')
+<body class="{{ $usesDashboardLayout ? 'dashboard-body' : '' }}">
+  @if($usesDashboardLayout)
+    <div class="dashboard-app-shell">
+      <header class="dashboard-topbar">
+        <a class="dashboard-brand" href="{{ route('welcome') }}" aria-label="JobBoardSoftware home">
+          <span class="dashboard-brand__mark" aria-hidden="true">JB</span>
+          <span class="dashboard-brand__name">JobBoardSoftware</span>
+        </a>
 
-    <main class="app-main">
-      @yield('content')
-    </main>
+        <div class="dashboard-topbar__heading">
+          <p>@yield('dashboard_label', 'Dashboard')</p>
+          <h1>@yield('dashboard_title', 'Dashboard')</h1>
+          <span>@yield('dashboard_subtitle', 'Manage your account.')</span>
+        </div>
 
-    @include('layouts.footer')
-  </div>
+        <div class="dashboard-topbar__account">
+          <div>
+            <strong>{{ $dashboardUser?->name ?? 'Account' }}</strong>
+            <span>{{ $dashboardUser?->email ?? 'Not signed in' }}</span>
+          </div>
+          @auth
+            <form method="POST" action="{{ route('logout') }}">
+              @csrf
+              <button type="submit" aria-label="Log out">
+                <i class="ph ph-sign-out" aria-hidden="true"></i>
+              </button>
+            </form>
+          @endauth
+        </div>
+      </header>
+
+      <div class="dashboard-app-frame">
+        <aside class="dashboard-sidebar dash-nav">
+          @yield('dashboard_sidebar')
+        </aside>
+
+        <main class="dashboard-main">
+          @yield('content')
+        </main>
+      </div>
+    </div>
+  @else
+    <div class="app-shell">
+      @include('layouts.navigation-public')
+
+      <main class="app-main">
+        @yield('content')
+      </main>
+
+      @include('layouts.footer')
+    </div>
+  @endif
 
   @stack('scripts')
 </body>
