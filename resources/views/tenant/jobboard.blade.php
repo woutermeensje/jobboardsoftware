@@ -6,7 +6,6 @@
 @php
   $settings = $tenant->settings ?? [];
   $brandName = $settings['brand_name'] ?? $tenant->name ?? 'Jobboard';
-  $intro = $settings['intro'] ?? 'View current jobs and apply directly.';
   $selectedDepartments = collect((array) request('department'))->filter()->values();
   $selectedEmploymentTypes = collect((array) request('employment_type'))->filter()->values();
   $hasActiveJobFilters = request()->filled('search')
@@ -17,23 +16,6 @@
 
 @section('content')
   <main class="tenant-shell">
-    <section class="tenant-hero">
-      <div>
-        <p class="tenant-eyebrow">Job platform</p>
-        <h1>{{ $brandName }}</h1>
-        <p>{{ $intro }}</p>
-        <div class="tenant-actions">
-          <a class="tenant-btn tenant-btn--primary" href="#jobs">View jobs</a>
-          <a class="tenant-btn tenant-btn--ghost" href="#contact">Contact</a>
-        </div>
-      </div>
-      <aside class="tenant-card">
-        <span>Open roles</span>
-        <strong>{{ $jobs->count() }}</strong>
-        <p>Plan: {{ ucfirst($tenant->plan ?? 'starter') }}</p>
-      </aside>
-    </section>
-
     <section class="tenant-jobs-index" id="jobs" aria-labelledby="tenant-jobs-title">
       <header class="tenant-jobs-filter-wrap" aria-label="Job filters">
         <div class="tenant-jobs-filter-header">
