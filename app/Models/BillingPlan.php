@@ -2,11 +2,16 @@
 
 namespace App\Models;
 
+use Database\Factories\BillingPlanFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/** @use HasFactory<BillingPlanFactory> */
 class BillingPlan extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'key',
         'name',

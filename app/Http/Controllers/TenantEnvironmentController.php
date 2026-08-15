@@ -114,22 +114,7 @@ class TenantEnvironmentController extends Controller
         abort_unless((int) $tenant->owner_user_id === (int) $request->user()->id, 403);
         abort_unless($domain->tenant_id === $tenant->id, 404);
 
-        $payload = $domain->verification_payload ?? [];
-        $txtRecords = $this->dnsRecords($payload['txt_name'] ?? '', DNS_TXT);
-        $cnameRecords = $this->dnsRecords($domain->domain, DNS_CNAME);
-
-        $txtValue = $payload['txt_value'] ?? null;
-        $cnameValue = $payload['value'] ?? null;
-
-        $txtVerified = $txtValue && collect($txtRecords)->contains(fn (array $record) => str_contains((string) ($record['txt'] ?? ''), $txtValue));
-        $cnameVerified = $cnameValue && collect($cnameRecords)->contains(fn (array $record) => str_contains(rtrim((string) ($record['target'] ?? ''), '.'), $cnameValue));
-
-        if ($txtVerified || $cnameVerified) {
-            $domain->forceFill([
-                'status' => Domain::STATUS_VERIFIED,
-                'verified_at' => now(),
-            ])->save();
-
+        if ($domain->checkDnsVerification()) {
             app(AdminActionNotifier::class)->notify('Domein DNS geverifieerd', [
                 'tenant_id' => $tenant->id,
                 'tenant_naam' => $tenant->name,
@@ -140,10 +125,6 @@ class TenantEnvironmentController extends Controller
 
             return back()->with('status', 'Domain verified. SSL can now be prepared.');
         }
-
-        $domain->forceFill([
-            'status' => Domain::STATUS_FAILED,
-        ])->save();
 
         app(AdminActionNotifier::class)->notify('Domein DNS check mislukt', [
             'tenant_id' => $tenant->id,
@@ -162,11 +143,7 @@ class TenantEnvironmentController extends Controller
         abort_unless($domain->tenant_id === $tenant->id, 404);
         abort_unless(in_array($domain->status, [Domain::STATUS_VERIFIED, Domain::STATUS_ACTIVE], true), 422);
 
-        $domain->forceFill([
-            'status' => Domain::STATUS_ACTIVE,
-            'ssl_status' => Domain::SSL_ACTIVE,
-            'ssl_issued_at' => now(),
-        ])->save();
+        $domain->activateSsl();
 
         app(AdminActionNotifier::class)->notify('SSL geactiveerd', [
             'tenant_id' => $tenant->id,
@@ -227,19 +204,5 @@ class TenantEnvironmentController extends Controller
             ->before('/')
             ->trim()
             ->toString();
-    }
-
-    /**
-     * @return array<int, array<string, mixed>>
-     */
-    private function dnsRecords(string $host, int $type): array
-    {
-        if ($host === '') {
-            return [];
-        }
-
-        $records = @dns_get_record($host, $type);
-
-        return is_array($records) ? $records : [];
     }
 }

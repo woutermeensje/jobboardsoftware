@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Database\Factories\TenantFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -9,17 +11,23 @@ use Stancl\Tenancy\Database\Concerns\HasDomains;
 use Stancl\Tenancy\Database\Concerns\HasScopedValidationRules;
 use Stancl\Tenancy\Database\Models\Tenant as BaseTenant;
 
+/** @use HasFactory<TenantFactory> */
 class Tenant extends BaseTenant
 {
     use HasDomains;
+    use HasFactory;
     use HasScopedValidationRules;
 
     public const STATUS_TRIAL = 'trial';
+
     public const STATUS_ACTIVE = 'active';
+
     public const STATUS_SUSPENDED = 'suspended';
 
     public const PLAN_STARTER = 'starter';
+
     public const PLAN_GROWTH = 'growth';
+
     public const PLAN_ENTERPRISE = 'enterprise';
 
     protected $casts = [

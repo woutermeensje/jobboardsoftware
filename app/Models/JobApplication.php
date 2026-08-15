@@ -2,14 +2,22 @@
 
 namespace App\Models;
 
+use Database\Factories\JobApplicationFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/** @use HasFactory<JobApplicationFactory> */
 class JobApplication extends Model
 {
+    use HasFactory;
+
     public const STATUS_NEW = 'new';
+
     public const STATUS_REVIEWED = 'reviewed';
+
     public const STATUS_REJECTED = 'rejected';
+
     public const STATUS_HIRED = 'hired';
 
     protected $fillable = [
