@@ -47,10 +47,10 @@
 .tenant-apply input,
 .tenant-apply textarea {
   width: 100%;
-  min-height: 44px;
-  padding: 10px 12px;
-  border: 1px solid var(--color-border-strong);
-  border-radius: 8px;
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid #dedede;
+  border-radius: 5px;
   background: #ffffff;
   color: var(--color-text);
   font-family: var(--font-text);
@@ -121,10 +121,10 @@
 .tenant-post-job-form select,
 .tenant-post-job-form textarea {
   width: 100%;
-  min-height: 44px;
-  padding: 10px 12px;
-  border: 1px solid var(--color-border-strong);
-  border-radius: 8px;
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid #dedede;
+  border-radius: 5px;
   background: #ffffff;
   color: var(--color-text);
   font-family: var(--font-text);

@@ -165,10 +165,10 @@
 .content-field textarea,
 .content-field select {
   width: 100%;
-  min-height: 48px;
-  padding: 0 13px;
+  min-height: 40px;
+  padding: 8px 12px;
   border: 1px solid #dedede;
-  border-radius: 8px;
+  border-radius: 5px;
   background: #ffffff;
   color: var(--color-text);
   font-size: 15px;

@@ -22,8 +22,8 @@ textarea,
 select {
   width: 100%;
   padding: 8px 12px;
-  border: 1px solid var(--field-border);
-  border-radius: var(--radius-default);
+  border: 1px solid #dedede;
+  border-radius: 5px;
   background: var(--field-bg);
   font-family: var(--font-text);
   font-size: 14px;
@@ -88,8 +88,8 @@ input[type="radio"]{
 input[type="file"]{
   width: 100%;
   padding: 8px 12px;
-  border: 1px solid var(--field-border);
-  border-radius: var(--radius-default);
+  border: 1px solid #dedede;
+  border-radius: 5px;
   background: var(--field-bg);
   font-family: var(--font-text);
   font-size: 14px;
@@ -249,8 +249,8 @@ input[type="file"]::file-selector-button:hover{
 .portal-textarea{
   width: 100%;
   padding: 8px 12px;
-  border: 1px solid var(--field-border);
-  border-radius: var(--radius-default);
+  border: 1px solid #dedede;
+  border-radius: 5px;
   background: var(--field-bg);
   font-family: var(--font-text);
   font-size: 14px;
@@ -310,8 +310,8 @@ input[type="file"]::file-selector-button:hover{
 .basis-input{
   width: 100%;
   padding: 8px 12px;
-  border: 1px solid var(--field-border);
-  border-radius: var(--radius-default);
+  border: 1px solid #dedede;
+  border-radius: 5px;
   background: var(--field-bg);
   font-family: var(--font-text);
   font-size: 14px;
@@ -335,8 +335,8 @@ input[type="file"]::file-selector-button:hover{
 .form-control{
   width: 100%;
   padding: 8px 12px;
-  border: 1px solid var(--field-border);
-  border-radius: var(--radius-default);
+  border: 1px solid #dedede;
+  border-radius: 5px;
   background: var(--field-bg);
   font-family: var(--font-text);
   font-size: 14px;
@@ -356,7 +356,7 @@ input[type="file"]::file-selector-button:hover{
 }
 
 .form-control[type="file"]{
-  padding: 10px 12px;
+  padding: 8px 12px;
   cursor: pointer;
 }
 
@@ -464,8 +464,8 @@ input[type="file"]::file-selector-button:hover{
 .textarea{
   width: 100%;
   padding: 8px 12px;
-  border: 1px solid var(--field-border);
-  border-radius: var(--radius-default);
+  border: 1px solid #dedede;
+  border-radius: 5px;
   background: var(--field-bg);
   font-family: var(--font-text);
   font-size: 14px;
@@ -661,8 +661,8 @@ input[type="file"]::file-selector-button:hover{
   min-height: 40px;
   width: 100%;
   padding: 6px 8px;
-  border: 1px solid var(--field-border);
-  border-radius: var(--radius-default);
+  border: 1px solid #dedede;
+  border-radius: 5px;
   background: var(--field-bg);
   transition: border-color .16s ease, background-color .16s ease;
 }

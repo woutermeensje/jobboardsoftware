@@ -174,10 +174,10 @@
 
 .auth-input {
   width: 100%;
-  min-height: 44px;
-  padding: 10px 12px;
-  border: 1px solid var(--field-border);
-  border-radius: var(--radius-default);
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid #dedede;
+  border-radius: 5px;
   background: #ffffff;
   color: var(--color-text);
   font-family: var(--font-text);

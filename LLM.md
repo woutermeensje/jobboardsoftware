@@ -23,6 +23,7 @@ These notes describe the conventions future AI/code assistants should follow whe
 - Tenant dashboard routes are `/jobseeker/dashboard` and `/employer/dashboard`. They should use the same dashboard shell and `dash-*` UI patterns as the central client/admin dashboard files.
 - Tenant public job posting lives at `/post-a-job`. It creates draft jobs first; the payment/publishing step comes later. The form can optionally create a tenant-scoped employer account.
 - Tenant public form pages should keep shared form styling in `resources/css/tenants/forms.css`: 65% main content and 35% side content where applicable, 56px vertical spacing for the form block, 24px form padding, 24px Inter form titles, 18px Inter section titles, 14px/300 Poppins labels, and 14px/300 paragraph text inside forms only.
+- Standard input fields should use a 5px border radius, `1px solid #dedede` border, and compact vertical padding.
 - The client dashboard job type settings should always include these default English job types: `Part time`, `Full time`, `Freelance`, `Temporary`, and `Internship`. Custom job types are stored per tenant environment.
 - Client dashboard companies are stored per tenant environment and can include an uploaded logo path.
 - Client dashboard form pages should use the shared `dash-form-layout`: a 65% main form block with a 35% supporting side block.

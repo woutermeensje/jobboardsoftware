@@ -532,7 +532,7 @@
 .domain-field input,
 .domain-field select,
 .domain-field textarea {
-  min-height: 42px;
+  min-height: 40px;
   font-family: var(--font-text);
   font-weight: 400;
 }
