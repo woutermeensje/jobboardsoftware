@@ -7,6 +7,12 @@
   $settings = $tenant->settings ?? [];
   $brandName = $settings['brand_name'] ?? $tenant->name ?? 'Jobboard';
   $intro = $settings['intro'] ?? 'View current jobs and apply directly.';
+  $selectedDepartments = collect((array) request('department'))->filter()->values();
+  $selectedEmploymentTypes = collect((array) request('employment_type'))->filter()->values();
+  $hasActiveJobFilters = request()->filled('search')
+    || request()->filled('location')
+    || $selectedDepartments->isNotEmpty()
+    || $selectedEmploymentTypes->isNotEmpty();
 @endphp
 
 @section('content')
@@ -28,36 +34,57 @@
       </aside>
     </section>
 
-    <section class="tenant-panel" id="jobs" aria-labelledby="tenant-jobs-title">
-      <div class="tenant-jobs-overview__head">
-        <div>
-          <p class="tenant-eyebrow">Jobs</p>
-          <h2 id="tenant-jobs-title">Open roles</h2>
-          <p>Explore the current openings and filter by team, location or employment type.</p>
+    <section class="tenant-jobs-index" id="jobs" aria-labelledby="tenant-jobs-title">
+      <header class="tenant-jobs-filter-wrap" aria-label="Job filters">
+        <div class="tenant-jobs-filter-header">
+          <h2 id="tenant-jobs-title">Doorzoek alle vacatures</h2>
+          <p>Vacatures, stages en functies binnen {{ $brandName }}.</p>
         </div>
 
-        <div class="tenant-jobs-summary" aria-label="Open roles summary">
-          <strong>{{ $jobs->count() }}</strong>
-          <span>{{ $jobs->count() === 1 ? 'matching role' : 'matching roles' }}</span>
-          <small>{{ $totalJobs }} {{ $totalJobs === 1 ? 'role total' : 'roles total' }}</small>
-        </div>
+        @include('tenant.components.job-filters', [
+          'selectedDepartments' => $selectedDepartments,
+          'selectedEmploymentTypes' => $selectedEmploymentTypes,
+        ])
+      </header>
+
+      <div class="tenant-jobs-section-divider"></div>
+
+      <div class="tenant-jobs-results-head">
+        <p class="tenant-jobs-results-count">
+          {{ $jobs->count() }} {{ $jobs->count() === 1 ? 'vacature' : 'vacatures' }} gevonden
+          <span>{{ $totalJobs }} {{ $totalJobs === 1 ? 'vacature totaal' : 'vacatures totaal' }}</span>
+        </p>
+
+        @if($hasActiveJobFilters)
+          <a class="tenant-jobs-reset-link" href="{{ route('tenant.jobs') }}#jobs">Wis alle filters</a>
+        @endif
       </div>
 
-      @include('tenant.components.job-filters')
+      <div class="tenant-jobs-content-layout">
+        <aside class="tenant-jobs-sidebar" aria-label="Sidebar filters">
+          @include('tenant.components.job-sidebar-filters', [
+            'selectedDepartments' => $selectedDepartments,
+            'selectedEmploymentTypes' => $selectedEmploymentTypes,
+            'hasActiveJobFilters' => $hasActiveJobFilters,
+          ])
+        </aside>
 
-      <div class="tenant-jobs">
-        @forelse($jobs as $job)
-          @include('tenant.components.job-card', ['job' => $job])
-        @empty
-          <article class="tenant-jobs-empty">
-            <i class="ph ph-briefcase" aria-hidden="true"></i>
-            <h3>No jobs found</h3>
-            <p>Adjust your filters or come back later.</p>
-            @if(request()->hasAny(['search', 'department', 'location', 'employment_type']))
-              <a class="tenant-btn tenant-btn--ghost" href="{{ route('tenant.jobs') }}#jobs">Reset filters</a>
-            @endif
-          </article>
-        @endforelse
+        <section class="tenant-jobs-results-section" aria-label="Job results">
+          <div class="tenant-jobs">
+            @forelse($jobs as $job)
+              @include('tenant.components.job-card', ['job' => $job])
+            @empty
+              <article class="tenant-jobs-empty">
+                <i class="ph ph-briefcase" aria-hidden="true"></i>
+                <h3>Geen vacatures gevonden</h3>
+                <p>Pas je filters aan of reset de zoekopdracht om meer resultaten te zien.</p>
+                @if($hasActiveJobFilters)
+                  <a class="tenant-btn tenant-btn--ghost" href="{{ route('tenant.jobs') }}#jobs">Reset filters</a>
+                @endif
+              </article>
+            @endforelse
+          </div>
+        </section>
       </div>
     </section>
 

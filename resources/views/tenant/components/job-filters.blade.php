@@ -1,59 +1,72 @@
 @php
+  $selectedDepartments = $selectedDepartments ?? collect();
+  $selectedEmploymentTypes = $selectedEmploymentTypes ?? collect();
   $hasActiveFilters = request()->filled('search')
-    || request()->filled('department')
     || request()->filled('location')
-    || request()->filled('employment_type');
+    || $selectedDepartments->isNotEmpty()
+    || $selectedEmploymentTypes->isNotEmpty();
 @endphp
 
-<form class="tenant-job-filters" method="GET" action="{{ route('tenant.jobs') }}">
-  <label class="tenant-job-filters__search">
-    <span>Search jobs</span>
-    <input
-      name="search"
-      value="{{ request('search') }}"
-      placeholder="Job title, team or keyword"
-      autocomplete="off"
-    >
-  </label>
-
-  <label>
-    <span>Department</span>
-    <select name="department">
-      <option value="">All departments</option>
-      @foreach($departments as $department)
-        <option value="{{ $department }}" @selected(request('department') === $department)>{{ $department }}</option>
-      @endforeach
-    </select>
-  </label>
-
-  <label>
-    <span>Location</span>
-    <select name="location">
-      <option value="">All locations</option>
-      @foreach($locations as $location)
-        <option value="{{ $location }}" @selected(request('location') === $location)>{{ $location }}</option>
-      @endforeach
-    </select>
-  </label>
-
-  <label>
-    <span>Type</span>
-    <select name="employment_type">
-      <option value="">All types</option>
-      @foreach($employmentTypes as $employmentType)
-        <option value="{{ $employmentType }}" @selected(request('employment_type') === $employmentType)>{{ $employmentType }}</option>
-      @endforeach
-    </select>
-  </label>
-
-  <div class="tenant-job-filters__actions">
-    <button class="tenant-btn tenant-btn--primary" type="submit">
+<form class="tenant-job-filters" method="GET" action="{{ route('tenant.jobs') }}" data-tenant-job-filter-form>
+  <div class="tenant-job-filters__grid">
+    <label class="tenant-job-filters__field tenant-job-filters__field--search">
+      <span class="sr-only">Zoekterm</span>
       <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
-      Search
-    </button>
+      <input
+        name="search"
+        type="search"
+        value="{{ request('search') }}"
+        placeholder="Functienaam, team of onderwerp.."
+        autocomplete="off"
+        data-tenant-auto-submit
+      >
+    </label>
 
-    @if($hasActiveFilters)
-      <a class="tenant-btn tenant-btn--ghost" href="{{ route('tenant.jobs') }}#jobs">Reset</a>
-    @endif
+    <label class="tenant-job-filters__field tenant-job-filters__field--location">
+      <span class="sr-only">Locatie</span>
+      <i class="ph ph-map-pin" aria-hidden="true"></i>
+      <input
+        name="location"
+        type="text"
+        value="{{ request('location') }}"
+        placeholder="Stad of plaats"
+        autocomplete="off"
+        data-tenant-auto-submit
+      >
+    </label>
   </div>
+
+  @foreach($selectedDepartments as $department)
+    <input type="hidden" name="department[]" value="{{ $department }}">
+  @endforeach
+
+  @foreach($selectedEmploymentTypes as $employmentType)
+    <input type="hidden" name="employment_type[]" value="{{ $employmentType }}">
+  @endforeach
+
+  @if($hasActiveFilters)
+    <div class="tenant-active-filters" aria-label="Active filters">
+      @if(request()->filled('search'))
+        <span class="tenant-active-filter">Zoekterm: {{ request('search') }}</span>
+      @endif
+
+      @if(request()->filled('location'))
+        <span class="tenant-active-filter">Locatie: {{ request('location') }}</span>
+      @endif
+
+      @foreach($selectedDepartments as $department)
+        <span class="tenant-active-filter">{{ $department }}</span>
+      @endforeach
+
+      @foreach($selectedEmploymentTypes as $employmentType)
+        <span class="tenant-active-filter">{{ $employmentType }}</span>
+      @endforeach
+    </div>
+  @endif
+
+  <noscript>
+    <div class="tenant-job-filters__fallback">
+      <button class="tenant-btn tenant-btn--primary" type="submit">Filters toepassen</button>
+    </div>
+  </noscript>
 </form>

@@ -110,18 +110,21 @@ class ExampleTest extends TestCase
             ->assertStatus(200)
             ->assertSee('Acme Careers')
             ->assertSee('Open roles')
+            ->assertSee('Doorzoek alle vacatures')
             ->assertSee('tenant-job-filters', false)
+            ->assertSee('tenant-jobs-sidebar', false)
+            ->assertSee('tenant-sidebar-filter-count', false)
             ->assertSee('Laravel Developer')
             ->assertSee('Growth Marketer')
             ->assertSee('Amsterdam')
             ->assertSee('Rotterdam');
 
-        $this->get('http://acme.test/?department=Development')
+        $this->get('http://acme.test/?department%5B%5D=Development')
             ->assertStatus(200)
             ->assertSee('Laravel Developer')
             ->assertDontSee('Growth Marketer');
 
-        $this->get('http://acme.test/?location=Rotterdam&employment_type=Parttime')
+        $this->get('http://acme.test/?location=Rotterdam&employment_type%5B%5D=Parttime')
             ->assertStatus(200)
             ->assertSee('Growth Marketer')
             ->assertDontSee('Laravel Developer');

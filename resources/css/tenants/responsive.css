@@ -4,9 +4,14 @@
     grid-template-columns: 1fr;
   }
 
-  .tenant-job-filters,
+  .tenant-jobs-content-layout,
+  .tenant-job-filters__grid,
   .tenant-filter {
     grid-template-columns: 1fr;
+  }
+
+  .tenant-jobs-sidebar {
+    position: static;
   }
 
   .tenant-apply {
@@ -20,18 +25,19 @@
   }
 
   .tenant-header,
-  .tenant-job-card,
   .tenant-job,
   .tenant-footer {
     display: grid;
   }
 
-  .tenant-jobs-overview__head {
+  .tenant-jobs-results-head {
     display: grid;
+    justify-items: start;
   }
 
-  .tenant-job-card__aside {
-    justify-items: start;
+  .tenant-job-card__body {
+    align-items: flex-start;
+    padding: 18px;
   }
 
   .tenant-navigation,

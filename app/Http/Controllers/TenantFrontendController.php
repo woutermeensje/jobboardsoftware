@@ -23,6 +23,8 @@ class TenantFrontendController extends Controller
             'departments' => $filterOptions['departments'],
             'locations' => $filterOptions['locations'],
             'employmentTypes' => $filterOptions['employmentTypes'],
+            'departmentCounts' => $filterOptions['departmentCounts'],
+            'employmentTypeCounts' => $filterOptions['employmentTypeCounts'],
             'totalJobs' => TenantJob::query()
                 ->where('tenant_id', $tenant->id)
                 ->where('status', TenantJob::STATUS_PUBLISHED)
@@ -101,6 +103,8 @@ class TenantFrontendController extends Controller
             'departments' => $filterOptions['departments'],
             'locations' => $filterOptions['locations'],
             'employmentTypes' => $filterOptions['employmentTypes'],
+            'departmentCounts' => $filterOptions['departmentCounts'],
+            'employmentTypeCounts' => $filterOptions['employmentTypeCounts'],
             'totalJobs' => TenantJob::query()
                 ->where('tenant_id', $tenant->id)
                 ->where('status', TenantJob::STATUS_PUBLISHED)
@@ -124,14 +128,14 @@ class TenantFrontendController extends Controller
                         ->orWhere('intro', 'like', '%'.$search.'%');
                 });
             })
-            ->when($request->filled('department'), fn ($query) => $query->where('department', $request->string('department')->toString()))
-            ->when($request->filled('location'), fn ($query) => $query->where('location', $request->string('location')->toString()))
-            ->when($request->filled('employment_type'), fn ($query) => $query->where('employment_type', $request->string('employment_type')->toString()))
+            ->when($request->filled('department'), fn ($query) => $query->whereIn('department', $this->selectedFilterValues($request, 'department')))
+            ->when($request->filled('location'), fn ($query) => $query->where('location', 'like', '%'.$request->string('location')->toString().'%'))
+            ->when($request->filled('employment_type'), fn ($query) => $query->whereIn('employment_type', $this->selectedFilterValues($request, 'employment_type')))
             ->latest('published_at');
     }
 
     /**
-     * @return array{departments: \Illuminate\Support\Collection<int, string>, locations: \Illuminate\Support\Collection<int, string>, employmentTypes: \Illuminate\Support\Collection<int, string>}
+     * @return array{departments: \Illuminate\Support\Collection<int, string>, locations: \Illuminate\Support\Collection<int, string>, employmentTypes: \Illuminate\Support\Collection<int, string>, departmentCounts: array<string, int>, employmentTypeCounts: array<string, int>}
      */
     private function filterOptions(string $tenantId): array
     {
@@ -158,6 +162,34 @@ class TenantFrontendController extends Controller
                 ->distinct()
                 ->orderBy('employment_type')
                 ->pluck('employment_type'),
+            'departmentCounts' => (clone $baseQuery)
+                ->whereNotNull('department')
+                ->where('department', '!=', '')
+                ->selectRaw('department, count(*) as aggregate')
+                ->groupBy('department')
+                ->pluck('aggregate', 'department')
+                ->map(fn (mixed $count): int => (int) $count)
+                ->all(),
+            'employmentTypeCounts' => (clone $baseQuery)
+                ->whereNotNull('employment_type')
+                ->where('employment_type', '!=', '')
+                ->selectRaw('employment_type, count(*) as aggregate')
+                ->groupBy('employment_type')
+                ->pluck('aggregate', 'employment_type')
+                ->map(fn (mixed $count): int => (int) $count)
+                ->all(),
         ];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function selectedFilterValues(Request $request, string $key): array
+    {
+        return collect((array) $request->input($key, []))
+            ->map(fn (mixed $value): string => trim((string) $value))
+            ->filter()
+            ->values()
+            ->all();
     }
 }
