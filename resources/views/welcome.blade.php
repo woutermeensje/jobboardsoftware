@@ -6,7 +6,7 @@
 @section('content')
 <div style="padding: 48px 24px;">
   <div style="width: 1100px; max-width: 100%; margin: 0 auto; padding: 40px; border: 1px solid #dedede; background: #ffffff;">
-    <h1>Run your job board on our service!</h1>
+    <h1 style="font-family: 'Work Sans', sans-serif; font-weight: 700; font-size: 24px;">Job board software</h1>
 
     <p>
       Jobboardsoftware.co is a software application that lets you easily build and manage your own job board. The tool was built in 2026 by Wouter Meens, the owner of several job boards. Drawing on five years of experience running job boards, it was originally built for personal use &mdash; because at the time, no alternatives existed that offered the functionality you really need to make a job board successful.
