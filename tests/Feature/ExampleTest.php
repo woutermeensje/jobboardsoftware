@@ -94,11 +94,37 @@ class ExampleTest extends TestCase
             'published_at' => now(),
         ]);
 
+        $tenant->jobs()->create([
+            'title' => 'Growth Marketer',
+            'slug' => 'growth-marketer',
+            'department' => 'Marketing',
+            'location' => 'Rotterdam',
+            'employment_type' => 'Parttime',
+            'intro' => 'Grow the audience for this job board.',
+            'description' => 'Build campaigns with the team.',
+            'status' => TenantJob::STATUS_PUBLISHED,
+            'published_at' => now(),
+        ]);
+
         $this->get('http://acme.test/')
             ->assertStatus(200)
             ->assertSee('Acme Careers')
             ->assertSee('Open roles')
-            ->assertSee('Laravel Developer');
+            ->assertSee('tenant-job-filters', false)
+            ->assertSee('Laravel Developer')
+            ->assertSee('Growth Marketer')
+            ->assertSee('Amsterdam')
+            ->assertSee('Rotterdam');
+
+        $this->get('http://acme.test/?department=Development')
+            ->assertStatus(200)
+            ->assertSee('Laravel Developer')
+            ->assertDontSee('Growth Marketer');
+
+        $this->get('http://acme.test/?location=Rotterdam&employment_type=Parttime')
+            ->assertStatus(200)
+            ->assertSee('Growth Marketer')
+            ->assertDontSee('Laravel Developer');
     }
 
     public function test_unknown_tenant_domain_returns_not_found(): void
