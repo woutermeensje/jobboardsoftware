@@ -39,7 +39,7 @@
   $utilityLinks = $authUser
     ? [
       ['label' => 'My dashboard', 'url' => $dashboardUrl],
-      ['label' => 'Manage environment', 'url' => route('tenant.environments.index')],
+      ['label' => 'Manage environment', 'url' => route('filament.workspace.resources.environments.index')],
       ['label' => 'Contact', 'url' => route('pages.contact')],
     ]
     : [

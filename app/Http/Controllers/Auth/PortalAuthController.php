@@ -131,7 +131,7 @@ class PortalAuthController extends Controller
         $request->session()->regenerate();
 
         if ($role === User::ROLE_TENANT_OWNER) {
-            return redirect()->route('onboarding.index');
+            return redirect()->route('filament.workspace.resources.environments.create');
         }
 
         return redirect()->route($this->dashboardRouteNameFor($role));
@@ -151,22 +151,6 @@ class PortalAuthController extends Controller
     {
         return view('auth.dashboard', [
             'user' => $request->user(),
-        ]);
-    }
-
-    public function werkgeverDashboard(Request $request): View
-    {
-        return view('dashboard.werkgever', [
-            'user' => $request->user(),
-            'tenants' => $request->user()->ownedTenants()->with('domains')->latest()->get(),
-        ]);
-    }
-
-    public function tenantOwnerDashboard(Request $request): View
-    {
-        return view('dashboard.werkgever', [
-            'user' => $request->user(),
-            'tenants' => $request->user()->ownedTenants()->with('domains')->latest()->get(),
         ]);
     }
 

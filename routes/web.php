@@ -1,12 +1,8 @@
 <?php
 
-use App\Http\Controllers\Auth\PortalAuthController;
 use App\Http\Controllers\AdminDashboardController;
+use App\Http\Controllers\Auth\PortalAuthController;
 use App\Http\Controllers\BillingController;
-use App\Http\Controllers\OnboardingController;
-use App\Http\Controllers\TenantApplicationController;
-use App\Http\Controllers\TenantEnvironmentController;
-use App\Http\Controllers\TenantJobController;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
@@ -63,12 +59,11 @@ $centralRoutes = function (): void {
         Route::post('/logout', 'logout')->middleware('auth')->name('logout');
         Route::post('/uitloggen', 'logout')->middleware('auth');
 
-        Route::redirect('/werkzoekende/dashboard', '/dashboard');
-        Route::redirect('/werkgever/dashboard', '/dashboard');
+        Route::redirect('/werkzoekende/dashboard', '/workspace');
+        Route::redirect('/werkgever/dashboard', '/workspace');
 
-        Route::get('/dashboard', 'tenantOwnerDashboard')->middleware(['auth', 'role:tenant_owner'])->name('tenant.owner.dashboard');
-        Route::redirect('/dashboard/werkzoekende', '/dashboard')->name('werkzoekende.dashboard');
-        Route::redirect('/dashboard/werkgever', '/dashboard')->name('werkgever.dashboard');
+        Route::redirect('/dashboard/werkzoekende', '/workspace')->name('werkzoekende.dashboard');
+        Route::redirect('/dashboard/werkgever', '/workspace')->name('werkgever.dashboard');
         Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->middleware(['auth', 'role:admin'])->name('admin.dashboard');
         Route::middleware(['auth', 'role:admin'])->prefix('/admin')->name('admin.')->group(function () {
             Route::get('/users', [AdminDashboardController::class, 'users'])->name('users.index');
@@ -84,46 +79,12 @@ $centralRoutes = function (): void {
         });
     });
 
-    Route::redirect('/dashboard/werkgever/omgeving', '/dashboard/environments');
-    Route::redirect('/dashboard/omgeving', '/dashboard/environments');
-    Route::get('/dashboard/omgeving/{tenant}/vacatures', fn (string $tenant) => redirect("/dashboard/environments/{$tenant}/jobs"));
-    Route::get('/dashboard/omgeving/{tenant}/vacatures/nieuw', fn (string $tenant) => redirect("/dashboard/environments/{$tenant}/jobs/new"));
-    Route::get('/dashboard/omgeving/{tenant}/vacatures/{job}/bewerken', fn (string $tenant, string $job) => redirect("/dashboard/environments/{$tenant}/jobs/{$job}/edit"));
-    Route::get('/dashboard/omgeving/{tenant}/sollicitaties', fn (string $tenant) => redirect("/dashboard/environments/{$tenant}/applications"));
+    Route::redirect('/dashboard/werkgever/omgeving', '/workspace/environments');
+    Route::redirect('/dashboard/omgeving', '/workspace/environments');
 
-    Route::middleware(['auth', 'role:tenant_owner'])->group(function () {
-        Route::get('/dashboard/onboarding', [OnboardingController::class, 'index'])->name('onboarding.index');
-
-        Route::get('/dashboard/billing', [BillingController::class, 'index'])->name('billing.index');
-        Route::post('/dashboard/billing/plan', [BillingController::class, 'selectPlan'])->name('billing.plan.select');
-        Route::get('/dashboard/billing/success', [BillingController::class, 'success'])->name('billing.success');
-
-        Route::get('/dashboard/environments', [TenantEnvironmentController::class, 'index'])->name('tenant.environments.index');
-        Route::post('/dashboard/environments', [TenantEnvironmentController::class, 'store'])->name('tenant.environments.store');
-        Route::post('/dashboard/environments/{tenant}/domains', [TenantEnvironmentController::class, 'storeDomain'])->name('tenant.environments.domains.store');
-        Route::post('/dashboard/environments/{tenant}/domains/{domain}/check', [TenantEnvironmentController::class, 'checkDomain'])->name('tenant.environments.domains.check');
-        Route::post('/dashboard/environments/{tenant}/domains/{domain}/ssl', [TenantEnvironmentController::class, 'issueSsl'])->name('tenant.environments.domains.ssl');
-
-        Route::post('/dashboard/omgeving', [TenantEnvironmentController::class, 'store']);
-        Route::post('/dashboard/omgeving/{tenant}/domeinen', [TenantEnvironmentController::class, 'storeDomain']);
-        Route::post('/dashboard/omgeving/{tenant}/domeinen/{domain}/controleer', [TenantEnvironmentController::class, 'checkDomain']);
-        Route::post('/dashboard/omgeving/{tenant}/domeinen/{domain}/ssl', [TenantEnvironmentController::class, 'issueSsl']);
-
-        Route::get('/dashboard/environments/{tenant}/jobs', [TenantJobController::class, 'index'])->name('tenant.jobs.index');
-        Route::get('/dashboard/environments/{tenant}/jobs/new', [TenantJobController::class, 'create'])->name('tenant.jobs.create');
-        Route::post('/dashboard/environments/{tenant}/jobs', [TenantJobController::class, 'store'])->name('tenant.jobs.store');
-        Route::get('/dashboard/environments/{tenant}/jobs/{job}/edit', [TenantJobController::class, 'edit'])->name('tenant.jobs.edit');
-        Route::put('/dashboard/environments/{tenant}/jobs/{job}', [TenantJobController::class, 'update'])->name('tenant.jobs.update');
-        Route::delete('/dashboard/environments/{tenant}/jobs/{job}', [TenantJobController::class, 'destroy'])->name('tenant.jobs.destroy');
-
-        Route::post('/dashboard/omgeving/{tenant}/vacatures', [TenantJobController::class, 'store']);
-        Route::put('/dashboard/omgeving/{tenant}/vacatures/{job}', [TenantJobController::class, 'update']);
-        Route::delete('/dashboard/omgeving/{tenant}/vacatures/{job}', [TenantJobController::class, 'destroy']);
-
-        Route::get('/dashboard/environments/{tenant}/applications', [TenantApplicationController::class, 'index'])->name('tenant.applications.index');
-        Route::patch('/dashboard/environments/{tenant}/applications/{application}', [TenantApplicationController::class, 'update'])->name('tenant.applications.update');
-        Route::patch('/dashboard/omgeving/{tenant}/sollicitaties/{application}', [TenantApplicationController::class, 'update']);
-    });
+    Route::get('/dashboard/billing/success', [BillingController::class, 'success'])
+        ->middleware(['auth', 'role:tenant_owner'])
+        ->name('billing.success');
 };
 
 foreach (config('tenancy.central_domains') as $domain) {

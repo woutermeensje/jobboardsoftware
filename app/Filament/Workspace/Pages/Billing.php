@@ -60,7 +60,7 @@ class Billing extends Page
                         ->trialDays(14)
                         ->checkout([
                             'success_url' => route('billing.success').'?session_id={CHECKOUT_SESSION_ID}',
-                            'cancel_url' => route('billing.index'),
+                            'cancel_url' => route('filament.workspace.pages.billing'),
                         ])
                         ->redirect();
                 }

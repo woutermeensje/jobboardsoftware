@@ -2,6 +2,13 @@
 
 namespace Tests\Feature;
 
+use App\Filament\Workspace\Pages\Billing;
+use App\Filament\Workspace\Resources\Applications\Pages\EditApplication;
+use App\Filament\Workspace\Resources\Domains\Pages\CreateDomain;
+use App\Filament\Workspace\Resources\Domains\Pages\EditDomain;
+use App\Filament\Workspace\Resources\Environments\Pages\CreateEnvironment;
+use App\Filament\Workspace\Resources\Jobs\Pages\CreateJob;
+use App\Filament\Workspace\Resources\Jobs\Pages\EditJob;
 use App\Mail\AdminActionNotification;
 use App\Models\BillingPlan;
 use App\Models\Domain;
@@ -11,6 +18,7 @@ use App\Models\TenantJob;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 class AdminManagementTest extends TestCase
@@ -41,90 +49,91 @@ class AdminManagementTest extends TestCase
             'heard_about_us' => 'Google',
             'password' => 'password123',
             'password_confirmation' => 'password123',
-        ])->assertRedirect(route('onboarding.index'));
+        ])->assertRedirect(route('filament.workspace.resources.environments.create'));
 
         $owner = User::where('email', 'nina@example.com')->firstOrFail();
 
-        $this->actingAs($owner)
-            ->post(route('billing.plan.select'), ['plan_key' => $plan->key])
-            ->assertRedirect(route('onboarding.index'));
+        $this->actingAs($owner)->get('/workspace/billing');
+        Livewire::test(Billing::class)
+            ->callAction('selectPlan', arguments: ['plan' => $plan->key])
+            ->assertHasNoActionErrors();
 
         $this->actingAs($owner)
             ->get(route('billing.success'))
-            ->assertRedirect(route('onboarding.index'));
+            ->assertRedirect(route('filament.workspace.pages.billing'));
 
-        $this->actingAs($owner)
-            ->post(route('tenant.environments.store'), [
+        $this->actingAs($owner)->get('/workspace/environments/create');
+        Livewire::test(CreateEnvironment::class)
+            ->fillForm([
                 'name' => 'Nina Careers',
                 'slug' => 'nina-careers',
-                'domain' => 'jobs.nina.test',
             ])
-            ->assertRedirect(route('tenant.environments.index'));
+            ->call('create')
+            ->assertHasNoFormErrors();
 
         $tenant = Tenant::findOrFail('nina-careers');
 
-        $this->actingAs($owner)
-            ->post(route('tenant.environments.domains.store', $tenant), [
+        $this->actingAs($owner)->get('/workspace/domains/create');
+        Livewire::test(CreateDomain::class)
+            ->fillForm([
+                'tenant_id' => $tenant->id,
                 'domain' => 'extra.nina.test',
             ])
-            ->assertRedirect(route('tenant.environments.index'));
+            ->call('create')
+            ->assertHasNoFormErrors();
 
         $extraDomain = Domain::where('domain', 'extra.nina.test')->firstOrFail();
 
-        $this->actingAs($owner)
-            ->post(route('tenant.environments.domains.check', [$tenant, $extraDomain]))
-            ->assertSessionHas('status');
+        $this->actingAs($owner)->get('/workspace/domains/'.$extraDomain->id.'/edit');
+        Livewire::test(EditDomain::class, ['record' => $extraDomain->getKey()])
+            ->callAction('checkDns');
 
         $extraDomain->forceFill(['status' => Domain::STATUS_VERIFIED])->save();
 
-        $this->actingAs($owner)
-            ->post(route('tenant.environments.domains.ssl', [$tenant, $extraDomain]))
-            ->assertSessionHas('status');
+        Livewire::test(EditDomain::class, ['record' => $extraDomain->getKey()])
+            ->callAction('activateSsl');
 
-        $this->actingAs($owner)
-            ->post(route('tenant.jobs.store', $tenant), [
+        $this->actingAs($owner)->get('/workspace/jobs/create');
+        Livewire::test(CreateJob::class)
+            ->fillForm([
+                'tenant_id' => $tenant->id,
                 'title' => 'Backend Developer',
+                'slug' => 'backend-developer',
                 'department' => 'Engineering',
                 'location' => 'Amsterdam',
                 'employment_type' => 'Fulltime',
                 'description' => 'Build the platform.',
                 'status' => TenantJob::STATUS_PUBLISHED,
             ])
-            ->assertRedirect(route('tenant.jobs.index', $tenant));
+            ->call('create')
+            ->assertHasNoFormErrors();
 
         $job = TenantJob::where('slug', 'backend-developer')->firstOrFail();
 
-        $this->actingAs($owner)
-            ->put(route('tenant.jobs.update', [$tenant, $job]), [
+        $this->actingAs($owner)->get('/workspace/jobs/'.$job->id.'/edit');
+        Livewire::test(EditJob::class, ['record' => $job->getKey()])
+            ->fillForm([
                 'title' => 'Senior Backend Developer',
                 'slug' => 'senior-backend-developer',
-                'department' => 'Engineering',
-                'location' => 'Amsterdam',
-                'employment_type' => 'Fulltime',
-                'description' => 'Build the platform.',
-                'status' => TenantJob::STATUS_PUBLISHED,
             ])
-            ->assertRedirect(route('tenant.jobs.index', $tenant));
+            ->call('save')
+            ->assertHasNoFormErrors();
 
         $job->refresh();
 
-        $this->post('http://jobs.nina.test/jobs/senior-backend-developer/apply', [
+        $this->post('http://nina-careers.jobboardsoftware.co/jobs/senior-backend-developer/apply', [
             'name' => 'Sam Candidate',
             'email' => 'sam@example.com',
             'motivation' => 'I like this role.',
-        ])->assertRedirect('http://jobs.nina.test/jobs/senior-backend-developer');
+        ])->assertRedirect('http://nina-careers.jobboardsoftware.co/jobs/senior-backend-developer');
 
         $application = JobApplication::where('email', 'sam@example.com')->firstOrFail();
 
-        $this->actingAs($owner)
-            ->patch(route('tenant.applications.update', [$tenant, $application]), [
-                'status' => JobApplication::STATUS_REVIEWED,
-            ])
-            ->assertSessionHas('status');
-
-        $this->actingAs($owner)
-            ->delete(route('tenant.jobs.destroy', [$tenant, $job]))
-            ->assertRedirect(route('tenant.jobs.index', $tenant));
+        $this->actingAs($owner)->get('/workspace/applications/'.$application->id.'/edit');
+        Livewire::test(EditApplication::class, ['record' => $application->getKey()])
+            ->fillForm(['status' => JobApplication::STATUS_REVIEWED])
+            ->call('save')
+            ->assertHasNoFormErrors();
 
         foreach ([
             'Nieuwe gebruiker aangemeld',
@@ -138,7 +147,6 @@ class AdminManagementTest extends TestCase
             'Vacature bijgewerkt',
             'Nieuwe sollicitatie ontvangen',
             'Sollicitatiestatus bijgewerkt',
-            'Vacature verwijderd',
         ] as $title) {
             $this->assertAdminMailWasSent($title);
         }

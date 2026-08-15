@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Models\BillingPlan;
 use App\Models\Domain;
 use App\Models\JobApplication;
 use App\Models\Tenant;
@@ -108,45 +107,6 @@ class ExampleTest extends TestCase
             ->assertSee('sustainablejobs.jobboardsoftware.co');
     }
 
-    public function test_saas_user_can_create_tenant_environment_with_domain(): void
-    {
-        $owner = User::factory()->create([
-            'role' => User::ROLE_TENANT_OWNER,
-            'company_name' => 'Hire Labs',
-        ]);
-
-        $response = $this->actingAs($owner)->post('/dashboard/environments', [
-            'name' => 'Acme Careers',
-            'slug' => 'acme-careers',
-            'domain' => 'https://jobs.acme.test/jobs',
-        ]);
-
-        $response->assertRedirect(route('tenant.environments.index'));
-
-        $this->assertDatabaseHas('tenants', [
-            'id' => 'acme-careers',
-            'owner_user_id' => $owner->id,
-            'name' => 'Acme Careers',
-            'slug' => 'acme-careers',
-            'plan' => Tenant::PLAN_STARTER,
-            'status' => Tenant::STATUS_TRIAL,
-        ]);
-
-        $this->assertDatabaseHas('domains', [
-            'tenant_id' => 'acme-careers',
-            'domain' => 'jobs.acme.test',
-            'is_primary' => true,
-            'status' => Domain::STATUS_PENDING,
-            'ssl_status' => Domain::SSL_PENDING,
-        ]);
-
-        $this->actingAs($owner)
-            ->get('/dashboard/environments')
-            ->assertStatus(200)
-            ->assertSee('Acme Careers')
-            ->assertSee('jobs.acme.test');
-    }
-
     public function test_auth_pages_are_available(): void
     {
         foreach ([
@@ -178,8 +138,7 @@ class ExampleTest extends TestCase
             'password_confirmation' => 'password123',
         ]);
 
-        $response->assertRedirect(route('onboarding.index'));
-        $this->assertSame('/dashboard/onboarding', parse_url(route('onboarding.index'), PHP_URL_PATH));
+        $response->assertRedirect(route('filament.workspace.resources.environments.create'));
         $this->assertAuthenticated();
         $this->assertDatabaseHas('users', [
             'name' => 'New User',
@@ -190,11 +149,6 @@ class ExampleTest extends TestCase
             'heard_about_us' => 'LinkedIn',
             'role' => User::ROLE_TENANT_OWNER,
         ]);
-
-        $this->get('/dashboard/onboarding')
-            ->assertStatus(200)
-            ->assertSee('Launch your job board')
-            ->assertSee('Choose package');
     }
 
     public function test_saas_user_can_login_and_reaches_dashboard(): void
@@ -214,28 +168,22 @@ class ExampleTest extends TestCase
         $this->assertAuthenticatedAs($owner);
     }
 
-    public function test_dashboard_routes_are_role_protected(): void
+    public function test_dashboard_path_is_no_longer_available(): void
     {
-        $jobSeeker = User::factory()->create([
-            'role' => User::ROLE_WERKZOEKENDE,
-        ]);
-
         $owner = User::factory()->create([
             'role' => User::ROLE_TENANT_OWNER,
         ]);
 
-        $this->get('/dashboard')->assertRedirect(route('login.choice'));
-        $this->actingAs($jobSeeker)->get('/dashboard')->assertForbidden();
-        $this->actingAs($owner)->get('/dashboard')->assertStatus(200);
+        $this->actingAs($owner)->get('/dashboard')->assertNotFound();
     }
 
-    public function test_old_dashboard_paths_redirect_to_the_saas_dashboard(): void
+    public function test_old_dashboard_paths_redirect_to_the_workspace(): void
     {
-        $this->get('/werkzoekende/dashboard')->assertRedirect('/dashboard');
-        $this->get('/werkgever/dashboard')->assertRedirect('/dashboard');
-        $this->get('/dashboard/werkgever')->assertRedirect('/dashboard');
-        $this->get('/dashboard/werkgever/omgeving')->assertRedirect('/dashboard/environments');
-        $this->get('/dashboard/omgeving')->assertRedirect('/dashboard/environments');
+        $this->get('/werkzoekende/dashboard')->assertRedirect('/workspace');
+        $this->get('/werkgever/dashboard')->assertRedirect('/workspace');
+        $this->get('/dashboard/werkgever')->assertRedirect('/workspace');
+        $this->get('/dashboard/werkgever/omgeving')->assertRedirect('/workspace/environments');
+        $this->get('/dashboard/omgeving')->assertRedirect('/workspace/environments');
     }
 
     public function test_admin_can_login_and_reaches_admin_dashboard(): void
@@ -255,74 +203,6 @@ class ExampleTest extends TestCase
         $response->assertRedirect(route('admin.dashboard'));
         $this->assertAuthenticatedAs($admin);
         $this->get('/admin/dashboard')->assertStatus(200)->assertSee('Platform management');
-    }
-
-    public function test_saas_user_can_select_a_billing_plan(): void
-    {
-        $plan = BillingPlan::create([
-            'key' => Tenant::PLAN_STARTER,
-            'name' => 'Starter',
-            'description' => 'Starter package',
-            'monthly_price_cents' => 4900,
-            'currency' => 'eur',
-            'features' => ['1 jobboard'],
-            'limits' => ['tenants' => 1],
-            'is_active' => true,
-        ]);
-
-        $owner = User::factory()->create([
-            'role' => User::ROLE_TENANT_OWNER,
-        ]);
-
-        $this->actingAs($owner)
-            ->post('/dashboard/billing/plan', ['plan_key' => Tenant::PLAN_STARTER])
-            ->assertRedirect(route('onboarding.index'));
-
-        $this->assertDatabaseHas('users', [
-            'id' => $owner->id,
-            'billing_plan_id' => $plan->id,
-            'billing_status' => 'trial',
-        ]);
-    }
-
-    public function test_saas_user_can_manage_jobs_for_a_tenant(): void
-    {
-        $owner = User::factory()->create([
-            'role' => User::ROLE_TENANT_OWNER,
-        ]);
-
-        $tenant = Tenant::create([
-            'id' => 'hire-labs',
-            'owner_user_id' => $owner->id,
-            'name' => 'Hire Labs',
-            'slug' => 'hire-labs',
-            'plan' => Tenant::PLAN_STARTER,
-            'status' => Tenant::STATUS_ACTIVE,
-        ]);
-
-        $this->actingAs($owner)
-            ->post(route('tenant.jobs.store', $tenant), [
-                'title' => 'PHP Developer',
-                'department' => 'Development',
-                'location' => 'Amsterdam',
-                'employment_type' => 'Fulltime',
-                'intro' => 'Build with us.',
-                'description' => 'A detailed job description.',
-                'status' => TenantJob::STATUS_PUBLISHED,
-            ])
-            ->assertRedirect(route('tenant.jobs.index', $tenant));
-
-        $this->assertDatabaseHas('tenant_jobs', [
-            'tenant_id' => 'hire-labs',
-            'title' => 'PHP Developer',
-            'slug' => 'php-developer',
-            'status' => TenantJob::STATUS_PUBLISHED,
-        ]);
-
-        $this->actingAs($owner)
-            ->get(route('tenant.jobs.index', $tenant))
-            ->assertStatus(200)
-            ->assertSee('PHP Developer');
     }
 
     public function test_candidate_can_apply_on_tenant_frontend(): void

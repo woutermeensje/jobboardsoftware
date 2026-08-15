@@ -40,7 +40,7 @@
         <ul class="si-footer__list">
           <li><a href="{{ route('register.choice') }}">Create account</a></li>
           <li><a href="{{ route('login.choice') }}">Log in</a></li>
-          <li><a href="{{ route('tenant.environments.index') }}">Dashboard</a></li>
+          <li><a href="{{ route('filament.workspace.pages.dashboard') }}">Dashboard</a></li>
           <li><a href="{{ route('pages.tarieven') }}">Pricing</a></li>
         </ul>
       </section>
