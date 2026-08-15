@@ -1,0 +1,6 @@
+.tenant-body {
+  --tenant-surface: #ffffff;
+  --tenant-subtle-surface: #fbfdff;
+  --tenant-danger: #a33a2c;
+  --tenant-page-width: 1180px;
+}

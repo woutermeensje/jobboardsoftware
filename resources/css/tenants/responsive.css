@@ -1,0 +1,46 @@
+@media (max-width: 900px) {
+  .tenant-hero,
+  .tenant-shell--detail {
+    grid-template-columns: 1fr;
+  }
+
+  .tenant-job-filters,
+  .tenant-filter {
+    grid-template-columns: 1fr;
+  }
+
+  .tenant-apply {
+    position: static;
+  }
+}
+
+@media (max-width: 620px) {
+  .tenant-page {
+    padding-inline: 18px;
+  }
+
+  .tenant-header,
+  .tenant-job-card,
+  .tenant-job,
+  .tenant-footer {
+    display: grid;
+  }
+
+  .tenant-jobs-overview__head {
+    display: grid;
+  }
+
+  .tenant-job-card__aside {
+    justify-items: start;
+  }
+
+  .tenant-navigation,
+  .tenant-footer__links {
+    justify-content: start;
+  }
+
+  .tenant-panel,
+  .tenant-card {
+    padding: 22px;
+  }
+}

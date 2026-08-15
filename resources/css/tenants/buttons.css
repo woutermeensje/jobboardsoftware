@@ -1,0 +1,6 @@
+.tenant-job-filters .tenant-btn,
+.tenant-filter .tenant-btn {
+  width: 100%;
+  min-height: 46px;
+  border-radius: 8px;
+}

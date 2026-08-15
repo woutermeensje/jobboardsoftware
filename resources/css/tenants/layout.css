@@ -1,0 +1,38 @@
+.tenant-shell {
+  width: min(var(--tenant-page-width), 100%);
+  margin: 0 auto;
+  display: grid;
+  gap: 20px;
+}
+
+.tenant-shell--detail {
+  grid-template-columns: minmax(0, 1fr) 390px;
+  align-items: start;
+}
+
+.tenant-card,
+.tenant-panel,
+.tenant-alert {
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--tenant-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.tenant-card {
+  display: grid;
+  align-content: center;
+  padding: 22px;
+}
+
+.tenant-card span {
+  color: var(--color-text-muted);
+  font-size: 13px;
+}
+
+.tenant-card strong {
+  display: block;
+  margin-top: 4px;
+  font-family: var(--font-ui);
+  font-size: 34px;
+}

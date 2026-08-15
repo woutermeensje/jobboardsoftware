@@ -3,25 +3,7 @@
 @section('title', $job->title.' | '.($tenant->name ?? 'Jobboard'))
 @section('meta_description', $job->intro ?? 'View this job and apply directly.')
 
-@php
-  $settings = $tenant->settings ?? [];
-  $brandName = $settings['brand_name'] ?? $tenant->name ?? 'Jobboard';
-  $accent = $settings['accent_color'] ?? '#2f5f80';
-@endphp
-
 @section('content')
-<section class="tenant-page" style="--tenant-accent: {{ $accent }};">
-  <header class="tenant-nav">
-    <a class="tenant-brand" href="{{ route('tenant.home') }}">
-      <span>{{ mb_substr($brandName, 0, 1) }}</span>
-      <strong>{{ $brandName }}</strong>
-    </a>
-    <nav>
-      <a href="{{ route('tenant.jobs') }}">Jobs</a>
-      <a href="{{ route('tenant.contact') }}">Contact</a>
-    </nav>
-  </header>
-
   <main class="tenant-shell tenant-shell--detail">
     @if(session('status'))
       <section class="tenant-alert">{{ session('status') }}</section>
@@ -72,9 +54,4 @@
       </form>
     </aside>
   </main>
-</section>
 @endsection
-
-@push('styles')
-  @include('tenant.partials.styles')
-@endpush

@@ -1,3 +1,13 @@
+@php
+  $tenantSettings = isset($tenant) ? ($tenant->settings ?? []) : [];
+  $tenantBrandName = $tenantSettings['brand_name'] ?? $tenant->name ?? 'Jobboard';
+  $tenantPrimary = $tenantSettings['primary_color'] ?? $tenantSettings['accent_color'] ?? '#2f5f80';
+  $tenantAccent = $tenantSettings['accent_color'] ?? $tenantPrimary;
+
+  $tenantPrimary = is_string($tenantPrimary) && preg_match('/^#[0-9a-fA-F]{6}$/', $tenantPrimary) ? $tenantPrimary : '#2f5f80';
+  $tenantAccent = is_string($tenantAccent) && preg_match('/^#[0-9a-fA-F]{6}$/', $tenantAccent) ? $tenantAccent : $tenantPrimary;
+@endphp
+
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
@@ -14,7 +24,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css">
 
   @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/css/app.css', 'resources/css/tenants/index.css', 'resources/js/app.js'])
   @endif
 
   <style>
@@ -68,8 +78,22 @@
 
   @stack('styles')
 </head>
-<body>
-  @yield('content')
+<body
+  class="tenant-body"
+  style="--tenant-primary: {{ $tenantPrimary }}; --tenant-accent: {{ $tenantAccent }};"
+>
+  <section class="tenant-page">
+    @include('tenant.components.header', [
+      'brandName' => $tenantBrandName,
+    ])
+
+    @yield('content')
+
+    @include('tenant.components.footer', [
+      'brandName' => $tenantBrandName,
+    ])
+  </section>
+
   @stack('scripts')
 </body>
 </html>

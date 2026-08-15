@@ -6,23 +6,10 @@
 @php
   $settings = $tenant->settings ?? [];
   $brandName = $settings['brand_name'] ?? $tenant->name ?? 'Jobboard';
-  $accent = $settings['accent_color'] ?? '#2f5f80';
   $intro = $settings['intro'] ?? 'View current jobs and apply directly.';
 @endphp
 
 @section('content')
-<section class="tenant-page" style="--tenant-accent: {{ $accent }};">
-  <header class="tenant-nav">
-    <a class="tenant-brand" href="{{ route('tenant.home') }}">
-      <span>{{ mb_substr($brandName, 0, 1) }}</span>
-      <strong>{{ $brandName }}</strong>
-    </a>
-    <nav>
-      <a href="{{ route('tenant.jobs') }}">Jobs</a>
-      <a href="{{ route('tenant.contact') }}">Contact</a>
-    </nav>
-  </header>
-
   <main class="tenant-shell">
     <section class="tenant-hero">
       <div>
@@ -42,42 +29,33 @@
     </section>
 
     <section class="tenant-panel" id="jobs" aria-labelledby="tenant-jobs-title">
-      <div class="tenant-panel__head">
+      <div class="tenant-jobs-overview__head">
         <div>
           <p class="tenant-eyebrow">Jobs</p>
           <h2 id="tenant-jobs-title">Open roles</h2>
+          <p>Explore the current openings and filter by team, location or employment type.</p>
+        </div>
+
+        <div class="tenant-jobs-summary" aria-label="Open roles summary">
+          <strong>{{ $jobs->count() }}</strong>
+          <span>{{ $jobs->count() === 1 ? 'matching role' : 'matching roles' }}</span>
+          <small>{{ $totalJobs }} {{ $totalJobs === 1 ? 'role total' : 'roles total' }}</small>
         </div>
       </div>
 
-      <form class="tenant-filter" method="GET" action="{{ route('tenant.jobs') }}">
-        <input name="search" value="{{ request('search') }}" placeholder="Search by title, department or location">
-        <select name="department">
-          <option value="">All departments</option>
-          @foreach($departments as $department)
-            <option value="{{ $department }}" @selected(request('department') === $department)>{{ $department }}</option>
-          @endforeach
-        </select>
-        <button class="tenant-btn tenant-btn--primary" type="submit">Search</button>
-      </form>
+      @include('tenant.components.job-filters')
 
       <div class="tenant-jobs">
         @forelse($jobs as $job)
-          <article class="tenant-job">
-            <div>
-              <h3>{{ $job->title }}</h3>
-              <p>{{ $job->department }} - {{ $job->location }} - {{ $job->employment_type }}</p>
-              @if($job->intro)
-                <span>{{ $job->intro }}</span>
-              @endif
-            </div>
-            <a href="{{ route('tenant.jobs.show', $job) }}">View job</a>
-          </article>
+          @include('tenant.components.job-card', ['job' => $job])
         @empty
-          <article class="tenant-job tenant-job--empty">
-            <div>
-              <h3>No jobs found</h3>
-              <p>Adjust your filters or come back later.</p>
-            </div>
+          <article class="tenant-jobs-empty">
+            <i class="ph ph-briefcase" aria-hidden="true"></i>
+            <h3>No jobs found</h3>
+            <p>Adjust your filters or come back later.</p>
+            @if(request()->hasAny(['search', 'department', 'location', 'employment_type']))
+              <a class="tenant-btn tenant-btn--ghost" href="{{ route('tenant.jobs') }}#jobs">Reset filters</a>
+            @endif
           </article>
         @endforelse
       </div>
@@ -89,9 +67,4 @@
       <p>Apply directly for a job or contact the recruitment team at {{ $brandName }}.</p>
     </section>
   </main>
-</section>
 @endsection
-
-@push('styles')
-  @include('tenant.partials.styles')
-@endpush

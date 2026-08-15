@@ -1,0 +1,32 @@
+.tenant-panel {
+  padding: 26px;
+}
+
+.tenant-panel__head {
+  margin-bottom: 16px;
+}
+
+.tenant-panel h1,
+.tenant-panel h2 {
+  margin: 0;
+  color: var(--color-text);
+  font-family: var(--font-heading);
+  font-weight: 800;
+  line-height: 1.08;
+}
+
+.tenant-panel h1 {
+  font-size: clamp(34px, 4vw, 52px);
+}
+
+.tenant-panel p,
+.tenant-detail__body {
+  color: var(--color-text-muted);
+}
+
+.tenant-alert {
+  padding: 14px 16px;
+  color: var(--tenant-accent);
+  font-family: var(--font-ui);
+  font-weight: 800;
+}

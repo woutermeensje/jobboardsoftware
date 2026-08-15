@@ -15,11 +15,18 @@ class TenantFrontendController extends Controller
     {
         $tenant = tenant();
         $jobs = $this->jobsQuery($request)->get();
+        $filterOptions = $this->filterOptions($tenant->id);
 
         return view('tenant.jobboard', [
             'tenant' => $tenant,
             'jobs' => $jobs,
-            'departments' => TenantJob::where('tenant_id', $tenant->id)->whereNotNull('department')->distinct()->pluck('department'),
+            'departments' => $filterOptions['departments'],
+            'locations' => $filterOptions['locations'],
+            'employmentTypes' => $filterOptions['employmentTypes'],
+            'totalJobs' => TenantJob::query()
+                ->where('tenant_id', $tenant->id)
+                ->where('status', TenantJob::STATUS_PUBLISHED)
+                ->count(),
             'focus' => null,
         ]);
     }
@@ -85,10 +92,19 @@ class TenantFrontendController extends Controller
 
     public function contact(): View
     {
+        $tenant = tenant();
+        $filterOptions = $this->filterOptions($tenant->id);
+
         return view('tenant.jobboard', [
-            'tenant' => tenant(),
+            'tenant' => $tenant,
             'jobs' => $this->jobsQuery(request())->get(),
-            'departments' => collect(),
+            'departments' => $filterOptions['departments'],
+            'locations' => $filterOptions['locations'],
+            'employmentTypes' => $filterOptions['employmentTypes'],
+            'totalJobs' => TenantJob::query()
+                ->where('tenant_id', $tenant->id)
+                ->where('status', TenantJob::STATUS_PUBLISHED)
+                ->count(),
             'focus' => 'contact',
         ]);
     }
@@ -103,10 +119,45 @@ class TenantFrontendController extends Controller
                 $query->where(function ($query) use ($search): void {
                     $query->where('title', 'like', '%'.$search.'%')
                         ->orWhere('department', 'like', '%'.$search.'%')
-                        ->orWhere('location', 'like', '%'.$search.'%');
+                        ->orWhere('location', 'like', '%'.$search.'%')
+                        ->orWhere('employment_type', 'like', '%'.$search.'%')
+                        ->orWhere('intro', 'like', '%'.$search.'%');
                 });
             })
             ->when($request->filled('department'), fn ($query) => $query->where('department', $request->string('department')->toString()))
+            ->when($request->filled('location'), fn ($query) => $query->where('location', $request->string('location')->toString()))
+            ->when($request->filled('employment_type'), fn ($query) => $query->where('employment_type', $request->string('employment_type')->toString()))
             ->latest('published_at');
+    }
+
+    /**
+     * @return array{departments: \Illuminate\Support\Collection<int, string>, locations: \Illuminate\Support\Collection<int, string>, employmentTypes: \Illuminate\Support\Collection<int, string>}
+     */
+    private function filterOptions(string $tenantId): array
+    {
+        $baseQuery = TenantJob::query()
+            ->where('tenant_id', $tenantId)
+            ->where('status', TenantJob::STATUS_PUBLISHED);
+
+        return [
+            'departments' => (clone $baseQuery)
+                ->whereNotNull('department')
+                ->where('department', '!=', '')
+                ->distinct()
+                ->orderBy('department')
+                ->pluck('department'),
+            'locations' => (clone $baseQuery)
+                ->whereNotNull('location')
+                ->where('location', '!=', '')
+                ->distinct()
+                ->orderBy('location')
+                ->pluck('location'),
+            'employmentTypes' => (clone $baseQuery)
+                ->whereNotNull('employment_type')
+                ->where('employment_type', '!=', '')
+                ->distinct()
+                ->orderBy('employment_type')
+                ->pluck('employment_type'),
+        ];
     }
 }

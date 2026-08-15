@@ -1,0 +1,16 @@
+.tenant-body {
+  min-height: 100vh;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-text);
+}
+
+.tenant-body a {
+  color: inherit;
+}
+
+.tenant-page {
+  min-height: 100vh;
+  background: var(--color-bg);
+  padding: 0 24px 40px;
+}

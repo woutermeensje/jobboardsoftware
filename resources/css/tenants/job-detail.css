@@ -1,0 +1,19 @@
+.tenant-detail {
+  display: grid;
+  gap: 16px;
+}
+
+.tenant-detail__meta,
+.tenant-detail__intro {
+  margin: 0;
+}
+
+.tenant-detail__intro {
+  font-size: 18px;
+}
+
+.tenant-back {
+  color: var(--tenant-accent);
+  font-family: var(--font-ui);
+  font-weight: 800;
+}
