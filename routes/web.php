@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\Auth\PortalAuthController;
 use App\Http\Controllers\BillingController;
+use App\Http\Controllers\ContactController;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
@@ -16,9 +17,13 @@ $centralRoutes = function (): void {
     Route::view('/newsletter', 'pages.nieuwsbrief')->name('pages.nieuwsbrief');
     Route::view('/employer', 'pages.werkgever')->name('pages.werkgever');
     Route::view('/post-a-job', 'pages.vacature-plaatsen')->name('pages.vacature-plaatsen');
+    Route::view('/features', 'pages.features')->name('pages.features');
     Route::view('/pricing', 'pages.tarieven')->name('pages.tarieven');
+    Route::view('/customers', 'pages.customers')->name('pages.customers');
+    Route::view('/alternatives', 'pages.alternatives')->name('pages.alternatives');
     Route::view('/about-us', 'pages.over-ons')->name('pages.over-ons');
     Route::view('/contact', 'pages.contact')->name('pages.contact');
+    Route::post('/contact', [ContactController::class, 'submit'])->name('pages.contact.submit');
 
     Route::redirect('/werkzoekende', '/job-seeker');
     Route::redirect('/nieuwsbrief', '/newsletter');

@@ -28,9 +28,9 @@
       <section class="si-footer__col">
         <h3 class="si-footer__heading">Product</h3>
         <ul class="si-footer__list">
-          <li><a href="{{ route('welcome') }}#product">Jobboard software</a></li>
-          <li><a href="{{ route('welcome') }}#management">Management portal</a></li>
-          <li><a href="{{ route('welcome') }}#domains">Custom domain</a></li>
+          <li><a href="{{ route('pages.features') }}#jobboard">Jobboard software</a></li>
+          <li><a href="{{ route('pages.features') }}#management">Management portal</a></li>
+          <li><a href="{{ route('pages.features') }}#domains">Custom domain</a></li>
           <li><a href="{{ route('pages.tarieven') }}">Pricing</a></li>
         </ul>
       </section>
@@ -49,6 +49,8 @@
         <h3 class="si-footer__heading">Company</h3>
         <ul class="si-footer__list">
           <li><a href="{{ route('pages.over-ons') }}">About us</a></li>
+          <li><a href="{{ route('pages.customers') }}">Customers</a></li>
+          <li><a href="{{ route('pages.alternatives') }}">Alternatives</a></li>
           <li><a href="{{ route('pages.contact') }}">Contact</a></li>
           <li><a href="{{ route('pages.contact') }}">Book a demo</a></li>
           <li><a href="{{ route('admin.login') }}">Admin</a></li>
