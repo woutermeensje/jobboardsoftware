@@ -34,6 +34,7 @@
   display: grid;
   gap: 12px;
   margin-top: 16px;
+  padding: 24px;
 }
 
 .tenant-apply label {
@@ -79,6 +80,14 @@
 .tenant-post-job-form {
   display: grid;
   gap: 22px;
+  padding: 24px;
+}
+
+.tenant-apply form p,
+.tenant-form p,
+.tenant-post-job-form p {
+  font-size: 14px;
+  font-weight: 300;
 }
 
 .tenant-form__section,
