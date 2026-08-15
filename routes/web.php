@@ -18,6 +18,7 @@ $centralRoutes = function (): void {
     Route::view('/employer', 'pages.werkgever')->name('pages.werkgever');
     Route::view('/post-a-job', 'pages.vacature-plaatsen')->name('pages.vacature-plaatsen');
     Route::view('/features', 'pages.features')->name('pages.features');
+    Route::view('/faq', 'pages.faq')->name('pages.faq');
     Route::view('/pricing', 'pages.tarieven')->name('pages.tarieven');
     Route::view('/customers', 'pages.customers')->name('pages.customers');
     Route::view('/alternatives', 'pages.alternatives')->name('pages.alternatives');

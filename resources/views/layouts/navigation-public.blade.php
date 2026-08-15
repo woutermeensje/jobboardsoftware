@@ -14,6 +14,7 @@
     ['label' => 'Features', 'url' => route('pages.features'), 'active' => request()->routeIs('pages.features')],
     ['label' => 'Pricing', 'url' => route('pages.tarieven'), 'active' => request()->routeIs('pages.tarieven')],
     ['label' => 'Customers', 'url' => route('pages.customers'), 'active' => request()->routeIs('pages.customers')],
+    ['label' => 'FAQ', 'url' => route('pages.faq'), 'active' => request()->routeIs('pages.faq')],
     ['label' => 'About us', 'url' => route('pages.over-ons'), 'active' => request()->routeIs('pages.over-ons')],
     ['label' => 'Contact', 'url' => route('pages.contact'), 'active' => request()->routeIs('pages.contact')],
   ];
