@@ -13,7 +13,7 @@
         <strong>{{ $host }}</strong>.
       </p>
       <div class="tenant-error__actions">
-        <a class="tenant-error__button" href="{{ route('welcome') }}">Go to JobBoardSoftware</a>
+        <a class="btn btn-primary" href="{{ route('welcome') }}">Go to JobBoardSoftware</a>
         <a class="tenant-error__link" href="{{ route('pages.contact') }}">Contact support</a>
       </div>
     </div>
@@ -71,31 +71,15 @@
       margin-top: 32px;
     }
 
-    .tenant-error__button,
     .tenant-error__link {
       display: inline-flex;
       align-items: center;
       justify-content: center;
       min-height: 46px;
+      padding: 0 8px;
       border-radius: var(--radius-default);
       font-family: var(--font-ui);
       font-weight: 700;
-    }
-
-    .tenant-error__button {
-      padding: 0 20px;
-      background: var(--color-primary-strong);
-      color: #ffffff;
-      box-shadow: var(--shadow-sm);
-    }
-
-    .tenant-error__button:hover {
-      background: #284f6b;
-      text-decoration: none;
-    }
-
-    .tenant-error__link {
-      padding: 0 8px;
       color: var(--color-primary-strong);
     }
   </style>

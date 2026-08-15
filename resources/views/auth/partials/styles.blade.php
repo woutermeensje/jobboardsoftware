@@ -211,44 +211,10 @@
   padding-top: 4px;
 }
 
+/* Shape & color come from resources/css/buttons.css — this form's
+   submit button is just full-width instead of the usual inline size. */
 .auth-button {
   width: 100%;
-  min-height: 42px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 10px 16px;
-  border: 1px solid transparent;
-  border-radius: var(--radius-default);
-  font-family: var(--font-text);
-  font-size: 15px;
-  font-weight: 500;
-  line-height: 1.1;
-  cursor: pointer;
-  transition: background-color .15s ease, border-color .15s ease, color .15s ease, transform .15s ease;
-}
-
-.auth-button:hover {
-  transform: translateY(-1px);
-  text-decoration: none;
-}
-
-.auth-button:focus {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
-}
-
-.auth-button--primary {
-  border-color: var(--color-primary);
-  background: var(--color-primary);
-  color: #ffffff;
-}
-
-.auth-button--primary:hover {
-  border-color: var(--color-primary-strong);
-  background: var(--color-primary-strong);
-  color: #ffffff;
 }
 
 .auth-secondary-actions {

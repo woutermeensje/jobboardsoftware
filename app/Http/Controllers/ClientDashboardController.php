@@ -4,8 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Domain;
 use App\Models\JobApplication;
+use App\Models\Tenant;
 use App\Models\TenantJob;
+use App\Support\AdminActionNotifier;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class ClientDashboardController extends Controller
@@ -28,6 +33,108 @@ class ClientDashboardController extends Controller
             'jobs' => TenantJob::query()->whereIn('tenant_id', $tenantIds)->latest()->take(6)->get(),
             'applications' => JobApplication::query()->whereIn('tenant_id', $tenantIds)->latest()->take(6)->get(),
         ]);
+    }
+
+    public function domains(Request $request): View
+    {
+        $user = $request->user();
+        $tenants = $user->ownedTenants()
+            ->with(['domains'])
+            ->latest()
+            ->get();
+
+        return view('client.domains', [
+            'user' => $user,
+            'tenants' => $tenants,
+            'domains' => Domain::with('tenant')
+                ->whereIn('tenant_id', $tenants->pluck('id'))
+                ->latest()
+                ->get(),
+            'dnsTarget' => $this->dnsTarget(),
+        ]);
+    }
+
+    public function storeDomain(Request $request, AdminActionNotifier $notifier): RedirectResponse
+    {
+        $request->merge([
+            'domain' => $this->normalizeDomain((string) $request->input('domain')),
+        ]);
+
+        $centralDomains = $this->centralDomains();
+
+        $validated = $request->validate([
+            'tenant_id' => [
+                'required',
+                Rule::exists('tenants', 'id')->where(fn ($query) => $query->where('owner_user_id', $request->user()->id)),
+            ],
+            'domain' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::notIn($centralDomains),
+                Rule::unique('domains', 'domain'),
+                function (string $attribute, mixed $value, \Closure $fail): void {
+                    if (! $this->isValidDomain((string) $value)) {
+                        $fail('Enter a valid domain, for example careers.example.com.');
+                    }
+                },
+            ],
+            'is_primary' => ['nullable', 'boolean'],
+        ]);
+
+        $tenant = Tenant::query()
+            ->where('owner_user_id', $request->user()->id)
+            ->findOrFail($validated['tenant_id']);
+
+        $makePrimary = (bool) ($validated['is_primary'] ?? false) || ! $tenant->domains()->exists();
+
+        if ($makePrimary) {
+            $tenant->domains()->update(['is_primary' => false]);
+        }
+
+        $verificationToken = Str::random(40);
+        $domain = $tenant->domains()->create([
+            'domain' => $validated['domain'],
+            'is_primary' => $makePrimary,
+            'status' => Domain::STATUS_PENDING,
+            'ssl_status' => Domain::SSL_PENDING,
+            'verification_token' => $verificationToken,
+            'verification_payload' => [
+                'type' => 'CNAME',
+                'host' => $validated['domain'],
+                'value' => $this->dnsTarget(),
+                'txt_name' => '_jobboardsoftware-verification.'.$validated['domain'],
+                'txt_value' => 'jobboardsoftware-site-verification='.$verificationToken,
+            ],
+        ]);
+
+        $notifier->notify('Nieuw domein gekoppeld', [
+            'tenant_id' => $tenant->id,
+            'tenant_naam' => $tenant->name,
+            'domein' => $domain->domain,
+            'primair' => $domain->is_primary,
+        ], $request->user());
+
+        return redirect()
+            ->route('client.domains.index')
+            ->with('status', 'Domain connected. Add the DNS records below to complete verification.');
+    }
+
+    public function verifyDomain(Request $request, Domain $domain): RedirectResponse
+    {
+        abort_unless(
+            $request->user()->ownedTenants()->whereKey($domain->tenant_id)->exists(),
+            404,
+        );
+
+        $verified = $domain->checkDnsVerification();
+
+        return back()->with(
+            'status',
+            $verified
+                ? 'DNS verification succeeded. SSL can now be activated.'
+                : 'DNS records were not found yet. Check the values below and try again.',
+        );
     }
 
     public function section(Request $request, string $section): View
@@ -122,5 +229,68 @@ class ClientDashboardController extends Controller
                 'description' => 'Build the custom company creation form here.',
             ],
         ];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function centralDomains(): array
+    {
+        return collect(config('tenancy.central_domains', []))
+            ->map(fn (string $domain): string => $this->normalizeDomain($domain))
+            ->filter()
+            ->values()
+            ->all();
+    }
+
+    private function dnsTarget(): string
+    {
+        $centralDomain = collect($this->centralDomains())
+            ->first(fn (string $domain): bool => ! in_array($domain, ['127.0.0.1', 'localhost'], true));
+
+        if ($centralDomain) {
+            return $centralDomain;
+        }
+
+        $appHost = parse_url(config('app.url'), PHP_URL_HOST);
+
+        return is_string($appHost) && $appHost !== '' ? $appHost : 'jobboardsoftware.co';
+    }
+
+    private function normalizeDomain(string $value): string
+    {
+        $value = trim(Str::lower($value));
+
+        if ($value === '') {
+            return '';
+        }
+
+        $url = Str::contains($value, '://') ? $value : 'https://'.$value;
+        $host = parse_url($url, PHP_URL_HOST);
+        $domain = is_string($host) ? $host : $value;
+        $domain = trim($domain, " \t\n\r\0\x0B.");
+
+        if (function_exists('idn_to_ascii')) {
+            $asciiDomain = idn_to_ascii($domain, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46);
+
+            if (is_string($asciiDomain)) {
+                $domain = $asciiDomain;
+            }
+        }
+
+        return Str::lower($domain);
+    }
+
+    private function isValidDomain(string $domain): bool
+    {
+        if ($domain === '' || strlen($domain) > 255 || ! str_contains($domain, '.')) {
+            return false;
+        }
+
+        if (filter_var($domain, FILTER_VALIDATE_IP)) {
+            return false;
+        }
+
+        return filter_var($domain, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME) !== false;
     }
 }

@@ -92,6 +92,66 @@ class ClientDashboardTest extends TestCase
             ->assertDontSee('Other Careers');
     }
 
+    public function test_tenant_owner_can_connect_a_custom_domain(): void
+    {
+        $owner = User::factory()->create(['role' => User::ROLE_TENANT_OWNER]);
+        $tenant = $this->tenantFor($owner, 'Acme Careers', 'acme-careers');
+
+        $this->actingAs($owner)
+            ->post('/client/dashboard/domains', [
+                'tenant_id' => $tenant->id,
+                'domain' => 'https://Careers.Example.com/jobs',
+                'is_primary' => '1',
+            ])
+            ->assertRedirect(route('client.domains.index'))
+            ->assertSessionHas('status', 'Domain connected. Add the DNS records below to complete verification.');
+
+        $this->assertDatabaseHas('domains', [
+            'tenant_id' => $tenant->id,
+            'domain' => 'careers.example.com',
+            'is_primary' => true,
+            'status' => Domain::STATUS_PENDING,
+            'ssl_status' => Domain::SSL_PENDING,
+        ]);
+
+        $this->assertDatabaseHas('domains', [
+            'tenant_id' => $tenant->id,
+            'domain' => 'acme-careers.jobboardsoftware.co',
+            'is_primary' => false,
+        ]);
+
+        $domain = Domain::where('domain', 'careers.example.com')->firstOrFail();
+
+        $this->assertNotNull($domain->verification_token);
+        $this->assertSame('jobboardsoftware.co', $domain->verification_payload['value']);
+        $this->assertSame('_jobboardsoftware-verification.careers.example.com', $domain->verification_payload['txt_name']);
+
+        $this->actingAs($owner)
+            ->get('/client/dashboard/domains')
+            ->assertOk()
+            ->assertSee('careers.example.com')
+            ->assertSee('jobboardsoftware-site-verification=');
+    }
+
+    public function test_tenant_owner_cannot_connect_a_domain_to_another_users_environment(): void
+    {
+        $owner = User::factory()->create(['role' => User::ROLE_TENANT_OWNER]);
+        $otherOwner = User::factory()->create(['role' => User::ROLE_TENANT_OWNER]);
+        $otherTenant = $this->tenantFor($otherOwner, 'Other Careers', 'other-careers');
+
+        $this->actingAs($owner)
+            ->post('/client/dashboard/domains', [
+                'tenant_id' => $otherTenant->id,
+                'domain' => 'jobs.example.com',
+            ])
+            ->assertSessionHasErrors('tenant_id');
+
+        $this->assertDatabaseMissing('domains', [
+            'tenant_id' => $otherTenant->id,
+            'domain' => 'jobs.example.com',
+        ]);
+    }
+
     public function test_old_workspace_paths_redirect_to_client_dashboard(): void
     {
         $this->get('/workspace')->assertRedirect('/client/dashboard');

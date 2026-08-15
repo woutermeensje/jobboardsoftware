@@ -57,7 +57,7 @@
             <option value="{{ $department }}" @selected(request('department') === $department)>{{ $department }}</option>
           @endforeach
         </select>
-        <button type="submit">Search</button>
+        <button class="tenant-btn tenant-btn--primary" type="submit">Search</button>
       </form>
 
       <div class="tenant-jobs">

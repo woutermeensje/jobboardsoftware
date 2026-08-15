@@ -157,7 +157,6 @@
 
 .tenant-filter input,
 .tenant-filter select,
-.tenant-filter button,
 .tenant-apply input,
 .tenant-apply textarea {
   width: 100%;
@@ -169,17 +168,17 @@
 }
 
 .tenant-filter input,
-.tenant-filter select,
-.tenant-filter button {
+.tenant-filter select {
   min-height: 46px;
   padding: 0 12px;
 }
 
-.tenant-filter button {
-  background: var(--tenant-accent);
-  color: #ffffff;
-  font-family: var(--font-ui);
-  font-weight: 800;
+/* Search button uses the shared .tenant-btn styling (buttons.css),
+   just resized here to line up with the input/select in this row. */
+.tenant-filter .tenant-btn {
+  width: 100%;
+  min-height: 46px;
+  border-radius: 8px;
 }
 
 .tenant-jobs {
