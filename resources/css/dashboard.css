@@ -441,6 +441,25 @@
   padding-left: 18px;
 }
 
+.dash-empty-state {
+  padding: 22px 20px;
+}
+
+.dash-empty-state h3 {
+  margin: 0;
+  color: var(--color-text);
+  font-family: var(--font-ui);
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.dash-empty-state p {
+  margin: 7px 0 14px;
+  color: var(--color-text-muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
 .domain-form {
   display: grid;
   gap: 14px;
@@ -464,10 +483,21 @@
 }
 
 .domain-field input,
-.domain-field select {
+.domain-field select,
+.domain-field textarea {
   min-height: 42px;
   font-family: var(--font-text);
   font-weight: 400;
+}
+
+.domain-field textarea {
+  resize: vertical;
+}
+
+.domain-field__error {
+  color: var(--color-danger, #9f3412);
+  font-size: 12px;
+  font-weight: 800;
 }
 
 .domain-switch {
@@ -508,6 +538,82 @@
   color: var(--color-text);
   font-size: 12px;
   line-height: 1.45;
+}
+
+.company-form {
+  max-width: 860px;
+}
+
+.company-logo-upload {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  min-height: 92px;
+  padding: 18px;
+  border: 1px dashed var(--color-primary-muted);
+  border-radius: var(--radius-default);
+  background: var(--color-primary-soft);
+  color: var(--color-text);
+}
+
+.company-logo-upload i {
+  width: 42px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-default);
+  background: #ffffff;
+  color: var(--color-primary-strong);
+  font-size: 22px;
+}
+
+.company-logo-upload span,
+.company-logo-upload small {
+  display: block;
+}
+
+.company-logo-upload small {
+  margin-top: 3px;
+  color: var(--color-text-muted);
+  font-family: var(--font-text);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.company-logo-upload input {
+  grid-column: 1 / -1;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.company-cell {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 220px;
+}
+
+.company-logo-thumb {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  object-fit: contain;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-default);
+  background: #ffffff;
+}
+
+.company-logo-thumb--empty {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary-strong);
+  font-family: var(--font-ui);
+  font-weight: 800;
 }
 
 .dash-list {
@@ -772,6 +878,10 @@
 
   .domain-form__grid,
   .domain-records div {
+    grid-template-columns: 1fr;
+  }
+
+  .company-logo-upload {
     grid-template-columns: 1fr;
   }
 }

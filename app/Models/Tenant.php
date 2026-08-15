@@ -75,6 +75,11 @@ class Tenant extends BaseTenant
         return $this->hasMany(TenantJob::class);
     }
 
+    public function companies(): HasMany
+    {
+        return $this->hasMany(TenantCompany::class);
+    }
+
     public function applications(): HasMany
     {
         return $this->hasMany(JobApplication::class);

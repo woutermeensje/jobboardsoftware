@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Domain;
 use App\Models\JobApplication;
 use App\Models\Tenant;
+use App\Models\TenantCompany;
 use App\Models\TenantJob;
 use App\Support\AdminActionNotifier;
 use App\Support\JobTypeOptions;
@@ -151,6 +152,74 @@ class ClientDashboardController extends Controller
         ]);
     }
 
+    public function companies(Request $request): View
+    {
+        $tenants = $request->user()
+            ->ownedTenants()
+            ->latest()
+            ->get();
+
+        return view('client.companies', [
+            'user' => $request->user(),
+            'tenants' => $tenants,
+            'companies' => TenantCompany::query()
+                ->with('tenant')
+                ->whereIn('tenant_id', $tenants->pluck('id'))
+                ->latest()
+                ->get(),
+        ]);
+    }
+
+    public function createCompany(Request $request): View
+    {
+        return view('client.create-company', [
+            'user' => $request->user(),
+            'tenants' => $request->user()
+                ->ownedTenants()
+                ->latest()
+                ->get(),
+        ]);
+    }
+
+    public function storeCompany(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'tenant_id' => [
+                'required',
+                Rule::exists('tenants', 'id')->where(fn ($query) => $query->where('owner_user_id', $request->user()->id)),
+            ],
+            'name' => ['required', 'string', 'max:255'],
+            'contact_name' => ['nullable', 'string', 'max:255'],
+            'contact_email' => ['nullable', 'email', 'max:255'],
+            'contact_phone' => ['nullable', 'string', 'max:50'],
+            'logo' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,svg', 'max:2048'],
+            'description' => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        $tenant = Tenant::query()
+            ->where('owner_user_id', $request->user()->id)
+            ->findOrFail($validated['tenant_id']);
+
+        $logoPath = $request->hasFile('logo')
+            ? $request->file('logo')->store('company-logos', 'public')
+            : null;
+
+        TenantCompany::query()->create([
+            'tenant_id' => $tenant->id,
+            'name' => $validated['name'],
+            'slug' => $this->uniqueCompanySlug($tenant, $validated['name']),
+            'contact_name' => $validated['contact_name'] ?? null,
+            'contact_email' => $validated['contact_email'] ?? null,
+            'contact_phone' => $validated['contact_phone'] ?? null,
+            'logo_path' => $logoPath,
+            'description' => $validated['description'] ?? null,
+        ]);
+
+        return redirect()
+            ->route('client.companies.index')
+            ->with('status', 'Company created.');
+    }
+
     public function jobTypes(Request $request): View
     {
         $tenants = $request->user()
@@ -291,7 +360,7 @@ class ClientDashboardController extends Controller
                 'description' => 'Build the custom company management overview here.',
             ],
             'create-company' => [
-                'title' => 'Add company',
+                'title' => 'Create company',
                 'description' => 'Build the custom company creation form here.',
             ],
         ];
@@ -345,6 +414,23 @@ class ClientDashboardController extends Controller
         }
 
         return Str::lower($domain);
+    }
+
+    private function uniqueCompanySlug(Tenant $tenant, string $name): string
+    {
+        $base = Str::slug($name) ?: 'company';
+        $slug = $base;
+        $suffix = 2;
+
+        while (TenantCompany::query()
+            ->where('tenant_id', $tenant->id)
+            ->where('slug', $slug)
+            ->exists()) {
+            $slug = $base.'-'.$suffix;
+            $suffix++;
+        }
+
+        return $slug;
     }
 
     private function isValidDomain(string $domain): bool

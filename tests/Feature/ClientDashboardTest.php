@@ -5,9 +5,12 @@ namespace Tests\Feature;
 use App\Models\Domain;
 use App\Models\JobApplication;
 use App\Models\Tenant;
+use App\Models\TenantCompany;
 use App\Models\TenantJob;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class ClientDashboardTest extends TestCase
@@ -125,6 +128,73 @@ class ClientDashboardTest extends TestCase
         $this->actingAs($employer)
             ->get('/client/dashboard')
             ->assertForbidden();
+    }
+
+    public function test_tenant_owner_can_create_company_with_logo(): void
+    {
+        Storage::fake('public');
+
+        $owner = User::factory()->create(['role' => User::ROLE_TENANT_OWNER]);
+        $tenant = $this->tenantFor($owner, 'Acme Careers', 'acme-careers');
+
+        $this->actingAs($owner)
+            ->get('/client/dashboard/companies/create')
+            ->assertOk()
+            ->assertSee('Create company')
+            ->assertSee('Logo')
+            ->assertSee('Upload a PNG, JPG, WebP or SVG logo.');
+
+        $this->actingAs($owner)
+            ->post('/client/dashboard/companies', [
+                'tenant_id' => $tenant->id,
+                'name' => 'Northwind Hiring',
+                'contact_name' => 'Maya Collins',
+                'contact_email' => 'maya@example.com',
+                'contact_phone' => '+31 20 123 4567',
+                'description' => 'Hiring team for seasonal roles.',
+                'logo' => UploadedFile::fake()->create('northwind-logo.png', 32, 'image/png'),
+            ])
+            ->assertRedirect(route('client.companies.index'))
+            ->assertSessionHas('status', 'Company created.');
+
+        $company = TenantCompany::query()->firstOrFail();
+
+        $this->assertSame($tenant->id, $company->tenant_id);
+        $this->assertSame('Northwind Hiring', $company->name);
+        $this->assertSame('northwind-hiring', $company->slug);
+        $this->assertSame('Maya Collins', $company->contact_name);
+        $this->assertNotNull($company->logo_path);
+        Storage::disk('public')->assertExists($company->logo_path);
+
+        $this->actingAs($owner)
+            ->get('/client/dashboard/companies')
+            ->assertOk()
+            ->assertSee('Northwind Hiring')
+            ->assertSee('Maya Collins')
+            ->assertSee('storage/company-logos', false);
+    }
+
+    public function test_tenant_owner_cannot_create_company_for_unowned_environment(): void
+    {
+        Storage::fake('public');
+
+        $owner = User::factory()->create(['role' => User::ROLE_TENANT_OWNER]);
+        $otherOwner = User::factory()->create(['role' => User::ROLE_TENANT_OWNER]);
+        $otherTenant = $this->tenantFor($otherOwner, 'Other Careers', 'other-careers');
+
+        $this->actingAs($owner)
+            ->post('/client/dashboard/companies', [
+                'tenant_id' => $otherTenant->id,
+                'name' => 'Blocked Company',
+                'logo' => UploadedFile::fake()->create('blocked-logo.png', 32, 'image/png'),
+            ])
+            ->assertSessionHasErrors('tenant_id');
+
+        $this->assertDatabaseMissing('tenant_companies', [
+            'tenant_id' => $otherTenant->id,
+            'name' => 'Blocked Company',
+        ]);
+        Storage::disk('public')->assertMissing('company-logos/blocked-logo.png');
     }
 
     public function test_tenant_owner_can_connect_a_custom_domain(): void

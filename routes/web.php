@@ -120,8 +120,9 @@ $centralRoutes = function (): void {
             Route::get('/jobs-settings/job-type', [ClientDashboardController::class, 'jobTypes'])->name('jobs-settings.job-type');
             Route::post('/jobs-settings/job-type', [ClientDashboardController::class, 'storeJobType'])->name('jobs-settings.job-type.store');
             Route::get('/jobs-settings/organization-type', [ClientDashboardController::class, 'section'])->defaults('section', 'organization-type')->name('jobs-settings.organization-type');
-            Route::get('/companies', [ClientDashboardController::class, 'section'])->defaults('section', 'companies')->name('companies.index');
-            Route::get('/companies/create', [ClientDashboardController::class, 'section'])->defaults('section', 'create-company')->name('companies.create');
+            Route::get('/companies', [ClientDashboardController::class, 'companies'])->name('companies.index');
+            Route::post('/companies', [ClientDashboardController::class, 'storeCompany'])->name('companies.store');
+            Route::get('/companies/create', [ClientDashboardController::class, 'createCompany'])->name('companies.create');
         });
 
     Route::get('/dashboard/billing/success', [BillingController::class, 'success'])

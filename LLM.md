@@ -23,6 +23,7 @@ These notes describe the conventions future AI/code assistants should follow whe
 - Tenant dashboard routes are `/jobseeker/dashboard` and `/employer/dashboard`. They should use the same dashboard shell and `dash-*` UI patterns as the central client/admin dashboard files.
 - Tenant public job posting lives at `/post-a-job`. It creates draft jobs first; the payment/publishing step comes later. The form can optionally create a tenant-scoped employer account.
 - The client dashboard job type settings should always include these default English job types: `Part time`, `Full time`, `Freelance`, `Temporary`, and `Internship`. Custom job types are stored per tenant environment.
+- Client dashboard companies are stored per tenant environment and can include an uploaded logo path.
 
 ## Implementation Notes
 
