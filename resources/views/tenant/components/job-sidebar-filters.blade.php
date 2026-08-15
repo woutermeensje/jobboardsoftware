@@ -9,7 +9,7 @@
 
   <details class="tenant-sidebar-filter-group" open>
     <summary class="tenant-sidebar-filter-group__header">
-      <span>Afdeling</span>
+      <span>Department</span>
       <i class="ph ph-caret-down" aria-hidden="true"></i>
     </summary>
 
@@ -29,14 +29,14 @@
           @endif
         </label>
       @empty
-        <p class="tenant-sidebar-filter-empty">Geen afdelingen beschikbaar.</p>
+        <p class="tenant-sidebar-filter-empty">No departments available.</p>
       @endforelse
     </div>
   </details>
 
   <details class="tenant-sidebar-filter-group" open>
     <summary class="tenant-sidebar-filter-group__header">
-      <span>Dienstverband</span>
+      <span>Employment type</span>
       <i class="ph ph-caret-down" aria-hidden="true"></i>
     </summary>
 
@@ -56,19 +56,19 @@
           @endif
         </label>
       @empty
-        <p class="tenant-sidebar-filter-empty">Geen types beschikbaar.</p>
+        <p class="tenant-sidebar-filter-empty">No types available.</p>
       @endforelse
     </div>
   </details>
 
   <noscript>
-    <button class="tenant-btn tenant-btn--primary" type="submit">Filters toepassen</button>
+    <button class="tenant-btn tenant-btn--primary" type="submit">Apply filters</button>
   </noscript>
 
   @if($hasActiveJobFilters)
     <a href="{{ route('tenant.jobs') }}#jobs" class="tenant-sidebar-filter-reset">
       <i class="ph ph-x" aria-hidden="true"></i>
-      Filters wissen
+      Clear filters
     </a>
   @endif
 </form>

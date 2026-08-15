@@ -1,0 +1,27 @@
+# LLM Project Notes
+
+These notes describe the conventions future AI/code assistants should follow when working on this project.
+
+## Language
+
+- The entire application should use English for visible UI copy.
+- This applies to the public website, authentication pages, client dashboard, admin dashboard, tenant job boards, forms, buttons, empty states, success/error messages, emails, and tests that assert UI text.
+- Do not introduce Dutch labels, helper text, headings, placeholders, alerts, or navigation copy in new frontend work.
+- Existing Dutch route aliases may stay when they are legacy redirects or backwards-compatible URLs, but new canonical routes and visible labels should be English.
+- User-generated content, tenant-provided job data, internal database keys, and existing technical identifiers do not need to be translated unless the task explicitly asks for it.
+
+## Tenant Frontend
+
+- Tenant job boards run on the tenant's own domain or subdomain, for example `test.jobboardsoftware.co`.
+- Tenant-facing views live under `resources/views/tenant`.
+- Reusable tenant view pieces live under `resources/views/tenant/components`, such as the header, footer, job cards, and filters.
+- Tenant CSS lives under `resources/css/tenants`, split by component where practical, for example `header.css`, `footer.css`, and job overview/filter styles. Import tenant CSS through `resources/css/tenants/index.css`.
+- The tenant homepage should show the professional job overview directly, including search and filters.
+- The tenant header and job overview/filter experience are inspired by the Student Inhuren Platform style: clean, practical, search-focused, and suitable for repeated job browsing.
+
+## Implementation Notes
+
+- Keep tenant routes and tenant rendering separate from the central SaaS pages.
+- Prefer English canonical tenant routes such as `/jobs`; keep Dutch redirects only for compatibility when already present.
+- When changing visible frontend copy, update feature tests so assertions match the English UI.
+- Run `php artisan test` after behavior or view changes that affect rendered output.

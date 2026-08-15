@@ -19,8 +19,8 @@
     <section class="tenant-jobs-index" id="jobs" aria-labelledby="tenant-jobs-title">
       <header class="tenant-jobs-filter-wrap" aria-label="Job filters">
         <div class="tenant-jobs-filter-header">
-          <h2 id="tenant-jobs-title">Doorzoek alle vacatures</h2>
-          <p>Vacatures, stages en functies binnen {{ $brandName }}.</p>
+          <h2 id="tenant-jobs-title">Search all jobs</h2>
+          <p>Jobs, internships and roles at {{ $brandName }}.</p>
         </div>
 
         @include('tenant.components.job-filters', [
@@ -33,12 +33,12 @@
 
       <div class="tenant-jobs-results-head">
         <p class="tenant-jobs-results-count">
-          {{ $jobs->count() }} {{ $jobs->count() === 1 ? 'vacature' : 'vacatures' }} gevonden
-          <span>{{ $totalJobs }} {{ $totalJobs === 1 ? 'vacature totaal' : 'vacatures totaal' }}</span>
+          {{ $jobs->count() }} {{ $jobs->count() === 1 ? 'job' : 'jobs' }} found
+          <span>{{ $totalJobs }} {{ $totalJobs === 1 ? 'job total' : 'jobs total' }}</span>
         </p>
 
         @if($hasActiveJobFilters)
-          <a class="tenant-jobs-reset-link" href="{{ route('tenant.jobs') }}#jobs">Wis alle filters</a>
+          <a class="tenant-jobs-reset-link" href="{{ route('tenant.jobs') }}#jobs">Clear all filters</a>
         @endif
       </div>
 
@@ -58,8 +58,8 @@
             @empty
               <article class="tenant-jobs-empty">
                 <i class="ph ph-briefcase" aria-hidden="true"></i>
-                <h3>Geen vacatures gevonden</h3>
-                <p>Pas je filters aan of reset de zoekopdracht om meer resultaten te zien.</p>
+                <h3>No jobs found</h3>
+                <p>Adjust your filters or reset the search to see more results.</p>
                 @if($hasActiveJobFilters)
                   <a class="tenant-btn tenant-btn--ghost" href="{{ route('tenant.jobs') }}#jobs">Reset filters</a>
                 @endif

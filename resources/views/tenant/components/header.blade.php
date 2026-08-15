@@ -9,11 +9,11 @@
 
   $primaryNav = [
     [
-      'label' => 'Vacatures',
+      'label' => 'Jobs',
       'url' => route('tenant.jobs'),
       'active' => request()->routeIs('tenant.home', 'tenant.jobs', 'tenant.jobs.show'),
       'children' => [
-        ['label' => 'Alle vacatures', 'url' => route('tenant.jobs'), 'active' => request()->routeIs('tenant.home', 'tenant.jobs')],
+        ['label' => 'All jobs', 'url' => route('tenant.jobs'), 'active' => request()->routeIs('tenant.home', 'tenant.jobs')],
         ['label' => 'Contact', 'url' => route('tenant.contact'), 'active' => request()->routeIs('tenant.contact')],
       ],
     ],
@@ -21,24 +21,24 @@
   ];
 
   $utilityLinks = [
-    ['label' => 'Vacatures bekijken', 'url' => route('tenant.jobs').'#jobs'],
+    ['label' => 'View jobs', 'url' => route('tenant.jobs').'#jobs'],
     ['label' => 'Contact', 'url' => route('tenant.contact')],
   ];
 @endphp
 
 <header id="tenant-header" class="tenant-header" role="banner">
-  <div class="tenant-topbar" aria-label="Snelle links">
+  <div class="tenant-topbar" aria-label="Quick links">
     <div class="tenant-topbar__inner">
       <div class="tenant-topbar__group">
-        <a class="tenant-topbar__link" href="{{ route('tenant.jobs') }}#jobs">Vacatures</a>
+        <a class="tenant-topbar__link" href="{{ route('tenant.jobs') }}#jobs">Jobs</a>
         <span class="tenant-topbar__sep" aria-hidden="true">|</span>
         <a class="tenant-topbar__link" href="{{ route('tenant.contact') }}">Contact</a>
       </div>
 
       <div class="tenant-topbar__group tenant-topbar__group--right">
-        <a class="tenant-topbar__link" href="{{ route('tenant.jobs') }}#jobs">Bekijk open functies</a>
+        <a class="tenant-topbar__link" href="{{ route('tenant.jobs') }}#jobs">View open roles</a>
         <span class="tenant-topbar__sep" aria-hidden="true">|</span>
-        <a class="tenant-topbar__link" href="{{ route('tenant.contact') }}">Neem contact op</a>
+        <a class="tenant-topbar__link" href="{{ route('tenant.contact') }}">Get in touch</a>
       </div>
     </div>
   </div>
@@ -55,7 +55,7 @@
       </a>
     </div>
 
-    <nav class="tenant-header__nav" aria-label="Primaire navigatie">
+    <nav class="tenant-header__nav" aria-label="Primary navigation">
       <ul class="tenant-nav__list">
         @foreach($primaryNav as $item)
           @php
@@ -87,11 +87,11 @@
     <div class="tenant-header__divider"></div>
 
     <div class="tenant-header__cta">
-      <a href="{{ route('tenant.jobs') }}#jobs" class="tenant-header-btn tenant-header-btn--primary">Bekijk vacatures</a>
+      <a href="{{ route('tenant.jobs') }}#jobs" class="tenant-header-btn tenant-header-btn--primary">View jobs</a>
       <a href="{{ route('tenant.contact') }}" class="tenant-header-btn tenant-header-btn--outline">Contact</a>
     </div>
 
-    <button class="tenant-header__hamburger" type="button" aria-label="Menu openen" aria-expanded="false" aria-controls="tenant-mobile-nav" data-tenant-menu-toggle>
+    <button class="tenant-header__hamburger" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="tenant-mobile-nav" data-tenant-menu-toggle>
       <span class="tenant-hamburger__bar"></span>
       <span class="tenant-hamburger__bar"></span>
       <span class="tenant-hamburger__bar"></span>
@@ -101,7 +101,7 @@
 
 <div id="tenant-mobile-nav" class="tenant-mobile-nav" aria-hidden="true" data-tenant-mobile-nav>
   <div class="tenant-mobile-nav__panel">
-    <button class="tenant-mobile-nav__close" type="button" aria-label="Menu sluiten" data-tenant-menu-close>
+    <button class="tenant-mobile-nav__close" type="button" aria-label="Close menu" data-tenant-menu-close>
       <i class="ph ph-x" aria-hidden="true"></i>
     </button>
 
@@ -137,7 +137,7 @@
     <div class="tenant-mobile-nav__divider"></div>
 
     <div class="tenant-mobile-nav__section">
-      <p class="tenant-mobile-nav__label">Snel naar</p>
+      <p class="tenant-mobile-nav__label">Quick links</p>
       <div class="tenant-mobile-nav__utility">
         @foreach($utilityLinks as $link)
           <a href="{{ $link['url'] }}">{{ $link['label'] }}</a>
@@ -148,9 +148,9 @@
     <div class="tenant-mobile-nav__divider"></div>
 
     <div class="tenant-mobile-nav__section">
-      <p class="tenant-mobile-nav__label">Actie</p>
+      <p class="tenant-mobile-nav__label">Action</p>
       <div class="tenant-mobile-nav__ctas">
-        <a href="{{ route('tenant.jobs') }}#jobs" class="tenant-header-btn tenant-header-btn--primary tenant-mobile-nav__cta">Bekijk vacatures</a>
+        <a href="{{ route('tenant.jobs') }}#jobs" class="tenant-header-btn tenant-header-btn--primary tenant-mobile-nav__cta">View jobs</a>
         <a href="{{ route('tenant.contact') }}" class="tenant-header-btn tenant-header-btn--outline tenant-mobile-nav__cta">Contact</a>
       </div>
     </div>
