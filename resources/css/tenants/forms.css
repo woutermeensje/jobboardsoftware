@@ -35,3 +35,158 @@
   color: var(--tenant-danger);
   font-weight: 700;
 }
+
+.tenant-post-job {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 22px;
+  align-items: start;
+}
+
+.tenant-post-job__main {
+  min-width: 0;
+}
+
+.tenant-post-job__main .tenant-panel__head p {
+  max-width: 720px;
+}
+
+.tenant-post-job-form {
+  display: grid;
+  gap: 22px;
+}
+
+.tenant-post-job-form__section {
+  display: grid;
+  gap: 14px;
+  padding-top: 18px;
+  border-top: 1px solid var(--color-border);
+}
+
+.tenant-post-job-form__section h2,
+.tenant-post-job__aside h2 {
+  margin: 0;
+  color: var(--color-text);
+  font-family: var(--font-ui);
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.tenant-post-job-form__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.tenant-post-job-form label {
+  display: grid;
+  gap: 7px;
+  color: var(--color-text);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.tenant-post-job-form input,
+.tenant-post-job-form select,
+.tenant-post-job-form textarea {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--color-text);
+  font-family: var(--font-text);
+  font-size: 14px;
+  font-weight: 400;
+  outline: none;
+}
+
+.tenant-post-job-form textarea {
+  resize: vertical;
+}
+
+.tenant-post-job-form input:focus,
+.tenant-post-job-form select:focus,
+.tenant-post-job-form textarea:focus {
+  border-color: var(--tenant-accent);
+}
+
+.tenant-post-job-form__error,
+.tenant-message-list {
+  color: var(--tenant-danger);
+  font-weight: 700;
+}
+
+.tenant-post-job-form__account {
+  padding: 18px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--tenant-subtle-surface);
+}
+
+.tenant-post-job-form__check {
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 10px;
+}
+
+.tenant-post-job-form__check input {
+  width: 18px;
+  min-height: 18px;
+  margin-top: 2px;
+  accent-color: var(--tenant-accent);
+}
+
+.tenant-post-job-form__check small {
+  display: block;
+  margin-top: 2px;
+  color: var(--color-text-muted);
+  font-family: var(--font-text);
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.tenant-post-job-form__submit {
+  justify-self: start;
+  min-width: 180px;
+}
+
+.tenant-post-job__aside {
+  position: sticky;
+  top: 96px;
+}
+
+.tenant-post-job__summary {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border);
+}
+
+.tenant-post-job__summary span,
+.tenant-post-job__summary strong {
+  display: block;
+}
+
+.tenant-post-job__summary span {
+  color: var(--color-text-muted);
+  font-size: 13px;
+}
+
+.tenant-post-job__summary strong {
+  margin-top: 4px;
+  color: var(--color-text);
+  font-family: var(--font-ui);
+  font-size: 32px;
+  font-weight: 800;
+}
+
+.tenant-alert--danger {
+  color: var(--tenant-danger);
+}
+
+.tenant-message-list {
+  margin: 8px 0 0;
+  padding-left: 18px;
+}

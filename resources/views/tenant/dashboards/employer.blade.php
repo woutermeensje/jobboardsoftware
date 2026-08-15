@@ -8,6 +8,10 @@
 @endsection
 
 @section('content')
+    @if(session('status'))
+      <section class="dash-card dash-card--success"><strong>{{ session('status') }}</strong></section>
+    @endif
+
     <div class="dash-stats">
       @foreach($stats as $stat)
         <article class="dash-stat">

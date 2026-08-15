@@ -21,6 +21,7 @@ These notes describe the conventions future AI/code assistants should follow whe
 - Job seeker and employer accounts are tenant-scoped accounts. They must be created and authenticated through tenant-domain routes, not as application-wide SaaS users.
 - Tenant auth routes include `/login`, `/login/jobseeker`, `/login/employer`, `/sign-up`, `/sign-up/jobseeker`, and `/sign-up/employer`.
 - Tenant dashboard routes are `/jobseeker/dashboard` and `/employer/dashboard`. They should use the same dashboard shell and `dash-*` UI patterns as the central client/admin dashboard files.
+- Tenant public job posting lives at `/post-a-job`. It creates draft jobs first; the payment/publishing step comes later. The form can optionally create a tenant-scoped employer account.
 - The client dashboard job type settings should always include these default English job types: `Part time`, `Full time`, `Freelance`, `Temporary`, and `Internship`. Custom job types are stored per tenant environment.
 
 ## Implementation Notes

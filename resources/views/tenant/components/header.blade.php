@@ -87,7 +87,7 @@
     <div class="tenant-header__divider"></div>
 
     <div class="tenant-header__cta">
-      <a href="{{ route('tenant.register.employer') }}" class="tenant-header-btn tenant-header-btn--primary">Post job</a>
+      <a href="{{ route('tenant.post-job') }}" class="tenant-header-btn tenant-header-btn--primary">Post a job</a>
       <a href="{{ route('tenant.login.choice') }}" class="tenant-header-btn tenant-header-btn--outline">Login</a>
     </div>
 
@@ -150,7 +150,7 @@
     <div class="tenant-mobile-nav__section">
       <p class="tenant-mobile-nav__label">Action</p>
       <div class="tenant-mobile-nav__ctas">
-        <a href="{{ route('tenant.register.employer') }}" class="tenant-header-btn tenant-header-btn--primary tenant-mobile-nav__cta">Post job</a>
+        <a href="{{ route('tenant.post-job') }}" class="tenant-header-btn tenant-header-btn--primary tenant-mobile-nav__cta">Post a job</a>
         <a href="{{ route('tenant.login.choice') }}" class="tenant-header-btn tenant-header-btn--outline tenant-mobile-nav__cta">Login</a>
       </div>
     </div>

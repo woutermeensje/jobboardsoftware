@@ -153,7 +153,12 @@
 
 .dash-nav__links {
   display: grid;
-  gap: 4px;
+  gap: 6px;
+}
+
+.dash-nav__item {
+  display: grid;
+  gap: 3px;
 }
 
 .dash-nav__links a,
@@ -187,6 +192,25 @@
 .dash-nav__links a.is-active {
   border-color: var(--color-primary-muted);
   background: var(--color-primary-soft);
+  color: var(--color-primary-strong);
+}
+
+.dash-nav__sub {
+  display: grid;
+  gap: 2px;
+  padding: 0 0 5px 27px;
+}
+
+.dash-nav__sub a {
+  min-height: 30px;
+  padding: 0 9px;
+  color: var(--color-text-muted);
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.dash-nav__sub a:hover,
+.dash-nav__sub a.is-active {
   color: var(--color-primary-strong);
 }
 
@@ -716,13 +740,12 @@
   }
 
   .dash-nav__links {
-    display: flex;
-    overflow-x: auto;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    overflow: visible;
     padding-bottom: 2px;
   }
 
   .dash-nav__links a {
-    flex: 0 0 auto;
     white-space: nowrap;
   }
 

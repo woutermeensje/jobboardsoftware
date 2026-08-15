@@ -7,6 +7,7 @@ use App\Models\JobApplication;
 use App\Models\Tenant;
 use App\Models\TenantJob;
 use App\Support\AdminActionNotifier;
+use App\Support\JobTypeOptions;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -15,14 +16,6 @@ use Illuminate\View\View;
 
 class ClientDashboardController extends Controller
 {
-    private const DEFAULT_JOB_TYPES = [
-        'Part time',
-        'Full time',
-        'Freelance',
-        'Temporary',
-        'Internship',
-    ];
-
     public function index(Request $request): View
     {
         $user = $request->user();
@@ -168,9 +161,9 @@ class ClientDashboardController extends Controller
         return view('client.job-types', [
             'user' => $request->user(),
             'tenants' => $tenants,
-            'defaultJobTypes' => self::DEFAULT_JOB_TYPES,
+            'defaultJobTypes' => JobTypeOptions::defaults(),
             'jobTypesByTenant' => $tenants->mapWithKeys(fn (Tenant $tenant): array => [
-                $tenant->id => $this->customJobTypesFor($tenant),
+                $tenant->id => JobTypeOptions::customForTenant($tenant),
             ]),
         ]);
     }
@@ -189,7 +182,7 @@ class ClientDashboardController extends Controller
             ->where('owner_user_id', $request->user()->id)
             ->findOrFail($validated['tenant_id']);
 
-        $name = $this->normalizeJobTypeName((string) $validated['name']);
+        $name = JobTypeOptions::normalizeName((string) $validated['name']);
 
         if ($name === '') {
             return back()
@@ -197,8 +190,8 @@ class ClientDashboardController extends Controller
                 ->withInput();
         }
 
-        $customJobTypes = $this->customJobTypesFor($tenant);
-        $existingJobTypes = collect(self::DEFAULT_JOB_TYPES)
+        $customJobTypes = JobTypeOptions::customForTenant($tenant);
+        $existingJobTypes = collect(JobTypeOptions::defaults())
             ->merge($customJobTypes)
             ->map(fn (string $type): string => mb_strtolower($type))
             ->all();
@@ -266,11 +259,11 @@ class ClientDashboardController extends Controller
                 'description' => 'Build the custom marketing overview here.',
             ],
             'landingpagina' => [
-                'title' => 'Add landingpagina',
+                'title' => 'Landing pages',
                 'description' => 'Build the custom landing page editor here.',
             ],
             'socials' => [
-                'title' => 'Add socials',
+                'title' => 'Social channels',
                 'description' => 'Build the custom social channel settings here.',
             ],
             'jobs-settings' => [
@@ -278,11 +271,11 @@ class ClientDashboardController extends Controller
                 'description' => 'Build the custom job settings overview here.',
             ],
             'sector' => [
-                'title' => 'Add sector',
+                'title' => 'Sectors',
                 'description' => 'Build the custom sector management screen here.',
             ],
             'categorie' => [
-                'title' => 'Add categorie',
+                'title' => 'Categories',
                 'description' => 'Build the custom category management screen here.',
             ],
             'job-type' => [
@@ -290,7 +283,7 @@ class ClientDashboardController extends Controller
                 'description' => 'Manage the employment types available for jobs in each environment.',
             ],
             'organization-type' => [
-                'title' => 'Add organization type',
+                'title' => 'Organization types',
                 'description' => 'Build the custom organization type management screen here.',
             ],
             'companies' => [
@@ -352,26 +345,6 @@ class ClientDashboardController extends Controller
         }
 
         return Str::lower($domain);
-    }
-
-    /**
-     * @return array<int, string>
-     */
-    private function customJobTypesFor(Tenant $tenant): array
-    {
-        $settings = $tenant->settings ?? [];
-
-        return collect($settings['custom_job_types'] ?? [])
-            ->map(fn (mixed $type): string => $this->normalizeJobTypeName((string) $type))
-            ->filter()
-            ->unique(fn (string $type): string => mb_strtolower($type))
-            ->values()
-            ->all();
-    }
-
-    private function normalizeJobTypeName(string $value): string
-    {
-        return Str::of($value)->squish()->toString();
     }
 
     private function isValidDomain(string $domain): bool

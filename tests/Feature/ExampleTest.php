@@ -111,7 +111,8 @@ class ExampleTest extends TestCase
             ->assertSee('Acme Careers')
             ->assertSee('tenant-header', false)
             ->assertSee('tenant-mobile-nav', false)
-            ->assertSee('Post job')
+            ->assertSee('Post a job')
+            ->assertSee('/post-a-job', false)
             ->assertSee('Login')
             ->assertSee('Search all jobs')
             ->assertDontSee('Open roles')
@@ -236,6 +237,107 @@ class ExampleTest extends TestCase
             'email' => 'evan@example.com',
             'company_name' => 'Tenant Hiring Co.',
             'role' => User::ROLE_EMPLOYER,
+        ]);
+    }
+
+    public function test_public_tenant_post_job_form_creates_a_draft_without_account(): void
+    {
+        $tenant = $this->tenantWithDomain('public-post', 'public-post.test');
+        $tenant->forceFill([
+            'settings' => [
+                'brand_name' => 'Public Post Careers',
+                'custom_job_types' => ['Volunteer'],
+            ],
+        ])->save();
+
+        $this->get('http://public-post.test/post-a-job/')
+            ->assertOk()
+            ->assertSee('Submit a vacancy')
+            ->assertSee('Category')
+            ->assertSee('Job type')
+            ->assertSee('Part time')
+            ->assertSee('Full time')
+            ->assertSee('Freelance')
+            ->assertSee('Temporary')
+            ->assertSee('Internship')
+            ->assertSee('Volunteer')
+            ->assertSee('Create an employer account with this submission');
+
+        $this->post('http://public-post.test/post-a-job', [
+            'title' => 'Community Manager',
+            'company_name' => 'Community Co.',
+            'contact_name' => 'Casey Contact',
+            'contact_email' => 'casey@example.com',
+            'contact_phone' => '+1 555 444 5555',
+            'category' => 'Community',
+            'location' => 'Remote',
+            'employment_type' => 'Full time',
+            'salary_range' => 'Upon request',
+            'intro' => 'Build a strong community.',
+            'description' => 'Own community programs and member engagement.',
+        ])
+            ->assertRedirect('http://public-post.test/post-a-job')
+            ->assertSessionHas('status', 'Your job has been submitted as a draft.');
+
+        $this->assertGuest();
+        $this->assertDatabaseHas('tenant_jobs', [
+            'tenant_id' => $tenant->id,
+            'title' => 'Community Manager',
+            'slug' => 'community-manager',
+            'department' => 'Community',
+            'employment_type' => 'Full time',
+            'company_name' => 'Community Co.',
+            'contact_name' => 'Casey Contact',
+            'contact_email' => 'casey@example.com',
+            'submitted_by_user_id' => null,
+            'status' => TenantJob::STATUS_DRAFT,
+            'published_at' => null,
+        ]);
+
+        $this->assertDatabaseMissing('users', [
+            'tenant_id' => $tenant->id,
+            'email' => 'casey@example.com',
+        ]);
+    }
+
+    public function test_public_tenant_post_job_form_can_create_an_employer_account(): void
+    {
+        $tenant = $this->tenantWithDomain('public-post-account', 'public-post-account.test');
+
+        $this->post('http://public-post-account.test/post-a-job', [
+            'title' => 'Sales Lead',
+            'company_name' => 'Sales Co.',
+            'contact_name' => 'Elliot Employer',
+            'contact_email' => 'elliot@example.com',
+            'contact_phone' => '+1 555 777 8888',
+            'category' => 'Sales',
+            'location' => 'Amsterdam',
+            'employment_type' => 'Freelance',
+            'description' => 'Lead sales conversations for a growing team.',
+            'create_account' => '1',
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+        ])
+            ->assertRedirect('http://public-post-account.test/employer/dashboard')
+            ->assertSessionHas('status', 'Your job has been submitted as a draft.');
+
+        $user = User::where('tenant_id', $tenant->id)
+            ->where('email', 'elliot@example.com')
+            ->firstOrFail();
+
+        $this->assertAuthenticatedAs($user);
+        $this->assertSame(User::ROLE_EMPLOYER, $user->role);
+        $this->assertSame('Sales Co.', $user->company_name);
+
+        $this->assertDatabaseHas('tenant_jobs', [
+            'tenant_id' => $tenant->id,
+            'title' => 'Sales Lead',
+            'department' => 'Sales',
+            'employment_type' => 'Freelance',
+            'company_name' => 'Sales Co.',
+            'contact_email' => 'elliot@example.com',
+            'submitted_by_user_id' => $user->id,
+            'status' => TenantJob::STATUS_DRAFT,
         ]);
     }
 

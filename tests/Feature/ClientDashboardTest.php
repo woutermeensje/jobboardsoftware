@@ -92,6 +92,26 @@ class ClientDashboardTest extends TestCase
             ->assertDontSee('Other Careers');
     }
 
+    public function test_client_dashboard_sidebar_shows_sub_navigation(): void
+    {
+        $owner = User::factory()->create(['role' => User::ROLE_TENANT_OWNER]);
+
+        $this->actingAs($owner)
+            ->get('/client/dashboard')
+            ->assertOk()
+            ->assertSee('Create environment')
+            ->assertSee('Create job')
+            ->assertSee('Add domain')
+            ->assertSee('Landing pages')
+            ->assertSee('Social channels')
+            ->assertSee('Sectors')
+            ->assertSee('Categories')
+            ->assertSee('Job types')
+            ->assertSee('Organization types')
+            ->assertSee('Create company')
+            ->assertSee('/client/dashboard/jobs-settings/job-type', false);
+    }
+
     public function test_tenant_scoped_employer_cannot_access_the_application_wide_client_dashboard(): void
     {
         $owner = User::factory()->create(['role' => User::ROLE_TENANT_OWNER]);
