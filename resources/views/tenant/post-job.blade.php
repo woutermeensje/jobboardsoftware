@@ -22,14 +22,14 @@
 
     <section class="tenant-post-job">
       <article class="tenant-panel tenant-post-job__main">
-        <div class="tenant-panel__head">
-          <p class="tenant-eyebrow">Post a job</p>
-          <h2 class="tenant-form-title">Submit a vacancy</h2>
-          <p>Your job will be saved as a draft first. Publishing and payment can be completed in the next step later.</p>
-        </div>
-
         <form method="POST" action="{{ route('tenant.post-job.store') }}" class="tenant-post-job-form">
           @csrf
+
+          <div class="tenant-panel__head tenant-form-header">
+            <p class="tenant-eyebrow">Post a job</p>
+            <h2 class="tenant-form-title">Submit a vacancy</h2>
+            <p>Your job will be saved as a draft first. Publishing and payment can be completed in the next step later.</p>
+          </div>
 
           <div class="tenant-post-job-form__section">
             <h2 class="tenant-form-section-title">Job details</h2>

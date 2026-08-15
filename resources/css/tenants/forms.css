@@ -3,6 +3,7 @@
   top: 24px;
 }
 
+.tenant-panel .tenant-form-title,
 .tenant-form-title {
   margin: 0;
   color: #333;
@@ -12,6 +13,7 @@
   line-height: 1.25;
 }
 
+.tenant-panel .tenant-form-section-title,
 .tenant-form-section-title {
   margin: 0;
   color: #333;
@@ -26,8 +28,8 @@
 .tenant-post-job-form label {
   color: #333;
   font-family: 'Poppins', var(--font-text), sans-serif;
-  font-size: 15px;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 300;
 }
 
 .tenant-apply form {
@@ -70,9 +72,10 @@
 
 .tenant-post-job__main {
   min-width: 0;
+  padding: 0;
 }
 
-.tenant-post-job__main .tenant-panel__head p {
+.tenant-post-job-form .tenant-panel__head p {
   max-width: 720px;
 }
 
