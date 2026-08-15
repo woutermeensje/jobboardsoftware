@@ -117,7 +117,8 @@ $centralRoutes = function (): void {
             Route::get('/jobs-settings', [ClientDashboardController::class, 'section'])->defaults('section', 'jobs-settings')->name('jobs-settings.index');
             Route::get('/jobs-settings/sector', [ClientDashboardController::class, 'section'])->defaults('section', 'sector')->name('jobs-settings.sector');
             Route::get('/jobs-settings/categorie', [ClientDashboardController::class, 'section'])->defaults('section', 'categorie')->name('jobs-settings.categorie');
-            Route::get('/jobs-settings/job-type', [ClientDashboardController::class, 'section'])->defaults('section', 'job-type')->name('jobs-settings.job-type');
+            Route::get('/jobs-settings/job-type', [ClientDashboardController::class, 'jobTypes'])->name('jobs-settings.job-type');
+            Route::post('/jobs-settings/job-type', [ClientDashboardController::class, 'storeJobType'])->name('jobs-settings.job-type.store');
             Route::get('/jobs-settings/organization-type', [ClientDashboardController::class, 'section'])->defaults('section', 'organization-type')->name('jobs-settings.organization-type');
             Route::get('/companies', [ClientDashboardController::class, 'section'])->defaults('section', 'companies')->name('companies.index');
             Route::get('/companies/create', [ClientDashboardController::class, 'section'])->defaults('section', 'create-company')->name('companies.create');

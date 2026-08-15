@@ -167,6 +167,68 @@ class ClientDashboardTest extends TestCase
         ]);
     }
 
+    public function test_tenant_owner_can_manage_job_types_for_owned_environments(): void
+    {
+        $owner = User::factory()->create(['role' => User::ROLE_TENANT_OWNER]);
+        $tenant = $this->tenantFor($owner, 'Acme Careers', 'acme-careers');
+
+        $this->actingAs($owner)
+            ->get('/client/dashboard/jobs-settings/job-type')
+            ->assertOk()
+            ->assertSee('Job types')
+            ->assertSee('Part time')
+            ->assertSee('Full time')
+            ->assertSee('Freelance')
+            ->assertSee('Temporary')
+            ->assertSee('Internship')
+            ->assertSee('No custom types');
+
+        $this->actingAs($owner)
+            ->post('/client/dashboard/jobs-settings/job-type', [
+                'tenant_id' => $tenant->id,
+                'name' => 'Volunteer',
+            ])
+            ->assertRedirect(route('client.jobs-settings.job-type'))
+            ->assertSessionHas('status', 'Job type added.');
+
+        $tenant->refresh();
+
+        $this->assertSame(['Volunteer'], $tenant->settings['custom_job_types'] ?? []);
+
+        $this->actingAs($owner)
+            ->get('/client/dashboard/jobs-settings/job-type')
+            ->assertOk()
+            ->assertSee('Volunteer');
+    }
+
+    public function test_tenant_owner_cannot_add_duplicate_or_unowned_job_types(): void
+    {
+        $owner = User::factory()->create(['role' => User::ROLE_TENANT_OWNER]);
+        $otherOwner = User::factory()->create(['role' => User::ROLE_TENANT_OWNER]);
+        $tenant = $this->tenantFor($owner, 'Acme Careers', 'acme-careers');
+        $otherTenant = $this->tenantFor($otherOwner, 'Other Careers', 'other-careers');
+
+        $this->actingAs($owner)
+            ->post('/client/dashboard/jobs-settings/job-type', [
+                'tenant_id' => $tenant->id,
+                'name' => 'full time',
+            ])
+            ->assertSessionHasErrors('name');
+
+        $this->actingAs($owner)
+            ->post('/client/dashboard/jobs-settings/job-type', [
+                'tenant_id' => $otherTenant->id,
+                'name' => 'Volunteer',
+            ])
+            ->assertSessionHasErrors('tenant_id');
+
+        $tenant->refresh();
+        $otherTenant->refresh();
+
+        $this->assertArrayNotHasKey('custom_job_types', $tenant->settings ?? []);
+        $this->assertArrayNotHasKey('custom_job_types', $otherTenant->settings ?? []);
+    }
+
     public function test_old_workspace_paths_redirect_to_client_dashboard(): void
     {
         $this->get('/workspace')->assertRedirect('/client/dashboard');

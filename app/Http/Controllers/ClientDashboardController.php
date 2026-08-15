@@ -15,6 +15,14 @@ use Illuminate\View\View;
 
 class ClientDashboardController extends Controller
 {
+    private const DEFAULT_JOB_TYPES = [
+        'Part time',
+        'Full time',
+        'Freelance',
+        'Temporary',
+        'Internship',
+    ];
+
     public function index(Request $request): View
     {
         $user = $request->user();
@@ -150,6 +158,71 @@ class ClientDashboardController extends Controller
         ]);
     }
 
+    public function jobTypes(Request $request): View
+    {
+        $tenants = $request->user()
+            ->ownedTenants()
+            ->latest()
+            ->get();
+
+        return view('client.job-types', [
+            'user' => $request->user(),
+            'tenants' => $tenants,
+            'defaultJobTypes' => self::DEFAULT_JOB_TYPES,
+            'jobTypesByTenant' => $tenants->mapWithKeys(fn (Tenant $tenant): array => [
+                $tenant->id => $this->customJobTypesFor($tenant),
+            ]),
+        ]);
+    }
+
+    public function storeJobType(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'tenant_id' => [
+                'required',
+                Rule::exists('tenants', 'id')->where(fn ($query) => $query->where('owner_user_id', $request->user()->id)),
+            ],
+            'name' => ['required', 'string', 'max:80'],
+        ]);
+
+        $tenant = Tenant::query()
+            ->where('owner_user_id', $request->user()->id)
+            ->findOrFail($validated['tenant_id']);
+
+        $name = $this->normalizeJobTypeName((string) $validated['name']);
+
+        if ($name === '') {
+            return back()
+                ->withErrors(['name' => 'Enter a job type name.'])
+                ->withInput();
+        }
+
+        $customJobTypes = $this->customJobTypesFor($tenant);
+        $existingJobTypes = collect(self::DEFAULT_JOB_TYPES)
+            ->merge($customJobTypes)
+            ->map(fn (string $type): string => mb_strtolower($type))
+            ->all();
+
+        if (in_array(mb_strtolower($name), $existingJobTypes, true)) {
+            return back()
+                ->withErrors(['name' => 'This job type already exists for this environment.'])
+                ->withInput();
+        }
+
+        $settings = $tenant->settings ?? [];
+        $settings['custom_job_types'] = collect($customJobTypes)
+            ->push($name)
+            ->sortBy(fn (string $type): string => mb_strtolower($type))
+            ->values()
+            ->all();
+
+        $tenant->forceFill(['settings' => $settings])->save();
+
+        return redirect()
+            ->route('client.jobs-settings.job-type')
+            ->with('status', 'Job type added.');
+    }
+
     /**
      * @return array<string, array{title: string, description: string}>
      */
@@ -213,8 +286,8 @@ class ClientDashboardController extends Controller
                 'description' => 'Build the custom category management screen here.',
             ],
             'job-type' => [
-                'title' => 'Add job type',
-                'description' => 'Build the custom job type management screen here.',
+                'title' => 'Job types',
+                'description' => 'Manage the employment types available for jobs in each environment.',
             ],
             'organization-type' => [
                 'title' => 'Add organization type',
@@ -279,6 +352,26 @@ class ClientDashboardController extends Controller
         }
 
         return Str::lower($domain);
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function customJobTypesFor(Tenant $tenant): array
+    {
+        $settings = $tenant->settings ?? [];
+
+        return collect($settings['custom_job_types'] ?? [])
+            ->map(fn (mixed $type): string => $this->normalizeJobTypeName((string) $type))
+            ->filter()
+            ->unique(fn (string $type): string => mb_strtolower($type))
+            ->values()
+            ->all();
+    }
+
+    private function normalizeJobTypeName(string $value): string
+    {
+        return Str::of($value)->squish()->toString();
     }
 
     private function isValidDomain(string $domain): bool

@@ -9,7 +9,7 @@
 
   <details class="tenant-sidebar-filter-group" open>
     <summary class="tenant-sidebar-filter-group__header">
-      <span>Department</span>
+      <span>Category</span>
       <i class="ph ph-caret-down" aria-hidden="true"></i>
     </summary>
 
@@ -29,14 +29,14 @@
           @endif
         </label>
       @empty
-        <p class="tenant-sidebar-filter-empty">No departments available.</p>
+        <p class="tenant-sidebar-filter-empty">No categories available.</p>
       @endforelse
     </div>
   </details>
 
   <details class="tenant-sidebar-filter-group" open>
     <summary class="tenant-sidebar-filter-group__header">
-      <span>Employment type</span>
+      <span>Job type</span>
       <i class="ph ph-caret-down" aria-hidden="true"></i>
     </summary>
 
@@ -56,7 +56,7 @@
           @endif
         </label>
       @empty
-        <p class="tenant-sidebar-filter-empty">No types available.</p>
+        <p class="tenant-sidebar-filter-empty">No job types available.</p>
       @endforelse
     </div>
   </details>

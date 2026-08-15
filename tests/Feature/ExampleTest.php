@@ -119,6 +119,8 @@ class ExampleTest extends TestCase
             ->assertSee('tenant-job-filters', false)
             ->assertSee('tenant-jobs-sidebar', false)
             ->assertSee('tenant-sidebar-filter-count', false)
+            ->assertSee('Category')
+            ->assertSee('Job type')
             ->assertSee('Laravel Developer')
             ->assertSee('Growth Marketer')
             ->assertSee('Amsterdam')

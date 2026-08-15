@@ -35,7 +35,7 @@
             <thead>
               <tr>
                 <th>Job</th>
-                <th>Department</th>
+                <th>Category</th>
                 <th>Location</th>
                 <th>Action</th>
               </tr>
@@ -45,7 +45,7 @@
                 <tr>
                   <td>
                     <span class="dash-cell-title">{{ $job->title }}</span>
-                    <span class="dash-cell-meta">{{ $job->employment_type ?: 'Employment type open' }}</span>
+                    <span class="dash-cell-meta">{{ $job->employment_type ?: 'Job type open' }}</span>
                   </td>
                   <td>{{ $job->department ?: 'General' }}</td>
                   <td>{{ $job->location ?: 'Location open' }}</td>
