@@ -2,8 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Models\Domain;
 use App\Models\BillingPlan;
+use App\Models\Domain;
 use App\Models\JobApplication;
 use App\Models\Tenant;
 use App\Models\TenantJob;
@@ -210,7 +210,7 @@ class ExampleTest extends TestCase
             'password' => 'password123',
         ]);
 
-        $response->assertRedirect(route('tenant.owner.dashboard'));
+        $response->assertRedirect(route('filament.workspace.pages.dashboard'));
         $this->assertAuthenticatedAs($owner);
     }
 

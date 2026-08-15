@@ -186,7 +186,7 @@ class PortalAuthController extends Controller
     {
         return match ($role) {
             User::ROLE_ADMIN => 'admin.dashboard',
-            User::ROLE_TENANT_OWNER, User::ROLE_WERKGEVER => 'tenant.owner.dashboard',
+            User::ROLE_TENANT_OWNER, User::ROLE_WERKGEVER => 'filament.workspace.pages.dashboard',
             default => 'werkzoekende.dashboard',
         };
     }

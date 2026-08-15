@@ -5,8 +5,8 @@
   if ($authUser) {
     $dashboardUrl = match ($authUser->role) {
       \App\Models\User::ROLE_ADMIN => route('admin.dashboard'),
-      \App\Models\User::ROLE_TENANT_OWNER => route('tenant.owner.dashboard'),
-      default => route('tenant.owner.dashboard'),
+      \App\Models\User::ROLE_TENANT_OWNER => route('filament.workspace.pages.dashboard'),
+      default => route('filament.workspace.pages.dashboard'),
     };
   }
 
