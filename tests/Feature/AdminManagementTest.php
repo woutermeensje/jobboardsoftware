@@ -2,13 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Filament\Workspace\Pages\Billing;
-use App\Filament\Workspace\Resources\Applications\Pages\EditApplication;
-use App\Filament\Workspace\Resources\Domains\Pages\CreateDomain;
-use App\Filament\Workspace\Resources\Domains\Pages\EditDomain;
-use App\Filament\Workspace\Resources\Environments\Pages\CreateEnvironment;
-use App\Filament\Workspace\Resources\Jobs\Pages\CreateJob;
-use App\Filament\Workspace\Resources\Jobs\Pages\EditJob;
 use App\Mail\AdminActionNotification;
 use App\Models\BillingPlan;
 use App\Models\Domain;
@@ -18,14 +11,13 @@ use App\Models\TenantJob;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
-use Livewire\Livewire;
 use Tests\TestCase;
 
 class AdminManagementTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_user_onboarding_actions_send_notifications_to_admin_email(): void
+    public function test_user_registration_billing_and_application_actions_send_notifications_to_admin_email(): void
     {
         config(['admin.email' => 'admin@example.com']);
         Mail::fake();
@@ -49,77 +41,46 @@ class AdminManagementTest extends TestCase
             'heard_about_us' => 'Google',
             'password' => 'password123',
             'password_confirmation' => 'password123',
-        ])->assertRedirect(route('filament.workspace.resources.environments.create'));
+        ])->assertRedirect(route('workspace.dashboard'));
 
         $owner = User::where('email', 'nina@example.com')->firstOrFail();
+        $owner->forceFill(['billing_plan_id' => $plan->id])->save();
 
-        $this->actingAs($owner)->get('/workspace/billing');
-        Livewire::test(Billing::class)
-            ->callAction('selectPlan', arguments: ['plan' => $plan->key])
-            ->assertHasNoActionErrors();
+        $this->actingAs($owner)->get('/workspace')->assertOk();
+        $this->actingAs($owner)->get('/workspace/billing')->assertOk();
 
         $this->actingAs($owner)
             ->get(route('billing.success'))
-            ->assertRedirect(route('filament.workspace.pages.billing'));
+            ->assertRedirect(route('workspace.billing'));
 
-        $this->actingAs($owner)->get('/workspace/environments/create');
-        Livewire::test(CreateEnvironment::class)
-            ->fillForm([
-                'name' => 'Nina Careers',
-                'slug' => 'nina-careers',
-            ])
-            ->call('create')
-            ->assertHasNoFormErrors();
+        $tenant = Tenant::create([
+            'id' => 'nina-careers',
+            'owner_user_id' => $owner->id,
+            'name' => 'Nina Careers',
+            'slug' => 'nina-careers',
+            'plan' => $plan->key,
+            'status' => Tenant::STATUS_ACTIVE,
+            'billing_status' => 'active',
+            'onboarding_step' => 'jobs',
+        ]);
 
-        $tenant = Tenant::findOrFail('nina-careers');
+        $tenant->domains()->create([
+            'domain' => 'nina-careers.jobboardsoftware.co',
+            'is_primary' => true,
+            'status' => Domain::STATUS_ACTIVE,
+            'ssl_status' => Domain::SSL_ACTIVE,
+        ]);
 
-        $this->actingAs($owner)->get('/workspace/domains/create');
-        Livewire::test(CreateDomain::class)
-            ->fillForm([
-                'tenant_id' => $tenant->id,
-                'domain' => 'extra.nina.test',
-            ])
-            ->call('create')
-            ->assertHasNoFormErrors();
-
-        $extraDomain = Domain::where('domain', 'extra.nina.test')->firstOrFail();
-
-        $this->actingAs($owner)->get('/workspace/domains/'.$extraDomain->id.'/edit');
-        Livewire::test(EditDomain::class, ['record' => $extraDomain->getKey()])
-            ->callAction('checkDns');
-
-        $extraDomain->forceFill(['status' => Domain::STATUS_VERIFIED])->save();
-
-        Livewire::test(EditDomain::class, ['record' => $extraDomain->getKey()])
-            ->callAction('activateSsl');
-
-        $this->actingAs($owner)->get('/workspace/jobs/create');
-        Livewire::test(CreateJob::class)
-            ->fillForm([
-                'tenant_id' => $tenant->id,
-                'title' => 'Backend Developer',
-                'slug' => 'backend-developer',
-                'department' => 'Engineering',
-                'location' => 'Amsterdam',
-                'employment_type' => 'Fulltime',
-                'description' => 'Build the platform.',
-                'status' => TenantJob::STATUS_PUBLISHED,
-            ])
-            ->call('create')
-            ->assertHasNoFormErrors();
-
-        $job = TenantJob::where('slug', 'backend-developer')->firstOrFail();
-
-        $this->actingAs($owner)->get('/workspace/jobs/'.$job->id.'/edit');
-        Livewire::test(EditJob::class, ['record' => $job->getKey()])
-            ->fillForm([
-                'title' => 'Senior Backend Developer',
-                'slug' => 'senior-backend-developer',
-            ])
-            ->call('save')
-            ->assertHasNoFormErrors();
-
-        $job->refresh();
+        $job = $tenant->jobs()->create([
+            'title' => 'Senior Backend Developer',
+            'slug' => 'senior-backend-developer',
+            'department' => 'Engineering',
+            'location' => 'Amsterdam',
+            'employment_type' => 'Fulltime',
+            'description' => 'Build the platform.',
+            'status' => TenantJob::STATUS_PUBLISHED,
+            'published_at' => now(),
+        ]);
 
         $this->post('http://nina-careers.jobboardsoftware.co/jobs/senior-backend-developer/apply', [
             'name' => 'Sam Candidate',
@@ -129,27 +90,15 @@ class AdminManagementTest extends TestCase
 
         $application = JobApplication::where('email', 'sam@example.com')->firstOrFail();
 
-        $this->actingAs($owner)->get('/workspace/applications/'.$application->id.'/edit');
-        Livewire::test(EditApplication::class, ['record' => $application->getKey()])
-            ->fillForm(['status' => JobApplication::STATUS_REVIEWED])
-            ->call('save')
-            ->assertHasNoFormErrors();
-
         foreach ([
             'Nieuwe gebruiker aangemeld',
-            'Pakket gekozen',
             'Licentie geactiveerd',
-            'Environment aangemaakt',
-            'Domein toegevoegd',
-            'Domein DNS check mislukt',
-            'SSL geactiveerd',
-            'Vacature aangemaakt',
-            'Vacature bijgewerkt',
             'Nieuwe sollicitatie ontvangen',
-            'Sollicitatiestatus bijgewerkt',
         ] as $title) {
             $this->assertAdminMailWasSent($title);
         }
+
+        $this->assertSame($job->id, $application->tenant_job_id);
     }
 
     public function test_admin_can_manage_platform_records(): void

@@ -31,7 +31,7 @@ class BillingController extends Controller
         ], $user);
 
         return redirect()
-            ->route('filament.workspace.pages.billing')
+            ->route('workspace.billing')
             ->with('status', 'Payment received. Your license is active.');
     }
 }

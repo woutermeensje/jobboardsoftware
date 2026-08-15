@@ -138,7 +138,7 @@ class ExampleTest extends TestCase
             'password_confirmation' => 'password123',
         ]);
 
-        $response->assertRedirect(route('filament.workspace.resources.environments.create'));
+        $response->assertRedirect(route('workspace.dashboard'));
         $this->assertAuthenticated();
         $this->assertDatabaseHas('users', [
             'name' => 'New User',
@@ -164,7 +164,7 @@ class ExampleTest extends TestCase
             'password' => 'password123',
         ]);
 
-        $response->assertRedirect(route('filament.workspace.pages.dashboard'));
+        $response->assertRedirect(route('workspace.dashboard'));
         $this->assertAuthenticatedAs($owner);
     }
 

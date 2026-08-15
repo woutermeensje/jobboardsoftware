@@ -11,18 +11,15 @@ class EnsureUserRole
     /**
      * @param  Closure(Request): Response  $next
      */
-    public function handle(Request $request, Closure $next, string $role): Response
+    public function handle(Request $request, Closure $next, string ...$roles): Response
     {
         $user = $request->user();
 
         if (! $user) {
-            return redirect()->route(match ($role) {
-                'admin' => 'admin.login',
-                default => 'login.choice',
-            });
+            return redirect()->route($roles === ['admin'] ? 'admin.login' : 'login.choice');
         }
 
-        abort_unless($user->role === $role, 403);
+        abort_unless(in_array($user->role, $roles, true), 403);
 
         return $next($request);
     }

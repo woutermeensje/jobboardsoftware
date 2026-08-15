@@ -4,6 +4,7 @@ use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\Auth\PortalAuthController;
 use App\Http\Controllers\BillingController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\WorkspaceDashboardController;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
@@ -87,6 +88,32 @@ $centralRoutes = function (): void {
 
     Route::redirect('/dashboard/werkgever/omgeving', '/workspace/environments');
     Route::redirect('/dashboard/omgeving', '/workspace/environments');
+
+    Route::redirect('/workspace/login', '/login')->name('workspace.login');
+    Route::middleware(['auth', 'role:tenant_owner,werkgever,admin'])
+        ->prefix('workspace')
+        ->name('workspace.')
+        ->group(function (): void {
+            Route::get('/', [WorkspaceDashboardController::class, 'index'])->name('dashboard');
+            Route::get('/environments', [WorkspaceDashboardController::class, 'section'])->defaults('section', 'environments')->name('environments.index');
+            Route::get('/environments/create', [WorkspaceDashboardController::class, 'section'])->defaults('section', 'create-environment')->name('environments.create');
+            Route::get('/jobs', [WorkspaceDashboardController::class, 'section'])->defaults('section', 'jobs')->name('jobs.index');
+            Route::get('/jobs/create', [WorkspaceDashboardController::class, 'section'])->defaults('section', 'create-job')->name('jobs.create');
+            Route::get('/domains', [WorkspaceDashboardController::class, 'section'])->defaults('section', 'domains')->name('domains.index');
+            Route::get('/domains/create', [WorkspaceDashboardController::class, 'section'])->defaults('section', 'create-domain')->name('domains.create');
+            Route::get('/applications', [WorkspaceDashboardController::class, 'section'])->defaults('section', 'applications')->name('applications.index');
+            Route::get('/billing', [WorkspaceDashboardController::class, 'section'])->defaults('section', 'billing')->name('billing');
+            Route::get('/marketing', [WorkspaceDashboardController::class, 'section'])->defaults('section', 'marketing')->name('marketing.index');
+            Route::get('/marketing/landingpagina', [WorkspaceDashboardController::class, 'section'])->defaults('section', 'landingpagina')->name('marketing.landingpagina');
+            Route::get('/marketing/socials', [WorkspaceDashboardController::class, 'section'])->defaults('section', 'socials')->name('marketing.socials');
+            Route::get('/jobs-settings', [WorkspaceDashboardController::class, 'section'])->defaults('section', 'jobs-settings')->name('jobs-settings.index');
+            Route::get('/jobs-settings/sector', [WorkspaceDashboardController::class, 'section'])->defaults('section', 'sector')->name('jobs-settings.sector');
+            Route::get('/jobs-settings/categorie', [WorkspaceDashboardController::class, 'section'])->defaults('section', 'categorie')->name('jobs-settings.categorie');
+            Route::get('/jobs-settings/job-type', [WorkspaceDashboardController::class, 'section'])->defaults('section', 'job-type')->name('jobs-settings.job-type');
+            Route::get('/jobs-settings/organization-type', [WorkspaceDashboardController::class, 'section'])->defaults('section', 'organization-type')->name('jobs-settings.organization-type');
+            Route::get('/companies', [WorkspaceDashboardController::class, 'section'])->defaults('section', 'companies')->name('companies.index');
+            Route::get('/companies/create', [WorkspaceDashboardController::class, 'section'])->defaults('section', 'create-company')->name('companies.create');
+        });
 
     Route::get('/dashboard/billing/success', [BillingController::class, 'success'])
         ->middleware(['auth', 'role:tenant_owner'])
