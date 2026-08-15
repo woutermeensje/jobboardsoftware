@@ -111,29 +111,7 @@
   margin-top: 22px;
 }
 
-.tenant-btn {
-  min-height: 42px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 16px;
-  border: 1px solid transparent;
-  border-radius: 6px;
-  font-family: var(--font-ui);
-  font-weight: 800;
-  text-decoration: none;
-}
-
-.tenant-btn--primary {
-  background: var(--tenant-accent);
-  color: #ffffff;
-}
-
-.tenant-btn--ghost {
-  border-color: var(--color-border-strong);
-  background: #ffffff;
-  color: var(--tenant-accent);
-}
+/* Button styling for .tenant-btn lives in resources/css/buttons.css */
 
 .tenant-card,
 .tenant-panel,

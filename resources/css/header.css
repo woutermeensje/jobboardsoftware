@@ -265,57 +265,7 @@
   gap: 8px;
 }
 
-.rn-btn {
-  appearance: none;
-  min-height: 42px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  padding: 0 16px;
-  border: 1px solid transparent;
-  border-radius: 6px;
-  font-family: var(--font-ui);
-  font-size: 15px;
-  font-weight: 600;
-  line-height: 1.2;
-  text-decoration: none;
-  white-space: nowrap;
-  cursor: pointer;
-  transition: background-color .15s ease, border-color .15s ease, box-shadow .15s ease, color .15s ease;
-}
-
-.rn-btn--accent {
-  border-color: var(--color-primary-strong);
-  background: var(--color-primary-strong);
-  box-shadow: 0 1px 2px rgba(17, 24, 39, 0.08);
-  color: #ffffff;
-}
-
-.rn-btn--outline {
-  border-color: #c9d9e5;
-  background: #ffffff;
-  box-shadow: 0 1px 2px rgba(17, 24, 39, 0.04);
-  color: var(--color-primary-strong);
-}
-
-.rn-btn--accent:hover,
-.rn-btn--accent:focus {
-  border-color: #274f6b;
-  background: #274f6b;
-  box-shadow: 0 4px 10px rgba(47, 95, 128, 0.18);
-  color: #ffffff;
-  text-decoration: none;
-}
-
-.rn-btn--outline:hover,
-.rn-btn--outline:focus {
-  border-color: #a9c1d2;
-  background: #f7fafc;
-  box-shadow: 0 2px 6px rgba(47, 95, 128, 0.08);
-  color: #244f6d;
-  text-decoration: none;
-}
+/* Button styling for .rn-btn lives in buttons.css */
 
 .rn-header__hamburger {
   width: 40px;

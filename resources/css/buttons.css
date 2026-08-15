@@ -1,0 +1,208 @@
+/* ===============================
+   Buttons
+   Single source of truth for every button in the app. The
+   different sections historically grew their own button class
+   (.dash-btn, .rn-btn, .content-btn, .tenant-btn, .btn) with
+   slightly different, flat styling — this file gives all of
+   them one consistent, polished look while keeping their
+   existing class names so no template markup has to change.
+================================ */
+
+.btn,
+.dash-btn,
+.dash-link,
+.rn-btn,
+.content-btn,
+.tenant-btn {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 18px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-default);
+  font-family: var(--font-ui, var(--font-text));
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.2;
+  text-decoration: none;
+  white-space: nowrap;
+  -webkit-user-select: none;
+  user-select: none;
+  cursor: pointer;
+  transition: background-color .18s ease, border-color .18s ease,
+    color .18s ease, box-shadow .18s ease, transform .12s ease;
+}
+
+.btn:hover,
+.dash-btn:hover,
+.dash-link:hover,
+.rn-btn:hover,
+.content-btn:hover,
+.tenant-btn:hover {
+  text-decoration: none;
+}
+
+.btn:active,
+.dash-btn:active,
+.dash-link:active,
+.rn-btn:active,
+.content-btn:active,
+.tenant-btn:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.btn:focus-visible,
+.dash-btn:focus-visible,
+.dash-link:focus-visible,
+.rn-btn:focus-visible,
+.content-btn:focus-visible,
+.tenant-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-primary-muted);
+}
+
+.btn[disabled],
+.btn[aria-disabled="true"],
+.dash-btn[disabled],
+.dash-btn[aria-disabled="true"],
+.dash-link[disabled],
+.rn-btn[disabled],
+.content-btn[disabled],
+.tenant-btn[disabled] {
+  opacity: .55;
+  cursor: not-allowed;
+  pointer-events: none;
+  box-shadow: none;
+  transform: none;
+}
+
+/* Neutral / link-style default
+   (.dash-link has no filled or outline modifier of its own)
+================================ */
+
+.dash-link {
+  border-color: var(--color-border);
+  background: #ffffff;
+  color: var(--color-text);
+}
+
+.dash-link:hover {
+  border-color: var(--color-primary-muted);
+  background: var(--color-primary-soft);
+  color: var(--color-primary-strong);
+  transform: translateY(-1px);
+}
+
+/* Filled / primary variants
+================================ */
+
+.btn-primary,
+.dash-btn--primary,
+.rn-btn--accent,
+.content-btn--primary {
+  border-color: var(--color-primary-strong);
+  background: var(--color-primary-strong);
+  color: #ffffff;
+  box-shadow: var(--shadow-sm, 0 1px 2px rgba(17, 24, 39, .05));
+}
+
+.btn-primary:hover,
+.dash-btn--primary:hover,
+.rn-btn--accent:hover,
+.content-btn--primary:hover,
+.btn-primary:focus-visible,
+.rn-btn--accent:focus-visible {
+  border-color: #274f6b;
+  background: #274f6b;
+  color: #ffffff;
+  box-shadow: 0 8px 20px rgba(47, 95, 128, .25);
+  transform: translateY(-1px);
+}
+
+.tenant-btn--primary {
+  border-color: var(--tenant-accent);
+  background: var(--tenant-accent);
+  color: #ffffff;
+  box-shadow: var(--shadow-sm, 0 1px 2px rgba(17, 24, 39, .05));
+}
+
+.tenant-btn--primary:hover,
+.tenant-btn--primary:focus-visible {
+  border-color: color-mix(in srgb, var(--tenant-accent) 82%, black 18%);
+  background: color-mix(in srgb, var(--tenant-accent) 82%, black 18%);
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--tenant-accent) 35%, transparent);
+  transform: translateY(-1px);
+}
+
+/* Ghost / outline variants
+================================ */
+
+.btn-ghost,
+.dash-btn--ghost,
+.rn-btn--outline,
+.content-btn--ghost {
+  border-color: var(--color-border-strong);
+  background: #ffffff;
+  color: var(--color-primary-strong);
+}
+
+.btn-ghost:hover,
+.dash-btn--ghost:hover,
+.rn-btn--outline:hover,
+.content-btn--ghost:hover,
+.btn-ghost:focus-visible,
+.dash-btn--ghost:focus-visible,
+.rn-btn--outline:focus-visible,
+.content-btn--ghost:focus-visible {
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+  color: var(--color-primary-strong);
+  box-shadow: 0 4px 12px rgba(47, 95, 128, .1);
+  transform: translateY(-1px);
+}
+
+.tenant-btn--ghost {
+  border-color: var(--color-border-strong);
+  background: #ffffff;
+  color: var(--tenant-accent);
+}
+
+.tenant-btn--ghost:hover,
+.tenant-btn--ghost:focus-visible {
+  border-color: var(--tenant-accent);
+  background: color-mix(in srgb, var(--tenant-accent) 8%, white 92%);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--tenant-accent) 18%, transparent);
+  transform: translateY(-1px);
+}
+
+/* Danger
+================================ */
+
+.btn-danger {
+  border-color: var(--color-accent-strong);
+  background: var(--color-accent-strong);
+  color: #ffffff;
+  box-shadow: var(--shadow-sm, 0 1px 2px rgba(17, 24, 39, .05));
+}
+
+.btn-danger:hover,
+.btn-danger:focus-visible {
+  border-color: #8a4f26;
+  background: #8a4f26;
+  color: #ffffff;
+  box-shadow: 0 8px 20px rgba(169, 101, 47, .25);
+  transform: translateY(-1px);
+}
+
+/* Size
+================================ */
+
+.btn-sm {
+  min-height: 34px;
+  padding: 0 14px;
+  font-size: 14px;
+}

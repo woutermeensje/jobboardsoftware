@@ -58,35 +58,7 @@
   margin-top: 24px;
 }
 
-.content-btn {
-  display: inline-flex;
-  min-height: 42px;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  padding: 0 16px;
-  border: 1px solid transparent;
-  border-radius: 6px;
-  font-family: var(--font-ui);
-  font-size: 15px;
-  font-weight: 800;
-  text-decoration: none;
-}
-
-.content-btn:hover {
-  text-decoration: none;
-}
-
-.content-btn--primary {
-  background: var(--color-primary-strong);
-  color: #ffffff;
-}
-
-.content-btn--ghost {
-  border-color: var(--color-border-strong);
-  background: #ffffff;
-  color: var(--color-primary-strong);
-}
+/* Button styling for .content-btn lives in resources/css/buttons.css */
 
 .content-visual,
 .content-section,
