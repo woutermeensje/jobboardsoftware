@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <meta name="description" content="@yield('meta_description', 'JobBoardSoftware is SaaS job board software for job boards, niche platforms and recruitment teams.')">
+  <meta name="google-site-verification" content="Qy97RLjPFw4tZ2yDgVLny2_8SiM6eJ6FyHOhrsscBrw">
 
   <title>@yield('title', config('app.name', 'JobBoardSoftware'))</title>
 
