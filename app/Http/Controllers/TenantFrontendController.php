@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\JobApplication;
+use App\Models\TenantCompany;
 use App\Models\TenantJob;
 use App\Models\User;
 use App\Support\AdminActionNotifier;
@@ -53,6 +54,10 @@ class TenantFrontendController extends Controller
             'tenant' => $tenant,
             'brandName' => $this->tenantBrandName(),
             'categories' => $filterOptions['departments'],
+            'companies' => TenantCompany::query()
+                ->where('tenant_id', $tenant->id)
+                ->orderBy('name')
+                ->get(['id', 'name', 'logo_path']),
             'jobTypes' => JobTypeOptions::allForTenant($tenant),
         ]);
     }
@@ -64,7 +69,12 @@ class TenantFrontendController extends Controller
 
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
-            'company_name' => ['required', 'string', 'max:255'],
+            'tenant_company_id' => [
+                'nullable',
+                Rule::exists('tenant_companies', 'id')->where(fn ($query) => $query->where('tenant_id', $tenant->id)),
+            ],
+            'company_name' => [Rule::requiredIf(! $request->filled('tenant_company_id')), 'nullable', 'string', 'max:255'],
+            'company_logo' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,svg', 'max:2048'],
             'contact_name' => ['required', 'string', 'max:255'],
             'contact_email' => ['required', 'email', 'max:255'],
             'contact_phone' => ['nullable', 'string', 'max:40'],
@@ -80,6 +90,25 @@ class TenantFrontendController extends Controller
 
         $intro = $this->sanitizeRichText($validated['intro'] ?? null);
         $description = $this->sanitizeRichText($validated['description']);
+        $company = null;
+
+        if (! empty($validated['tenant_company_id'])) {
+            $company = TenantCompany::query()
+                ->where('tenant_id', $tenant->id)
+                ->find($validated['tenant_company_id']);
+        }
+
+        $companyName = $company?->name ?? $validated['company_name'] ?? null;
+
+        if (! $companyName) {
+            return back()
+                ->withErrors(['company_name' => 'Enter a company name or select an existing company.'])
+                ->withInput();
+        }
+
+        $companyLogoPath = $request->hasFile('company_logo')
+            ? $request->file('company_logo')->store('company-logos', 'public')
+            : $company?->logo_path;
 
         if ($description === null) {
             return back()
@@ -105,7 +134,7 @@ class TenantFrontendController extends Controller
                 'last_name' => $lastName,
                 'email' => $validated['contact_email'],
                 'phone_number' => $validated['contact_phone'] ?? null,
-                'company_name' => $validated['company_name'],
+                'company_name' => $companyName,
                 'heard_about_us' => 'Public job posting',
                 'password' => $validated['password'],
                 'role' => User::ROLE_EMPLOYER,
@@ -118,7 +147,9 @@ class TenantFrontendController extends Controller
 
         $job = TenantJob::create([
             'tenant_id' => $tenant->id,
-            'company_name' => $validated['company_name'],
+            'tenant_company_id' => $company?->id,
+            'company_name' => $companyName,
+            'company_logo_path' => $companyLogoPath,
             'contact_name' => $validated['contact_name'],
             'contact_email' => $validated['contact_email'],
             'contact_phone' => $validated['contact_phone'] ?? null,
