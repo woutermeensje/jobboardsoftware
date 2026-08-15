@@ -34,6 +34,9 @@
           </thead>
           <tbody>
             @forelse($companies as $company)
+              @php
+                $contactName = $company->contact_name ?: trim(collect([$company->contact_first_name, $company->contact_last_name])->filter()->implode(' '));
+              @endphp
               <tr>
                 <td>
                   <div class="company-cell">
@@ -44,13 +47,13 @@
                     @endif
                     <div>
                       <span class="dash-cell-title">{{ $company->name }}</span>
-                      <span class="dash-cell-meta">{{ $company->description ?: 'No description added' }}</span>
+                      <span class="dash-cell-meta">{{ $company->organization_name ?: 'No organization name added' }}</span>
                     </div>
                   </div>
                 </td>
                 <td>{{ $company->tenant?->name ?? $company->tenant_id }}</td>
                 <td>
-                  <span class="dash-cell-title">{{ $company->contact_name ?: 'No contact person' }}</span>
+                  <span class="dash-cell-title">{{ $contactName !== '' ? $contactName : 'No contact person' }}</span>
                   <span class="dash-cell-meta">{{ $company->contact_email ?: 'No email address' }}</span>
                 </td>
                 <td>{{ $company->created_at?->format('M j, Y') }}</td>

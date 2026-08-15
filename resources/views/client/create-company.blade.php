@@ -53,34 +53,20 @@
                   </label>
 
                   <label class="domain-field">
-                    Company name
-                    <input name="name" value="{{ old('name') }}" placeholder="Company Inc." required>
-                    @error('name')<span class="domain-field__error">{{ $message }}</span>@enderror
-                  </label>
-                </div>
-
-                <div class="domain-form__grid">
-                  <label class="domain-field">
-                    Contact person
-                    <input name="contact_name" value="{{ old('contact_name') }}" placeholder="Alex Morgan">
-                    @error('contact_name')<span class="domain-field__error">{{ $message }}</span>@enderror
-                  </label>
-
-                  <label class="domain-field">
-                    Contact email
-                    <input type="email" name="contact_email" value="{{ old('contact_email') }}" placeholder="hiring@example.com">
-                    @error('contact_email')<span class="domain-field__error">{{ $message }}</span>@enderror
+                    Organization name
+                    <input name="organization_name" value="{{ old('organization_name') }}" placeholder="Northwind Group" required>
+                    @error('organization_name')<span class="domain-field__error">{{ $message }}</span>@enderror
                   </label>
                 </div>
 
                 <label class="domain-field">
-                  Contact phone
-                  <input name="contact_phone" value="{{ old('contact_phone') }}" placeholder="+31 20 123 4567">
-                  @error('contact_phone')<span class="domain-field__error">{{ $message }}</span>@enderror
+                  Company name (for job posts)
+                  <input name="name" value="{{ old('name') }}" placeholder="Northwind Hiring" required>
+                  @error('name')<span class="domain-field__error">{{ $message }}</span>@enderror
                 </label>
 
                 <label class="domain-field">
-                  Logo
+                  Company logo
                   <span class="company-logo-upload" data-file-picker>
                     <i class="ph ph-image-square" aria-hidden="true"></i>
                     <span>
@@ -94,8 +80,40 @@
                   @error('logo')<span class="domain-field__error">{{ $message }}</span>@enderror
                 </label>
 
+                <div class="domain-form__section-head">
+                  <h3>Contact details</h3>
+                </div>
+
+                <div class="domain-form__grid">
+                  <label class="domain-field">
+                    First name
+                    <input name="contact_first_name" value="{{ old('contact_first_name') }}" placeholder="Maya">
+                    @error('contact_first_name')<span class="domain-field__error">{{ $message }}</span>@enderror
+                  </label>
+
+                  <label class="domain-field">
+                    Last name
+                    <input name="contact_last_name" value="{{ old('contact_last_name') }}" placeholder="Collins">
+                    @error('contact_last_name')<span class="domain-field__error">{{ $message }}</span>@enderror
+                  </label>
+                </div>
+
+                <div class="domain-form__grid">
+                  <label class="domain-field">
+                    Email address
+                    <input type="email" name="contact_email" value="{{ old('contact_email') }}" placeholder="hiring@example.com">
+                    @error('contact_email')<span class="domain-field__error">{{ $message }}</span>@enderror
+                  </label>
+
+                  <label class="domain-field">
+                    Phone number
+                    <input name="contact_phone" value="{{ old('contact_phone') }}" placeholder="+31 20 123 4567">
+                    @error('contact_phone')<span class="domain-field__error">{{ $message }}</span>@enderror
+                  </label>
+                </div>
+
                 <label class="domain-field">
-                  Description
+                  Internal description
                   <textarea name="description" rows="4" placeholder="Short company description for internal use.">{{ old('description') }}</textarea>
                   @error('description')<span class="domain-field__error">{{ $message }}</span>@enderror
                 </label>
@@ -114,6 +132,8 @@
             <h2>Company profile</h2>
             <p>Company profiles are stored for the selected environment and can be reused across jobs.</p>
             <ul>
+              <li>The organization name is used for account context.</li>
+              <li>The company name is shown on job posts.</li>
               <li>Logos support PNG, JPG, WebP and SVG files.</li>
               <li>The maximum logo file size is 2 MB.</li>
               <li>Contact details stay linked to this company profile.</li>

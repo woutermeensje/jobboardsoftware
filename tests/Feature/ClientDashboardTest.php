@@ -163,17 +163,26 @@ class ClientDashboardTest extends TestCase
             ->assertOk()
             ->assertSee('dash-form-layout', false)
             ->assertSee('Create company')
+            ->assertSee('Organization name')
+            ->assertSee('Company name (for job posts)')
+            ->assertSee('Company logo')
+            ->assertSee('Contact details')
+            ->assertSee('First name')
+            ->assertSee('Last name')
+            ->assertSee('Email address')
+            ->assertSee('Phone number')
             ->assertSee('Choose file')
             ->assertSee('No file selected')
             ->assertSee('Company profile')
-            ->assertSee('Logo')
             ->assertSee('Upload a PNG, JPG, WebP or SVG logo.');
 
         $this->actingAs($owner)
             ->post('/client/dashboard/companies', [
                 'tenant_id' => $tenant->id,
+                'organization_name' => 'Northwind Group',
                 'name' => 'Northwind Hiring',
-                'contact_name' => 'Maya Collins',
+                'contact_first_name' => 'Maya',
+                'contact_last_name' => 'Collins',
                 'contact_email' => 'maya@example.com',
                 'contact_phone' => '+31 20 123 4567',
                 'description' => 'Hiring team for seasonal roles.',
@@ -185,8 +194,11 @@ class ClientDashboardTest extends TestCase
         $company = TenantCompany::query()->firstOrFail();
 
         $this->assertSame($tenant->id, $company->tenant_id);
+        $this->assertSame('Northwind Group', $company->organization_name);
         $this->assertSame('Northwind Hiring', $company->name);
         $this->assertSame('northwind-hiring', $company->slug);
+        $this->assertSame('Maya', $company->contact_first_name);
+        $this->assertSame('Collins', $company->contact_last_name);
         $this->assertSame('Maya Collins', $company->contact_name);
         $this->assertNotNull($company->logo_path);
         Storage::disk('public')->assertExists($company->logo_path);
@@ -195,6 +207,7 @@ class ClientDashboardTest extends TestCase
             ->get('/client/dashboard/companies')
             ->assertOk()
             ->assertSee('Northwind Hiring')
+            ->assertSee('Northwind Group')
             ->assertSee('Maya Collins')
             ->assertSee('storage/company-logos', false);
     }
@@ -210,6 +223,7 @@ class ClientDashboardTest extends TestCase
         $this->actingAs($owner)
             ->post('/client/dashboard/companies', [
                 'tenant_id' => $otherTenant->id,
+                'organization_name' => 'Blocked Group',
                 'name' => 'Blocked Company',
                 'logo' => UploadedFile::fake()->create('blocked-logo.png', 32, 'image/png'),
             ])

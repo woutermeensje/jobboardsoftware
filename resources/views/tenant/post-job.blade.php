@@ -22,7 +22,7 @@
 
     <section class="tenant-post-job">
       <article class="tenant-panel tenant-post-job__main">
-        <form method="POST" action="{{ route('tenant.post-job.store') }}" class="tenant-post-job-form">
+        <form method="POST" action="{{ route('tenant.post-job.store') }}" class="tenant-post-job-form" enctype="multipart/form-data">
           @csrf
 
           <div class="tenant-panel__head tenant-form-header">
@@ -32,13 +32,51 @@
           </div>
 
           <div class="tenant-post-job-form__section">
-            <h2 class="tenant-form-section-title">Job details</h2>
+            <div class="tenant-form-section-head">
+              <h2 class="tenant-form-section-title">Job details</h2>
+            </div>
 
-            <label>
-              Job title
-              <input name="title" value="{{ old('title') }}" placeholder="Senior Laravel Developer" required autofocus>
-              @error('title')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
-            </label>
+            <div class="tenant-post-job-form__logo-title-grid">
+              <label class="tenant-post-job-form__logo-field">
+                Company logo
+                <span class="tenant-logo-upload" data-file-picker>
+                  <i class="ph ph-image-square" aria-hidden="true"></i>
+                  <span class="tenant-logo-upload__copy">
+                    Upload logo
+                    <small>PNG, JPG, WebP or SVG. Max 2 MB.</small>
+                  </span>
+                  <span class="tenant-file-picker__button">Choose file</span>
+                  <span class="tenant-file-picker__filename" data-file-name data-empty-label="No file selected">No file selected</span>
+                  <input type="file" name="company_logo" accept=".jpg,.jpeg,.png,.webp,.svg,image/jpeg,image/png,image/webp,image/svg+xml">
+                </span>
+                @error('company_logo')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
+              </label>
+
+              <label>
+                Job title
+                <input name="title" value="{{ old('title') }}" placeholder="Senior Laravel Developer" required autofocus>
+                @error('title')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
+              </label>
+            </div>
+
+            <div class="tenant-post-job-form__company-grid">
+              <label>
+                Select company
+                <select name="tenant_company_id">
+                  <option value="">Add a new company</option>
+                  @foreach($companies as $company)
+                    <option value="{{ $company->id }}" @selected((string) old('tenant_company_id') === (string) $company->id)>{{ $company->name }}</option>
+                  @endforeach
+                </select>
+                @error('tenant_company_id')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
+              </label>
+
+              <label>
+                Company name
+                <input name="company_name" value="{{ old('company_name') }}" placeholder="Enter company name if not listed">
+                @error('company_name')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
+              </label>
+            </div>
 
             <div class="tenant-post-job-form__grid">
               <label>
@@ -117,13 +155,9 @@
           </div>
 
           <div class="tenant-post-job-form__section">
-            <h2 class="tenant-form-section-title">Contact details</h2>
-
-            <label>
-              Company name
-              <input name="company_name" value="{{ old('company_name') }}" placeholder="Company Inc." required>
-              @error('company_name')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
-            </label>
+            <div class="tenant-form-section-head">
+              <h2 class="tenant-form-section-title">Contact details</h2>
+            </div>
 
             <div class="tenant-post-job-form__grid">
               <label>

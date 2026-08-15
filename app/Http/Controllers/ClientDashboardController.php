@@ -188,8 +188,10 @@ class ClientDashboardController extends Controller
                 'required',
                 Rule::exists('tenants', 'id')->where(fn ($query) => $query->where('owner_user_id', $request->user()->id)),
             ],
+            'organization_name' => ['required', 'string', 'max:255'],
             'name' => ['required', 'string', 'max:255'],
-            'contact_name' => ['nullable', 'string', 'max:255'],
+            'contact_first_name' => ['nullable', 'string', 'max:255'],
+            'contact_last_name' => ['nullable', 'string', 'max:255'],
             'contact_email' => ['nullable', 'email', 'max:255'],
             'contact_phone' => ['nullable', 'string', 'max:50'],
             'logo' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,svg', 'max:2048'],
@@ -203,12 +205,19 @@ class ClientDashboardController extends Controller
         $logoPath = $request->hasFile('logo')
             ? $request->file('logo')->store('company-logos', 'public')
             : null;
+        $contactName = trim(collect([
+            $validated['contact_first_name'] ?? null,
+            $validated['contact_last_name'] ?? null,
+        ])->filter()->implode(' '));
 
         TenantCompany::query()->create([
             'tenant_id' => $tenant->id,
+            'organization_name' => $validated['organization_name'],
             'name' => $validated['name'],
             'slug' => $this->uniqueCompanySlug($tenant, $validated['name']),
-            'contact_name' => $validated['contact_name'] ?? null,
+            'contact_first_name' => $validated['contact_first_name'] ?? null,
+            'contact_last_name' => $validated['contact_last_name'] ?? null,
+            'contact_name' => $contactName !== '' ? $contactName : null,
             'contact_email' => $validated['contact_email'] ?? null,
             'contact_phone' => $validated['contact_phone'] ?? null,
             'logo_path' => $logoPath,

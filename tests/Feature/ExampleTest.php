@@ -5,9 +5,12 @@ namespace Tests\Feature;
 use App\Models\Domain;
 use App\Models\JobApplication;
 use App\Models\Tenant;
+use App\Models\TenantCompany;
 use App\Models\TenantJob;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class ExampleTest extends TestCase
@@ -243,6 +246,8 @@ class ExampleTest extends TestCase
     public function test_public_tenant_post_job_form_creates_a_draft_without_account(): void
     {
         $tenant = $this->tenantWithDomain('public-post', 'public-post.test');
+        Storage::fake('public');
+
         $tenant->forceFill([
             'settings' => [
                 'brand_name' => 'Public Post Careers',
@@ -250,16 +255,28 @@ class ExampleTest extends TestCase
             ],
         ])->save();
 
+        $company = TenantCompany::query()->create([
+            'tenant_id' => $tenant->id,
+            'name' => 'Stored Company',
+            'slug' => 'stored-company',
+            'logo_path' => 'company-logos/stored-company.svg',
+        ]);
+
         $this->get('http://public-post.test/post-a-job/')
             ->assertOk()
             ->assertSee('tenant-post-job__main', false)
             ->assertSee('tenant-post-job__aside', false)
+            ->assertSee('tenant-post-job-form__logo-title-grid', false)
             ->assertSee('tenant-form-title', false)
             ->assertSee('tenant-form-section-title', false)
+            ->assertSee('data-file-picker', false)
             ->assertSee('data-quill-field', false)
             ->assertSee('data-quill-editor', false)
             ->assertSee('cdn.jsdelivr.net/npm/quill@2/dist/quill.js', false)
             ->assertSee('Submit a vacancy')
+            ->assertSee('Company logo')
+            ->assertSee('Select company')
+            ->assertSee('Stored Company')
             ->assertSee('Category')
             ->assertSee('Job type')
             ->assertSee('Part time')
@@ -272,7 +289,8 @@ class ExampleTest extends TestCase
 
         $this->post('http://public-post.test/post-a-job', [
             'title' => 'Community Manager',
-            'company_name' => 'Community Co.',
+            'tenant_company_id' => $company->id,
+            'company_logo' => UploadedFile::fake()->create('community-logo.png', 20, 'image/png'),
             'contact_name' => 'Casey Contact',
             'contact_email' => 'casey@example.com',
             'contact_phone' => '+1 555 444 5555',
@@ -293,7 +311,8 @@ class ExampleTest extends TestCase
             'slug' => 'community-manager',
             'department' => 'Community',
             'employment_type' => 'Full time',
-            'company_name' => 'Community Co.',
+            'tenant_company_id' => $company->id,
+            'company_name' => 'Stored Company',
             'contact_name' => 'Casey Contact',
             'contact_email' => 'casey@example.com',
             'submitted_by_user_id' => null,
@@ -307,6 +326,9 @@ class ExampleTest extends TestCase
             ->firstOrFail();
 
         $this->assertSame('<p>Build a <strong>strong</strong> community.</p>', $job->intro);
+        $this->assertNotNull($job->company_logo_path);
+        Storage::disk('public')->assertExists($job->company_logo_path);
+        Storage::disk('public')->delete($job->company_logo_path);
         $this->assertStringContainsString('<strong>community</strong>', $job->description);
         $this->assertStringNotContainsString('script', $job->description);
 

@@ -9,8 +9,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 #[Fillable([
     'tenant_id',
+    'organization_name',
     'name',
     'slug',
+    'contact_first_name',
+    'contact_last_name',
     'contact_name',
     'contact_email',
     'contact_phone',

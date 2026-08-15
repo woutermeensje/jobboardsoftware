@@ -9,7 +9,9 @@
   .tenant-filter,
   .tenant-post-job,
   .tenant-form__grid,
-  .tenant-post-job-form__grid {
+  .tenant-post-job-form__grid,
+  .tenant-post-job-form__logo-title-grid,
+  .tenant-post-job-form__company-grid {
     grid-template-columns: 1fr;
   }
 
