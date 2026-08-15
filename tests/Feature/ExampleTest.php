@@ -256,6 +256,9 @@ class ExampleTest extends TestCase
             ->assertSee('tenant-post-job__aside', false)
             ->assertSee('tenant-form-title', false)
             ->assertSee('tenant-form-section-title', false)
+            ->assertSee('data-quill-field', false)
+            ->assertSee('data-quill-editor', false)
+            ->assertSee('cdn.jsdelivr.net/npm/quill@2/dist/quill.js', false)
             ->assertSee('Submit a vacancy')
             ->assertSee('Category')
             ->assertSee('Job type')
@@ -277,8 +280,8 @@ class ExampleTest extends TestCase
             'location' => 'Remote',
             'employment_type' => 'Full time',
             'salary_range' => 'Upon request',
-            'intro' => 'Build a strong community.',
-            'description' => 'Own community programs and member engagement.',
+            'intro' => '<p>Build a <strong>strong</strong> community.</p>',
+            'description' => '<p>Own <strong>community</strong> programs and member engagement.</p><script>alert("xss")</script>',
         ])
             ->assertRedirect('http://public-post.test/post-a-job')
             ->assertSessionHas('status', 'Your job has been submitted as a draft.');
@@ -297,6 +300,15 @@ class ExampleTest extends TestCase
             'status' => TenantJob::STATUS_DRAFT,
             'published_at' => null,
         ]);
+
+        $job = TenantJob::query()
+            ->where('tenant_id', $tenant->id)
+            ->where('slug', 'community-manager')
+            ->firstOrFail();
+
+        $this->assertSame('<p>Build a <strong>strong</strong> community.</p>', $job->intro);
+        $this->assertStringContainsString('<strong>community</strong>', $job->description);
+        $this->assertStringNotContainsString('script', $job->description);
 
         $this->assertDatabaseMissing('users', [
             'tenant_id' => $tenant->id,

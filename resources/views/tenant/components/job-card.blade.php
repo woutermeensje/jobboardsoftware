@@ -27,7 +27,7 @@
       </div>
 
       @if($job->intro)
-        <p>{{ $job->intro }}</p>
+        <p>{{ \Illuminate\Support\Str::limit(trim(strip_tags((string) $job->intro)), 180) }}</p>
       @endif
 
       <div class="tenant-job-card__tags">

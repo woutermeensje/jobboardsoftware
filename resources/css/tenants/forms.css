@@ -118,6 +118,56 @@
   gap: 7px;
 }
 
+.tenant-post-job-form__field {
+  display: grid;
+  gap: 7px;
+}
+
+.tenant-rich-text__editor {
+  display: none;
+}
+
+.tenant-rich-text.is-enhanced [data-quill-source] {
+  display: none;
+}
+
+.tenant-rich-text.is-enhanced .tenant-rich-text__editor {
+  display: block;
+}
+
+.tenant-rich-text .ql-toolbar.ql-snow {
+  border: 1px solid #dedede;
+  border-bottom: 0;
+  border-radius: 5px 5px 0 0;
+  background: #fbfdff;
+  padding: 8px 10px;
+}
+
+.tenant-rich-text .ql-container.ql-snow {
+  border: 1px solid #dedede;
+  border-radius: 0 0 5px 5px;
+  background: #ffffff;
+  font-family: var(--font-text);
+}
+
+.tenant-rich-text .ql-editor {
+  min-height: 220px;
+  padding: 10px 12px;
+  color: var(--color-text);
+  font-family: var(--font-text);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.tenant-rich-text .ql-editor.ql-blank::before {
+  color: var(--color-text-subtle);
+  font-style: normal;
+}
+
+.tenant-rich-text__editor--short .ql-editor {
+  min-height: 120px;
+}
+
 .tenant-form input,
 .tenant-form select,
 .tenant-form textarea,

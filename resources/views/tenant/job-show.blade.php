@@ -1,7 +1,11 @@
 @extends('layouts.tenant')
 
+@php
+  $jobIntroText = trim(strip_tags((string) $job->intro));
+@endphp
+
 @section('title', $job->title.' | '.($tenant->name ?? 'Jobboard'))
-@section('meta_description', $job->intro ?? 'View this job and apply directly.')
+@section('meta_description', $jobIntroText !== '' ? $jobIntroText : 'View this job and apply directly.')
 
 @section('content')
   <main class="tenant-shell tenant-shell--detail">
@@ -15,10 +19,10 @@
       <h1>{{ $job->title }}</h1>
       <p class="tenant-detail__meta">{{ $job->location }} - {{ $job->employment_type }} @if($job->salary_range)- {{ $job->salary_range }}@endif</p>
       @if($job->intro)
-        <p class="tenant-detail__intro">{{ $job->intro }}</p>
+        <div class="tenant-detail__intro rich-text">{!! $job->intro !!}</div>
       @endif
-      <div class="tenant-detail__body">
-        {!! nl2br(e($job->description)) !!}
+      <div class="tenant-detail__body rich-text">
+        {!! $job->description !!}
       </div>
     </article>
 

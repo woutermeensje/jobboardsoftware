@@ -79,17 +79,41 @@
               </label>
             </div>
 
-            <label>
-              Short intro
-              <textarea name="intro" rows="3" maxlength="500" placeholder="Summarize the role in one or two sentences.">{{ old('intro') }}</textarea>
+            <div class="tenant-post-job-form__field tenant-rich-text" data-quill-field>
+              <label for="job-intro">Short intro</label>
+              <textarea
+                id="job-intro"
+                name="intro"
+                rows="3"
+                maxlength="1000"
+                placeholder="Summarize the role in one or two sentences."
+                data-quill-source
+              >{{ old('intro') }}</textarea>
+              <div
+                class="tenant-rich-text__editor tenant-rich-text__editor--short"
+                data-quill-editor
+                data-placeholder="Summarize the role in one or two sentences."
+              ></div>
               @error('intro')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
-            </label>
+            </div>
 
-            <label>
-              Job description
-              <textarea name="description" rows="8" placeholder="Describe responsibilities, requirements and benefits." required>{{ old('description') }}</textarea>
+            <div class="tenant-post-job-form__field tenant-rich-text" data-quill-field>
+              <label for="job-description">Job description</label>
+              <textarea
+                id="job-description"
+                name="description"
+                rows="8"
+                placeholder="Describe responsibilities, requirements and benefits."
+                required
+                data-quill-source
+              >{{ old('description') }}</textarea>
+              <div
+                class="tenant-rich-text__editor"
+                data-quill-editor
+                data-placeholder="Describe responsibilities, requirements and benefits."
+              ></div>
               @error('description')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
-            </label>
+            </div>
           </div>
 
           <div class="tenant-post-job-form__section">
@@ -163,3 +187,56 @@
     </section>
   </main>
 @endsection
+
+@push('scripts')
+  <script src="https://cdn.jsdelivr.net/npm/quill@2/dist/quill.js"></script>
+  <script>
+    (() => {
+      const fields = document.querySelectorAll('[data-quill-field]');
+
+      if (!fields.length || !window.Quill) {
+        return;
+      }
+
+      const toolbar = [
+        ['bold', 'italic', 'underline'],
+        [{ list: 'ordered' }, { list: 'bullet' }],
+        ['link'],
+        ['clean'],
+      ];
+
+      const emptyValue = '<p><br></p>';
+
+      fields.forEach((field) => {
+        const source = field.querySelector('[data-quill-source]');
+        const editor = field.querySelector('[data-quill-editor]');
+
+        if (!source || !editor || editor.dataset.quillReady) {
+          return;
+        }
+
+        const quill = new Quill(editor, {
+          theme: 'snow',
+          placeholder: editor.dataset.placeholder || '',
+          modules: { toolbar },
+        });
+
+        if (source.value.trim()) {
+          quill.clipboard.dangerouslyPasteHTML(source.value);
+        }
+
+        const syncSource = () => {
+          const html = quill.root.innerHTML;
+          source.value = html === emptyValue ? '' : html;
+        };
+
+        quill.on('text-change', syncSource);
+        source.form?.addEventListener('submit', syncSource);
+
+        field.classList.add('is-enhanced');
+        editor.dataset.quillReady = 'true';
+        syncSource();
+      });
+    })();
+  </script>
+@endpush
