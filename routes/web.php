@@ -125,6 +125,7 @@ $centralRoutes = function (): void {
             Route::post('/companies', [ClientDashboardController::class, 'storeCompany'])->name('companies.store');
             Route::get('/companies/create', [ClientDashboardController::class, 'createCompany'])->name('companies.create');
             Route::get('/packages', [ClientDashboardController::class, 'packages'])->name('packages.index');
+            Route::get('/packages/create', [ClientDashboardController::class, 'createPackage'])->name('packages.create');
             Route::post('/packages', [ClientDashboardController::class, 'storePackage'])->name('packages.store');
         });
 

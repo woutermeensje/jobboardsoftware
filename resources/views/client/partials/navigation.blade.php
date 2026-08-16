@@ -61,7 +61,15 @@
       ],
     ],
     ['label' => 'Billing', 'icon' => 'ph-credit-card', 'url' => route('client.billing'), 'active' => request()->routeIs('client.billing')],
-    ['label' => 'My packages', 'icon' => 'ph-package', 'url' => route('client.packages.index'), 'active' => request()->routeIs('client.packages.*')],
+    [
+      'label' => 'My packages',
+      'icon' => 'ph-package',
+      'url' => route('client.packages.index'),
+      'active' => request()->routeIs('client.packages.*'),
+      'children' => [
+        ['label' => 'Add packages', 'url' => route('client.packages.create'), 'active' => request()->routeIs('client.packages.create')],
+      ],
+    ],
     ['label' => 'Website', 'icon' => 'ph-house', 'url' => route('welcome'), 'active' => false],
   ];
 @endphp

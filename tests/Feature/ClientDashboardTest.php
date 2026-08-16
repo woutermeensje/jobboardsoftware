@@ -70,6 +70,7 @@ class ClientDashboardTest extends TestCase
             '/client/dashboard/companies',
             '/client/dashboard/companies/create',
             '/client/dashboard/packages',
+            '/client/dashboard/packages/create',
         ] as $path) {
             $this->actingAs($owner)
                 ->get($path)
@@ -115,6 +116,7 @@ class ClientDashboardTest extends TestCase
             ->assertSee('Organization types')
             ->assertSee('Create company')
             ->assertSee('My packages')
+            ->assertSee('Add packages')
             ->assertSee('/client/dashboard/jobs-settings/job-type', false);
     }
 
@@ -130,7 +132,7 @@ class ClientDashboardTest extends TestCase
             '/client/dashboard/jobs-settings/categorie',
             '/client/dashboard/jobs-settings/job-type',
             '/client/dashboard/companies/create',
-            '/client/dashboard/packages',
+            '/client/dashboard/packages/create',
         ] as $path) {
             $this->actingAs($owner)
                 ->get($path)
@@ -419,11 +421,18 @@ class ClientDashboardTest extends TestCase
             ->get('/client/dashboard/packages')
             ->assertOk()
             ->assertSee('My packages')
+            ->assertSee('Add packages')
+            ->assertSee('No packages yet')
+            ->assertDontSee('Package name');
+
+        $this->actingAs($owner)
+            ->get('/client/dashboard/packages/create')
+            ->assertOk()
+            ->assertSee('Add packages')
             ->assertSee('Package name')
             ->assertSee('Price')
             ->assertSee('Currency')
-            ->assertSee('Days online')
-            ->assertSee('No packages yet');
+            ->assertSee('Days online');
 
         $this->actingAs($owner)
             ->post('/client/dashboard/packages', [

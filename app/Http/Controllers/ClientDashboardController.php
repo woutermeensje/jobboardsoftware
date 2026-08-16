@@ -479,6 +479,18 @@ class ClientDashboardController extends Controller
         ]);
     }
 
+    public function createPackage(Request $request): View
+    {
+        return view('client.create-package', [
+            'user' => $request->user(),
+            'tenants' => $request->user()
+                ->ownedTenants()
+                ->latest()
+                ->get(),
+            'packageTableReady' => Schema::hasTable('tenant_packages'),
+        ]);
+    }
+
     public function storePackage(Request $request): RedirectResponse
     {
         if (! Schema::hasTable('tenant_packages')) {
