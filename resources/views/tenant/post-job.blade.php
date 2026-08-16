@@ -45,13 +45,13 @@
               @error('title')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
             </label>
 
-            <label>
-              Location
-              <input name="location" value="{{ old('location') }}" placeholder="Amsterdam or remote" required>
-              @error('location')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
-            </label>
-
             <div class="tenant-post-job-form__half-grid">
+              <label>
+                Location
+                <input name="location" value="{{ old('location') }}" placeholder="Amsterdam or remote" required>
+                @error('location')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
+              </label>
+
               <div class="tenant-post-job-form__field tenant-multiselect" data-multiselect>
                 <label id="tenant-job-type-label">Job type</label>
                 <button
