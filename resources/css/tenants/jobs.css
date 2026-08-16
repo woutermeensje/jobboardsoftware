@@ -78,9 +78,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 58px;
-  height: 58px;
-  padding: 10px;
+  width: 73px;
+  height: 73px;
+  padding: 12px;
   border: 1px solid #dedede;
   border-radius: 8px;
   background: color-mix(in srgb, var(--tenant-accent) 8%, #ffffff);
@@ -109,7 +109,7 @@
 
 .tenant-job-card__body {
   display: grid;
-  grid-template-columns: 58px minmax(0, 1fr) minmax(190px, auto);
+  grid-template-columns: 73px minmax(0, 1fr) minmax(190px, auto);
   align-items: center;
   gap: 18px;
   min-height: 112px;
