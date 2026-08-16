@@ -281,7 +281,8 @@ class ExampleTest extends TestCase
             ->assertSee('Temporary')
             ->assertSee('Internship')
             ->assertSee('Volunteer')
-            ->assertSee('Do you want to create an employer account?');
+            ->assertSee('Do you want to create an employer account?')
+            ->assertSee('Yes, i want to create an account!');
 
         $this->post('http://public-post.test/post-a-job', [
             'title' => 'Community Manager',

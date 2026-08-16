@@ -121,13 +121,7 @@
               <label class="tenant-post-job-form__field tenant-post-job-form__logo-field">
                 Add logo
                 <span class="tenant-logo-upload" data-file-picker>
-                  <i class="ph ph-image-square" aria-hidden="true"></i>
-                  <span class="tenant-logo-upload__copy">
-                    Upload a PNG, JPG, WebP or SVG logo.
-                    <small>Maximum file size: 2 MB.</small>
-                  </span>
                   <span class="tenant-file-picker__button">Choose file</span>
-                  <span class="tenant-file-picker__filename" data-file-name data-empty-label="No file selected">No file selected</span>
                   <input type="file" name="company_logo" accept=".jpg,.jpeg,.png,.webp,.svg,image/jpeg,image/png,image/webp,image/svg+xml">
                 </span>
                 @error('company_logo')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
@@ -173,14 +167,13 @@
         <article class="tenant-panel tenant-post-job__account-panel">
           <div class="tenant-post-job-account">
             <div class="tenant-form-section-head">
-              <h2 class="tenant-form-section-title">Create account (optional)</h2>
+              <h2 class="tenant-form-section-title">Do you want to create an employer account?</h2>
             </div>
 
             <label class="tenant-post-job-form__check">
               <input form="tenant-post-job-form" type="checkbox" name="create_account" value="1" @checked(old('create_account'))>
               <span class="checkbox-text">
-                Do you want to create an employer account?
-                <small>Optional. Create one if you want to manage this job later.</small>
+                Yes, i want to create an account!
               </span>
             </label>
 
@@ -204,15 +197,7 @@
         </button>
       </div>
 
-      <aside class="tenant-panel tenant-post-job__aside">
-        <p class="tenant-eyebrow">Next step</p>
-        <h2 class="tenant-form-section-title">Draft first</h2>
-        <p>Submitted jobs are stored as drafts. The payment step will be connected later, before publishing.</p>
-        <div class="tenant-post-job__summary">
-          <span>Default job types</span>
-          <strong>{{ count($jobTypes) }}</strong>
-        </div>
-      </aside>
+      <aside class="tenant-panel tenant-post-job__aside"></aside>
     </section>
   </main>
 @endsection
