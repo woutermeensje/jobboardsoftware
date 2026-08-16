@@ -83,7 +83,7 @@
 }
 
 .tenant-panel.tenant-post-job__account-panel {
-  padding: 24px;
+  padding: clamp(32px, 4vw, 48px);
 }
 
 .tenant-post-job-form .tenant-panel__head p {
@@ -102,7 +102,7 @@
 }
 
 .tenant-panel.tenant-post-job__main > form.tenant-post-job-form {
-  padding: 24px;
+  padding: clamp(32px, 4vw, 48px);
 }
 
 .tenant-apply form p,
@@ -247,21 +247,43 @@
   display: flex;
   grid-template-columns: none;
   align-items: center;
-  gap: 9px;
-  padding: 8px;
+  position: relative;
+  gap: 0;
+  padding: 10px 12px;
   border-radius: 5px;
   cursor: pointer;
+  transition: background-color .18s ease, color .18s ease;
 }
 
-.tenant-multiselect__option:hover {
-  background: var(--tenant-subtle-surface);
+.tenant-multiselect__option:hover,
+.tenant-multiselect__option:focus-within {
+  background: color-mix(in srgb, var(--tenant-accent) 16%, #ffffff);
+}
+
+.tenant-multiselect__option:has(input:checked) {
+  background: color-mix(in srgb, var(--tenant-accent) 10%, #ffffff);
+}
+
+.tenant-multiselect__option span {
+  display: block;
+  width: 100%;
+}
+
+.tenant-multiselect__option input:checked + span {
+  color: var(--tenant-accent);
+  font-weight: 500;
 }
 
 .tenant-multiselect__option input {
-  width: 16px;
-  min-height: 16px;
-  flex: 0 0 auto;
-  accent-color: var(--tenant-accent);
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  min-height: 1px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .tenant-post-job-form__logo-field {
@@ -445,10 +467,12 @@
 }
 
 .tenant-post-job-form .tenant-multiselect__option input {
-  width: 16px;
-  min-height: 16px;
+  width: 1px;
+  height: 1px;
+  min-height: 1px;
   padding: 0;
-  border-radius: 3px;
+  border: 0;
+  border-radius: 0;
 }
 
 .tenant-form__error,
@@ -534,6 +558,11 @@
 }
 
 @media (max-width: 900px) {
+  .tenant-panel.tenant-post-job__main > form.tenant-post-job-form,
+  .tenant-panel.tenant-post-job__account-panel {
+    padding: 24px;
+  }
+
   .tenant-post-job,
   .tenant-form__grid,
   .tenant-post-job-form__grid,
