@@ -328,8 +328,23 @@
   border: 1px solid #dedede;
   border-bottom: 0;
   border-radius: 5px 5px 0 0;
-  background: #fbfdff;
+  background: #f1f3f5;
   padding: 8px 10px;
+}
+
+.tenant-rich-text .ql-toolbar button,
+.tenant-rich-text .ql-toolbar .ql-picker {
+  color: #444;
+}
+
+.tenant-rich-text .ql-toolbar button .ql-stroke,
+.tenant-rich-text .ql-toolbar .ql-picker .ql-stroke {
+  stroke: #444;
+}
+
+.tenant-rich-text .ql-toolbar button .ql-fill,
+.tenant-rich-text .ql-toolbar .ql-picker .ql-fill {
+  fill: #444;
 }
 
 .tenant-rich-text .ql-container.ql-snow {
