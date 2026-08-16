@@ -66,19 +66,30 @@
                   >
                     Select job types
                   </button>
-                  <div class="tenant-multiselect__menu" role="listbox" aria-multiselectable="true" data-multiselect-menu>
-                    @foreach($jobTypes as $jobType)
-                      <label class="tenant-multiselect__option">
-                        <input
-                          type="checkbox"
-                          name="employment_type[]"
-                          value="{{ $jobType }}"
-                          @checked($selectedJobTypes->contains($jobType))
-                          data-multiselect-option
-                        >
-                        <span>{{ $jobType }}</span>
-                      </label>
-                    @endforeach
+                  <div class="tenant-multiselect__menu" data-multiselect-menu>
+                    <input
+                      class="tenant-multiselect__search"
+                      type="search"
+                      placeholder="Search job types"
+                      aria-label="Search job types"
+                      autocomplete="off"
+                      data-multiselect-search
+                    >
+                    <div class="tenant-multiselect__options" role="listbox" aria-multiselectable="true">
+                      @foreach($jobTypes as $jobType)
+                        <label class="tenant-multiselect__option" data-multiselect-option-row>
+                          <input
+                            type="checkbox"
+                            name="employment_type[]"
+                            value="{{ $jobType }}"
+                            @checked($selectedJobTypes->contains($jobType))
+                            data-multiselect-option
+                          >
+                          <span>{{ $jobType }}</span>
+                        </label>
+                      @endforeach
+                    </div>
+                    <p class="tenant-multiselect__empty" hidden data-multiselect-empty>No job types found.</p>
                   </div>
                   @error('employment_type')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
                   @error('employment_type.*')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
@@ -260,7 +271,10 @@
     (() => {
       document.querySelectorAll('[data-multiselect]').forEach((multiselect) => {
         const button = multiselect.querySelector('[data-multiselect-button]');
+        const search = multiselect.querySelector('[data-multiselect-search]');
+        const empty = multiselect.querySelector('[data-multiselect-empty]');
         const options = Array.from(multiselect.querySelectorAll('[data-multiselect-option]'));
+        const optionRows = Array.from(multiselect.querySelectorAll('[data-multiselect-option-row]'));
 
         if (!button || !options.length) {
           return;
@@ -277,10 +291,31 @@
         button.addEventListener('click', () => {
           const isOpen = multiselect.classList.toggle('is-open');
           button.setAttribute('aria-expanded', String(isOpen));
+
+          if (isOpen) {
+            search?.focus();
+          }
         });
 
         options.forEach((option) => {
           option.addEventListener('change', updateButton);
+        });
+
+        search?.addEventListener('input', () => {
+          const query = search.value.trim().toLowerCase();
+          let visibleCount = 0;
+
+          optionRows.forEach((row) => {
+            const label = row.textContent.trim().toLowerCase();
+            const isVisible = label.includes(query);
+
+            row.hidden = !isVisible;
+            visibleCount += isVisible ? 1 : 0;
+          });
+
+          if (empty) {
+            empty.hidden = visibleCount > 0;
+          }
         });
 
         document.addEventListener('click', (event) => {
