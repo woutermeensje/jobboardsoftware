@@ -247,6 +247,7 @@ class ClientDashboardTest extends TestCase
             ->assertSee('Create company')
             ->assertSee('Organization name')
             ->assertSee('Company name (for job posts)')
+            ->assertDontSee('Select environment')
             ->assertSee('Company logo')
             ->assertSee('Contact details')
             ->assertSee('First name')
@@ -255,8 +256,11 @@ class ClientDashboardTest extends TestCase
             ->assertSee('Phone number')
             ->assertSee('Choose file')
             ->assertSee('No file selected')
-            ->assertSee('Company profile')
-            ->assertSee('Upload a PNG, JPG, WebP or SVG logo.');
+            ->assertSee('Company description')
+            ->assertSee('Upload a PNG, JPG, WebP or SVG logo.')
+            ->assertSee('data-quill-field', false)
+            ->assertSee('cdn.jsdelivr.net/npm/quill@2/dist/quill.js', false)
+            ->assertDontSee('placeholder=', false);
 
         $this->actingAs($owner)
             ->post('/client/dashboard/companies', [
@@ -267,7 +271,7 @@ class ClientDashboardTest extends TestCase
                 'contact_last_name' => 'Collins',
                 'contact_email' => 'maya@example.com',
                 'contact_phone' => '+31 20 123 4567',
-                'description' => 'Hiring team for seasonal roles.',
+                'description' => '<p>Hiring team for <strong>seasonal</strong> roles.</p><script>alert("xss")</script>',
                 'logo' => UploadedFile::fake()->create('northwind-logo.png', 32, 'image/png'),
             ])
             ->assertRedirect(route('client.companies.index'))
@@ -282,6 +286,7 @@ class ClientDashboardTest extends TestCase
         $this->assertSame('Maya', $company->contact_first_name);
         $this->assertSame('Collins', $company->contact_last_name);
         $this->assertSame('Maya Collins', $company->contact_name);
+        $this->assertSame('<p>Hiring team for <strong>seasonal</strong> roles.</p>', $company->description);
         $this->assertNotNull($company->logo_path);
         Storage::disk('public')->assertExists($company->logo_path);
 

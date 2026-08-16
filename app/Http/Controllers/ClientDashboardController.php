@@ -358,7 +358,7 @@ class ClientDashboardController extends Controller
             'contact_email' => ['nullable', 'email', 'max:255'],
             'contact_phone' => ['nullable', 'string', 'max:50'],
             'logo' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,svg', 'max:2048'],
-            'description' => ['nullable', 'string', 'max:1000'],
+            'description' => ['nullable', 'string', 'max:10000'],
         ]);
 
         $tenant = Tenant::query()
@@ -372,6 +372,7 @@ class ClientDashboardController extends Controller
             $validated['contact_first_name'] ?? null,
             $validated['contact_last_name'] ?? null,
         ])->filter()->implode(' '));
+        $description = RichTextSanitizer::sanitize($validated['description'] ?? null);
 
         TenantCompany::query()->create([
             'tenant_id' => $tenant->id,
@@ -384,7 +385,7 @@ class ClientDashboardController extends Controller
             'contact_email' => $validated['contact_email'] ?? null,
             'contact_phone' => $validated['contact_phone'] ?? null,
             'logo_path' => $logoPath,
-            'description' => $validated['description'] ?? null,
+            'description' => $description,
         ]);
 
         return redirect()

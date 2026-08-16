@@ -7,6 +7,7 @@ These notes describe the conventions future AI/code assistants should follow whe
 - The entire application should use English for visible UI copy.
 - This applies to the public website, authentication pages, client dashboard, admin dashboard, tenant job boards, forms, buttons, empty states, success/error messages, emails, and tests that assert UI text.
 - Do not introduce Dutch labels, helper text, headings, placeholders, alerts, or navigation copy in new frontend work.
+- Do not use placeholders in application form fields. Use clear labels, optional helper text, or field descriptions outside the input instead.
 - Existing Dutch route aliases may stay when they are legacy redirects or backwards-compatible URLs, but new canonical routes and visible labels should be English.
 - User-generated content, tenant-provided job data, internal database keys, and existing technical identifiers do not need to be translated unless the task explicitly asks for it.
 
