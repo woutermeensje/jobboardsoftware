@@ -97,6 +97,10 @@
   padding: 24px;
 }
 
+.tenant-post-job-form {
+  gap: 0;
+}
+
 .tenant-panel.tenant-post-job__main > form.tenant-post-job-form {
   padding: 24px;
 }
@@ -113,6 +117,20 @@
   display: grid;
   gap: 14px;
   padding-top: 0;
+}
+
+.tenant-form-section-block {
+  display: grid;
+  gap: 22px;
+}
+
+.tenant-post-job-form > .tenant-form-section-block {
+  padding: 32px 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.tenant-post-job-form > .tenant-form-section-block:last-of-type {
+  padding-bottom: 0;
 }
 
 .tenant-form-section-head {

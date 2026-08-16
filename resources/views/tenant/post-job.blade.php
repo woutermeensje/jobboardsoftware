@@ -35,9 +35,9 @@
               <p>Your job will be saved as a draft first. Publishing and payment can be completed in the next step later.</p>
             </div>
 
-            <div class="tenant-post-job-form__section">
+            <section class="tenant-form-section-block tenant-post-job-form__section" aria-labelledby="tenant-job-details-title">
               <div class="tenant-form-section-head">
-                <h2 class="tenant-form-section-title">Job details</h2>
+                <h2 id="tenant-job-details-title" class="tenant-form-section-title">Job details</h2>
               </div>
 
               <label>
@@ -100,11 +100,11 @@
                 ></div>
                 @error('description')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
               </div>
-            </div>
+            </section>
 
-            <div class="tenant-post-job-form__section">
+            <section class="tenant-form-section-block tenant-post-job-form__section" aria-labelledby="tenant-company-information-title">
               <div class="tenant-form-section-head">
-                <h2 class="tenant-form-section-title">Company information</h2>
+                <h2 id="tenant-company-information-title" class="tenant-form-section-title">Company information</h2>
               </div>
 
               <label class="tenant-post-job-form__field tenant-post-job-form__logo-field">
@@ -121,11 +121,11 @@
                 </span>
                 @error('company_logo')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
               </label>
-            </div>
+            </section>
 
-            <div class="tenant-post-job-form__section">
+            <section class="tenant-form-section-block tenant-post-job-form__section" aria-labelledby="tenant-contact-details-title">
               <div class="tenant-form-section-head">
-                <h2 class="tenant-form-section-title">Contact details</h2>
+                <h2 id="tenant-contact-details-title" class="tenant-form-section-title">Contact details</h2>
               </div>
 
               <div class="tenant-post-job-form__grid">
@@ -155,7 +155,7 @@
                   @error('contact_email')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
                 </label>
               </div>
-            </div>
+            </section>
           </form>
         </article>
 
