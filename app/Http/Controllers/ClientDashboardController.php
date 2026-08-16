@@ -9,6 +9,7 @@ use App\Models\TenantCompany;
 use App\Models\TenantJob;
 use App\Support\AdminActionNotifier;
 use App\Support\JobTypeOptions;
+use App\Support\RichTextSanitizer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -179,6 +180,131 @@ class ClientDashboardController extends Controller
                 ->latest()
                 ->get(),
         ]);
+    }
+
+    public function createJob(Request $request): View
+    {
+        $tenants = $request->user()
+            ->ownedTenants()
+            ->latest()
+            ->get();
+        $tenantIds = $tenants->pluck('id');
+
+        return view('client.create-job', [
+            'user' => $request->user(),
+            'tenants' => $tenants,
+            'companies' => TenantCompany::query()
+                ->whereIn('tenant_id', $tenantIds)
+                ->orderBy('name')
+                ->get(),
+            'categories' => TenantJob::query()
+                ->whereIn('tenant_id', $tenantIds)
+                ->whereNotNull('department')
+                ->where('department', '!=', '')
+                ->distinct()
+                ->orderBy('department')
+                ->pluck('department'),
+            'jobTypes' => $tenants
+                ->flatMap(fn (Tenant $tenant): array => JobTypeOptions::allForTenant($tenant))
+                ->unique(fn (string $jobType): string => mb_strtolower($jobType))
+                ->values(),
+        ]);
+    }
+
+    public function storeJob(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'tenant_id' => [
+                'required',
+                Rule::exists('tenants', 'id')->where(fn ($query) => $query->where('owner_user_id', $request->user()->id)),
+            ],
+            'tenant_company_id' => ['nullable', 'integer'],
+            'company_name' => [Rule::requiredIf(! $request->filled('tenant_company_id')), 'nullable', 'string', 'max:255'],
+            'company_logo' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,svg', 'max:2048'],
+            'title' => ['required', 'string', 'max:255'],
+            'category' => ['required', 'string', 'max:255'],
+            'location' => ['required', 'string', 'max:255'],
+            'employment_type' => ['required', 'string', 'max:80'],
+            'salary_range' => ['nullable', 'string', 'max:255'],
+            'intro' => ['nullable', 'string', 'max:3000'],
+            'description' => ['required', 'string', 'max:10000'],
+            'contact_name' => ['nullable', 'string', 'max:255'],
+            'contact_email' => ['nullable', 'email', 'max:255'],
+            'contact_phone' => ['nullable', 'string', 'max:50'],
+            'status' => ['required', Rule::in([TenantJob::STATUS_DRAFT, TenantJob::STATUS_PUBLISHED])],
+            'closes_at' => ['nullable', 'date'],
+        ]);
+
+        $tenant = Tenant::query()
+            ->where('owner_user_id', $request->user()->id)
+            ->findOrFail($validated['tenant_id']);
+
+        if (! in_array($validated['employment_type'], JobTypeOptions::allForTenant($tenant), true)) {
+            return back()
+                ->withErrors(['employment_type' => 'Select a job type that belongs to this environment.'])
+                ->withInput();
+        }
+
+        $company = null;
+
+        if (! empty($validated['tenant_company_id'])) {
+            $company = TenantCompany::query()
+                ->where('tenant_id', $tenant->id)
+                ->find($validated['tenant_company_id']);
+
+            if (! $company) {
+                return back()
+                    ->withErrors(['tenant_company_id' => 'Select a company that belongs to this environment.'])
+                    ->withInput();
+            }
+        }
+
+        $companyName = $company?->name ?? $validated['company_name'] ?? null;
+
+        if (! $companyName) {
+            return back()
+                ->withErrors(['company_name' => 'Enter a company name or select an existing company.'])
+                ->withInput();
+        }
+
+        $description = RichTextSanitizer::sanitize($validated['description']);
+
+        if ($description === null) {
+            return back()
+                ->withErrors(['description' => 'Enter a job description.'])
+                ->withInput();
+        }
+
+        $intro = RichTextSanitizer::sanitize($validated['intro'] ?? null);
+        $companyLogoPath = $request->hasFile('company_logo')
+            ? $request->file('company_logo')->store('company-logos', 'public')
+            : $company?->logo_path;
+
+        TenantJob::query()->create([
+            'tenant_id' => $tenant->id,
+            'tenant_company_id' => $company?->id,
+            'company_name' => $companyName,
+            'company_logo_path' => $companyLogoPath,
+            'contact_name' => $validated['contact_name'] ?? $company?->contact_name ?? $request->user()->name,
+            'contact_email' => $validated['contact_email'] ?? $company?->contact_email ?? $request->user()->email,
+            'contact_phone' => $validated['contact_phone'] ?? $company?->contact_phone ?? null,
+            'submitted_by_user_id' => $request->user()->id,
+            'title' => $validated['title'],
+            'slug' => $this->uniqueJobSlug($tenant, $validated['title']),
+            'department' => $validated['category'],
+            'location' => $validated['location'],
+            'employment_type' => $validated['employment_type'],
+            'salary_range' => $validated['salary_range'] ?? null,
+            'intro' => $intro,
+            'description' => $description,
+            'status' => $validated['status'],
+            'published_at' => $validated['status'] === TenantJob::STATUS_PUBLISHED ? now() : null,
+            'closes_at' => $validated['closes_at'] ?? null,
+        ]);
+
+        return redirect()
+            ->route('client.jobs.create')
+            ->with('status', 'Job created.');
     }
 
     public function storeCompany(Request $request): RedirectResponse
@@ -456,6 +582,23 @@ class ClientDashboardController extends Controller
         $suffix = 2;
 
         while (TenantCompany::query()
+            ->where('tenant_id', $tenant->id)
+            ->where('slug', $slug)
+            ->exists()) {
+            $slug = $base.'-'.$suffix;
+            $suffix++;
+        }
+
+        return $slug;
+    }
+
+    private function uniqueJobSlug(Tenant $tenant, string $title): string
+    {
+        $base = Str::slug($title) ?: 'job';
+        $slug = $base;
+        $suffix = 2;
+
+        while (TenantJob::query()
             ->where('tenant_id', $tenant->id)
             ->where('slug', $slug)
             ->exists()) {

@@ -151,6 +151,82 @@ class ClientDashboardTest extends TestCase
             ->assertForbidden();
     }
 
+    public function test_tenant_owner_can_create_job_from_the_client_dashboard(): void
+    {
+        Storage::fake('public');
+
+        $owner = User::factory()->create([
+            'name' => 'Olivia Owner',
+            'email' => 'owner@example.com',
+            'role' => User::ROLE_TENANT_OWNER,
+        ]);
+        $tenant = $this->tenantFor($owner, 'Acme Careers', 'acme-careers');
+        $tenant->forceFill([
+            'settings' => [
+                'custom_job_types' => ['Volunteer'],
+            ],
+        ])->save();
+
+        $company = TenantCompany::query()->create([
+            'tenant_id' => $tenant->id,
+            'organization_name' => 'Acme Group',
+            'name' => 'Acme Hiring',
+            'slug' => 'acme-hiring',
+            'contact_name' => 'Maya Collins',
+            'contact_email' => 'maya@example.com',
+            'contact_phone' => '+31 20 123 4567',
+            'logo_path' => 'company-logos/acme.svg',
+        ]);
+
+        $this->actingAs($owner)
+            ->get('/client/dashboard/jobs/create')
+            ->assertOk()
+            ->assertSee('dash-form-layout', false)
+            ->assertSee('Create job')
+            ->assertSee('Job details')
+            ->assertSee('Company logo')
+            ->assertSee('Select company')
+            ->assertSee('Acme Hiring')
+            ->assertSee('Volunteer')
+            ->assertSee('data-quill-field', false)
+            ->assertSee('cdn.jsdelivr.net/npm/quill@2/dist/quill.js', false);
+
+        $this->actingAs($owner)
+            ->post('/client/dashboard/jobs', [
+                'tenant_id' => $tenant->id,
+                'tenant_company_id' => $company->id,
+                'company_logo' => UploadedFile::fake()->create('job-logo.png', 24, 'image/png'),
+                'title' => 'Community Lead',
+                'category' => 'Community',
+                'location' => 'Amsterdam',
+                'employment_type' => 'Volunteer',
+                'salary_range' => 'Upon request',
+                'intro' => '<p>Lead a <strong>community</strong>.</p>',
+                'description' => '<p>Own events and candidate engagement.</p><script>alert("xss")</script>',
+                'status' => TenantJob::STATUS_PUBLISHED,
+            ])
+            ->assertRedirect(route('client.jobs.create'))
+            ->assertSessionHas('status', 'Job created.');
+
+        $job = TenantJob::query()
+            ->where('tenant_id', $tenant->id)
+            ->where('slug', 'community-lead')
+            ->firstOrFail();
+
+        $this->assertSame($company->id, $job->tenant_company_id);
+        $this->assertSame('Acme Hiring', $job->company_name);
+        $this->assertSame('Volunteer', $job->employment_type);
+        $this->assertSame(TenantJob::STATUS_PUBLISHED, $job->status);
+        $this->assertNotNull($job->published_at);
+        $this->assertSame('Maya Collins', $job->contact_name);
+        $this->assertSame('maya@example.com', $job->contact_email);
+        $this->assertSame('<p>Lead a <strong>community</strong>.</p>', $job->intro);
+        $this->assertStringNotContainsString('script', $job->description);
+        $this->assertNotNull($job->company_logo_path);
+        Storage::disk('public')->assertExists($job->company_logo_path);
+        Storage::disk('public')->delete($job->company_logo_path);
+    }
+
     public function test_tenant_owner_can_create_company_with_logo(): void
     {
         Storage::fake('public');

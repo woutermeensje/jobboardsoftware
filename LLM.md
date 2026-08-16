@@ -28,6 +28,7 @@ These notes describe the conventions future AI/code assistants should follow whe
 - The tenant `/post-a-job` add-job form uses Quill rich text editors for all message textareas. Rich text HTML must be sanitized server-side before saving and rendered with `.rich-text`.
 - The client dashboard job type settings should always include these default English job types: `Part time`, `Full time`, `Freelance`, `Temporary`, and `Internship`. Custom job types are stored per tenant environment.
 - Client dashboard companies are stored per tenant environment and can include an organization name, a separate company name for job posts, an uploaded logo path, and contact first name, last name, email, and phone fields.
+- Client dashboard job creation lives at `/client/dashboard/jobs/create`. It should use the shared 65/35 `dash-form-layout`, create tenant-scoped `TenantJob` records, support draft/published status, reuse saved company profiles, and sanitize rich text before saving.
 - Client dashboard form pages should use the shared `dash-form-layout`: a 65% main form block with a 35% supporting side block.
 
 ## Implementation Notes
