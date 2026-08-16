@@ -30,7 +30,6 @@
           @csrf
 
           <div class="tenant-panel__head tenant-form-header">
-            <p class="tenant-eyebrow">Post a job</p>
             <h2 class="tenant-form-title">Submit a vacancy</h2>
             <p>Your job will be saved as a draft first. Publishing and payment can be completed in the next step later.</p>
           </div>
