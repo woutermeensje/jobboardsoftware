@@ -6,22 +6,11 @@
 
   .tenant-jobs-content-layout,
   .tenant-job-filters__grid,
-  .tenant-filter,
-  .tenant-post-job,
-  .tenant-form__grid,
-  .tenant-post-job-form__grid,
-  .tenant-post-job-form__half-grid,
-  .tenant-post-job-form__logo-title-grid,
-  .tenant-post-job-form__company-grid {
+  .tenant-filter {
     grid-template-columns: 1fr;
   }
 
   .tenant-jobs-sidebar {
-    position: static;
-  }
-
-  .tenant-apply,
-  .tenant-post-job__aside {
     position: static;
   }
 }
