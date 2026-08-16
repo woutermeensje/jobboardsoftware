@@ -25,7 +25,8 @@
 
 .tenant-form label,
 .tenant-apply label,
-.tenant-post-job-form label {
+.tenant-post-job-form label,
+.tenant-post-job-account label {
   color: #333;
   font-family: 'Poppins', var(--font-text), sans-serif;
   font-size: 14px;
@@ -166,7 +167,8 @@
 }
 
 .tenant-form label,
-.tenant-post-job-form label {
+.tenant-post-job-form label,
+.tenant-post-job-account label {
   display: grid;
   gap: 7px;
 }
@@ -481,7 +483,10 @@
 .tenant-form textarea,
 .tenant-post-job-form input,
 .tenant-post-job-form select,
-.tenant-post-job-form textarea {
+.tenant-post-job-form textarea,
+.tenant-post-job-account input:not([type="checkbox"]),
+.tenant-post-job-account select,
+.tenant-post-job-account textarea {
   width: 100%;
   min-height: 40px;
   padding: 8px 12px;
@@ -505,7 +510,10 @@
 .tenant-form textarea:focus,
 .tenant-post-job-form input:focus,
 .tenant-post-job-form select:focus,
-.tenant-post-job-form textarea:focus {
+.tenant-post-job-form textarea:focus,
+.tenant-post-job-account input:not([type="checkbox"]):focus,
+.tenant-post-job-account select:focus,
+.tenant-post-job-account textarea:focus {
   border-color: var(--tenant-accent);
 }
 
