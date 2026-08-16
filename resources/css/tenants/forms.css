@@ -70,9 +70,9 @@
   margin: 56px 0;
 }
 
-.tenant-post-job__main {
+.tenant-panel.tenant-post-job__main {
   min-width: 0;
-  padding: 24px;
+  padding: 0;
 }
 
 .tenant-post-job-form .tenant-panel__head p {
@@ -87,7 +87,7 @@
 }
 
 .tenant-post-job-form {
-  padding: 0;
+  padding: 24px;
 }
 
 .tenant-apply form p,

@@ -298,6 +298,10 @@
   border-bottom: 1px solid var(--color-border);
 }
 
+.dash-panel:has(> .domain-form) .dash-panel__head {
+  padding: 24px;
+}
+
 .dash-panel__head h2 {
   margin: 0;
   color: var(--color-text);
@@ -510,7 +514,7 @@
 .domain-form {
   display: grid;
   gap: 14px;
-  padding: 18px 20px 20px;
+  padding: 24px;
 }
 
 .domain-form__grid {

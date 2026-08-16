@@ -12,6 +12,7 @@ use App\Support\JobTypeOptions;
 use App\Support\RichTextSanitizer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
@@ -189,14 +190,17 @@ class ClientDashboardController extends Controller
             ->latest()
             ->get();
         $tenantIds = $tenants->pluck('id');
+        $companyTableReady = Schema::hasTable('tenant_companies');
 
         return view('client.create-job', [
             'user' => $request->user(),
             'tenants' => $tenants,
-            'companies' => TenantCompany::query()
-                ->whereIn('tenant_id', $tenantIds)
-                ->orderBy('name')
-                ->get(),
+            'companies' => $companyTableReady
+                ? TenantCompany::query()
+                    ->whereIn('tenant_id', $tenantIds)
+                    ->orderBy('name')
+                    ->get()
+                : collect(),
             'categories' => TenantJob::query()
                 ->whereIn('tenant_id', $tenantIds)
                 ->whereNotNull('department')
@@ -213,6 +217,8 @@ class ClientDashboardController extends Controller
 
     public function storeJob(Request $request): RedirectResponse
     {
+        $companyTableReady = Schema::hasTable('tenant_companies');
+
         $validated = $request->validate([
             'tenant_id' => [
                 'required',
@@ -247,7 +253,7 @@ class ClientDashboardController extends Controller
 
         $company = null;
 
-        if (! empty($validated['tenant_company_id'])) {
+        if ($companyTableReady && ! empty($validated['tenant_company_id'])) {
             $company = TenantCompany::query()
                 ->where('tenant_id', $tenant->id)
                 ->find($validated['tenant_company_id']);
@@ -276,19 +282,19 @@ class ClientDashboardController extends Controller
         }
 
         $intro = RichTextSanitizer::sanitize($validated['intro'] ?? null);
-        $companyLogoPath = $request->hasFile('company_logo')
+        $tenantJobsHasTenantCompanyId = Schema::hasColumn('tenant_jobs', 'tenant_company_id');
+        $tenantJobsHasCompanyName = Schema::hasColumn('tenant_jobs', 'company_name');
+        $tenantJobsHasCompanyLogoPath = Schema::hasColumn('tenant_jobs', 'company_logo_path');
+        $tenantJobsHasContactName = Schema::hasColumn('tenant_jobs', 'contact_name');
+        $tenantJobsHasContactEmail = Schema::hasColumn('tenant_jobs', 'contact_email');
+        $tenantJobsHasContactPhone = Schema::hasColumn('tenant_jobs', 'contact_phone');
+        $tenantJobsHasSubmittedByUserId = Schema::hasColumn('tenant_jobs', 'submitted_by_user_id');
+        $companyLogoPath = $tenantJobsHasCompanyLogoPath && $request->hasFile('company_logo')
             ? $request->file('company_logo')->store('company-logos', 'public')
-            : $company?->logo_path;
+            : ($tenantJobsHasCompanyLogoPath ? $company?->logo_path : null);
 
-        TenantJob::query()->create([
+        $jobAttributes = [
             'tenant_id' => $tenant->id,
-            'tenant_company_id' => $company?->id,
-            'company_name' => $companyName,
-            'company_logo_path' => $companyLogoPath,
-            'contact_name' => $validated['contact_name'] ?? $company?->contact_name ?? $request->user()->name,
-            'contact_email' => $validated['contact_email'] ?? $company?->contact_email ?? $request->user()->email,
-            'contact_phone' => $validated['contact_phone'] ?? $company?->contact_phone ?? null,
-            'submitted_by_user_id' => $request->user()->id,
             'title' => $validated['title'],
             'slug' => $this->uniqueJobSlug($tenant, $validated['title']),
             'department' => $validated['category'],
@@ -300,7 +306,37 @@ class ClientDashboardController extends Controller
             'status' => $validated['status'],
             'published_at' => $validated['status'] === TenantJob::STATUS_PUBLISHED ? now() : null,
             'closes_at' => $validated['closes_at'] ?? null,
-        ]);
+        ];
+
+        if ($tenantJobsHasTenantCompanyId) {
+            $jobAttributes['tenant_company_id'] = $company?->id;
+        }
+
+        if ($tenantJobsHasCompanyName) {
+            $jobAttributes['company_name'] = $companyName;
+        }
+
+        if ($tenantJobsHasCompanyLogoPath) {
+            $jobAttributes['company_logo_path'] = $companyLogoPath;
+        }
+
+        if ($tenantJobsHasContactName) {
+            $jobAttributes['contact_name'] = $validated['contact_name'] ?? $company?->contact_name ?? $request->user()->name;
+        }
+
+        if ($tenantJobsHasContactEmail) {
+            $jobAttributes['contact_email'] = $validated['contact_email'] ?? $company?->contact_email ?? $request->user()->email;
+        }
+
+        if ($tenantJobsHasContactPhone) {
+            $jobAttributes['contact_phone'] = $validated['contact_phone'] ?? $company?->contact_phone ?? null;
+        }
+
+        if ($tenantJobsHasSubmittedByUserId) {
+            $jobAttributes['submitted_by_user_id'] = $request->user()->id;
+        }
+
+        TenantJob::query()->create($jobAttributes);
 
         return redirect()
             ->route('client.jobs.create')
