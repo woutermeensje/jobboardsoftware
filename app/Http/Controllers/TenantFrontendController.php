@@ -49,13 +49,10 @@ class TenantFrontendController extends Controller
     public function showPostJob(): View
     {
         $tenant = tenant();
-        $filterOptions = $this->filterOptions($tenant->id);
 
         return view('tenant.post-job', [
             'tenant' => $tenant,
             'brandName' => $this->tenantBrandName(),
-            'categories' => $filterOptions['departments'],
-            'companies' => $this->tenantCompaniesForPostJob($tenant->id),
             'jobTypes' => JobTypeOptions::allForTenant($tenant),
         ]);
     }
@@ -74,14 +71,16 @@ class TenantFrontendController extends Controller
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'tenant_company_id' => $tenantCompanyIdRules,
-            'company_name' => [Rule::requiredIf(! $request->filled('tenant_company_id')), 'nullable', 'string', 'max:255'],
+            'company_name' => ['nullable', 'string', 'max:255'],
             'company_logo' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,svg', 'max:2048'],
-            'contact_name' => ['required', 'string', 'max:255'],
+            'contact_first_name' => ['required', 'string', 'max:255'],
+            'contact_last_name' => ['required', 'string', 'max:255'],
             'contact_email' => ['required', 'email', 'max:255'],
             'contact_phone' => ['nullable', 'string', 'max:40'],
-            'category' => ['required', 'string', 'max:255'],
+            'category' => ['nullable', 'string', 'max:255'],
             'location' => ['required', 'string', 'max:255'],
-            'employment_type' => ['required', 'string', 'max:80', Rule::in(JobTypeOptions::allForTenant($tenant))],
+            'employment_type' => ['required', 'array', 'min:1'],
+            'employment_type.*' => ['required', 'string', 'max:80', Rule::in(JobTypeOptions::allForTenant($tenant))],
             'salary_range' => ['nullable', 'string', 'max:255'],
             'intro' => ['nullable', 'string', 'max:1000'],
             'description' => ['required', 'string', 'max:10000'],
@@ -91,6 +90,13 @@ class TenantFrontendController extends Controller
 
         $intro = $this->sanitizeRichText($validated['intro'] ?? null);
         $description = $this->sanitizeRichText($validated['description']);
+        $contactName = trim($validated['contact_first_name'].' '.$validated['contact_last_name']);
+        $employmentType = collect($validated['employment_type'])
+            ->map(fn (string $type): string => JobTypeOptions::normalizeName($type))
+            ->filter()
+            ->unique(fn (string $type): string => mb_strtolower($type))
+            ->values()
+            ->implode(', ');
         $company = null;
 
         if ($companyTableReady && ! empty($validated['tenant_company_id'])) {
@@ -99,11 +105,11 @@ class TenantFrontendController extends Controller
                 ->find($validated['tenant_company_id']);
         }
 
-        $companyName = $company?->name ?? $validated['company_name'] ?? null;
+        $companyName = $company?->name ?? $validated['company_name'] ?? $this->tenantBrandName();
 
-        if (! $companyName) {
+        if (! $companyName || mb_strlen($employmentType) > 255) {
             return back()
-                ->withErrors(['company_name' => 'Enter a company name or select an existing company.'])
+                ->withErrors($companyName ? ['employment_type' => 'Select fewer job types.'] : ['company_name' => 'Enter a company name or select an existing company.'])
                 ->withInput();
         }
 
@@ -128,13 +134,11 @@ class TenantFrontendController extends Controller
         $submittedByUserId = $this->tenantEmployerUserId($request);
 
         if ($createAccount) {
-            [$firstName, $lastName] = $this->splitName($validated['contact_name']);
-
             $user = User::create([
                 'tenant_id' => $tenant->id,
-                'name' => $validated['contact_name'],
-                'first_name' => $firstName,
-                'last_name' => $lastName,
+                'name' => $contactName,
+                'first_name' => $validated['contact_first_name'],
+                'last_name' => $validated['contact_last_name'],
                 'email' => $validated['contact_email'],
                 'phone_number' => $validated['contact_phone'] ?? null,
                 'company_name' => $companyName,
@@ -151,15 +155,15 @@ class TenantFrontendController extends Controller
         $jobAttributes = [
             'tenant_id' => $tenant->id,
             'company_name' => $companyName,
-            'contact_name' => $validated['contact_name'],
+            'contact_name' => $contactName,
             'contact_email' => $validated['contact_email'],
             'contact_phone' => $validated['contact_phone'] ?? null,
             'submitted_by_user_id' => $submittedByUserId,
             'title' => $validated['title'],
             'slug' => $this->uniqueJobSlug($validated['title']),
-            'department' => $validated['category'],
+            'department' => $validated['category'] ?? null,
             'location' => $validated['location'],
-            'employment_type' => $validated['employment_type'],
+            'employment_type' => $employmentType,
             'salary_range' => $validated['salary_range'] ?? null,
             'intro' => $intro,
             'description' => $description,
@@ -358,21 +362,6 @@ class TenantFrontendController extends Controller
         $settings = $tenant?->settings ?? [];
 
         return $settings['brand_name'] ?? $tenant?->name ?? 'Jobboard';
-    }
-
-    /**
-     * @return \Illuminate\Support\Collection<int, TenantCompany>
-     */
-    private function tenantCompaniesForPostJob(string $tenantId): \Illuminate\Support\Collection
-    {
-        if (! Schema::hasTable('tenant_companies')) {
-            return collect();
-        }
-
-        return TenantCompany::query()
-            ->where('tenant_id', $tenantId)
-            ->orderBy('name')
-            ->get(['id', 'name', 'logo_path']);
     }
 
     private function sanitizeRichText(?string $value): ?string

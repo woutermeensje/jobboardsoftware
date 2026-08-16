@@ -3,6 +3,10 @@
 @section('title', 'Post a job | '.$brandName)
 @section('meta_description', 'Submit a job for this job board.')
 
+@php
+  $selectedJobTypes = collect((array) old('employment_type', []));
+@endphp
+
 @section('content')
   <main class="tenant-shell">
     @if(session('status'))
@@ -22,7 +26,7 @@
 
     <section class="tenant-post-job">
       <article class="tenant-panel tenant-post-job__main">
-        <form method="POST" action="{{ route('tenant.post-job.store') }}" class="tenant-post-job-form" enctype="multipart/form-data">
+        <form method="POST" action="{{ route('tenant.post-job.store') }}" class="tenant-post-job-form">
           @csrf
 
           <div class="tenant-panel__head tenant-form-header">
@@ -36,103 +40,48 @@
               <h2 class="tenant-form-section-title">Job details</h2>
             </div>
 
-            <div class="tenant-post-job-form__logo-title-grid">
-              <label class="tenant-post-job-form__logo-field">
-                Company logo
-                <span class="tenant-logo-upload" data-file-picker>
-                  <i class="ph ph-image-square" aria-hidden="true"></i>
-                  <span class="tenant-logo-upload__copy">
-                    Upload logo
-                    <small>PNG, JPG, WebP or SVG. Max 2 MB.</small>
-                  </span>
-                  <span class="tenant-file-picker__button">Choose file</span>
-                  <span class="tenant-file-picker__filename" data-file-name data-empty-label="No file selected">No file selected</span>
-                  <input type="file" name="company_logo" accept=".jpg,.jpeg,.png,.webp,.svg,image/jpeg,image/png,image/webp,image/svg+xml">
-                </span>
-                @error('company_logo')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
-              </label>
+            <label>
+              Job title
+              <input name="title" value="{{ old('title') }}" placeholder="Senior Laravel Developer" required autofocus>
+              @error('title')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
+            </label>
 
-              <label>
-                Job title
-                <input name="title" value="{{ old('title') }}" placeholder="Senior Laravel Developer" required autofocus>
-                @error('title')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
-              </label>
-            </div>
+            <label>
+              Location
+              <input name="location" value="{{ old('location') }}" placeholder="Amsterdam or remote" required>
+              @error('location')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
+            </label>
 
-            <div class="tenant-post-job-form__company-grid">
-              <label>
-                Select company
-                <select name="tenant_company_id">
-                  <option value="">Add a new company</option>
-                  @foreach($companies as $company)
-                    <option value="{{ $company->id }}" @selected((string) old('tenant_company_id') === (string) $company->id)>{{ $company->name }}</option>
-                  @endforeach
-                </select>
-                @error('tenant_company_id')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
-              </label>
-
-              <label>
-                Company name
-                <input name="company_name" value="{{ old('company_name') }}" placeholder="Enter company name if not listed">
-                @error('company_name')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
-              </label>
-            </div>
-
-            <div class="tenant-post-job-form__grid">
-              <label>
-                Category
-                <input name="category" value="{{ old('category') }}" list="tenant-job-categories" placeholder="Development" required>
-                @error('category')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
-              </label>
-
-              <label>
-                Job type
-                <select name="employment_type" required>
-                  <option value="">Select a job type</option>
+            <div class="tenant-post-job-form__half-grid">
+              <div class="tenant-post-job-form__field tenant-multiselect" data-multiselect>
+                <label id="tenant-job-type-label">Job type</label>
+                <button
+                  class="tenant-multiselect__button"
+                  type="button"
+                  aria-haspopup="listbox"
+                  aria-expanded="false"
+                  aria-labelledby="tenant-job-type-label"
+                  data-multiselect-button
+                >
+                  Select job types
+                </button>
+                <div class="tenant-multiselect__menu" role="listbox" aria-multiselectable="true" data-multiselect-menu>
                   @foreach($jobTypes as $jobType)
-                    <option value="{{ $jobType }}" @selected(old('employment_type') === $jobType)>{{ $jobType }}</option>
+                    <label class="tenant-multiselect__option">
+                      <input
+                        type="checkbox"
+                        name="employment_type[]"
+                        value="{{ $jobType }}"
+                        @checked($selectedJobTypes->contains($jobType))
+                        data-multiselect-option
+                      >
+                      <span>{{ $jobType }}</span>
+                    </label>
                   @endforeach
-                </select>
+                </div>
                 @error('employment_type')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
-              </label>
-            </div>
-
-            <datalist id="tenant-job-categories">
-              @foreach($categories as $category)
-                <option value="{{ $category }}"></option>
-              @endforeach
-            </datalist>
-
-            <div class="tenant-post-job-form__grid">
-              <label>
-                Location
-                <input name="location" value="{{ old('location') }}" placeholder="Amsterdam or remote" required>
-                @error('location')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
-              </label>
-
-              <label>
-                Salary range
-                <input name="salary_range" value="{{ old('salary_range') }}" placeholder="Optional">
-                @error('salary_range')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
-              </label>
-            </div>
-
-            <div class="tenant-post-job-form__field tenant-rich-text" data-quill-field>
-              <label for="job-intro">Short intro</label>
-              <textarea
-                id="job-intro"
-                name="intro"
-                rows="3"
-                maxlength="1000"
-                placeholder="Summarize the role in one or two sentences."
-                data-quill-source
-              >{{ old('intro') }}</textarea>
-              <div
-                class="tenant-rich-text__editor tenant-rich-text__editor--short"
-                data-quill-editor
-                data-placeholder="Summarize the role in one or two sentences."
-              ></div>
-              @error('intro')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
+                @error('employment_type.*')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
+              </div>
             </div>
 
             <div class="tenant-post-job-form__field tenant-rich-text" data-quill-field>
@@ -161,9 +110,23 @@
 
             <div class="tenant-post-job-form__grid">
               <label>
-                Contact name
-                <input name="contact_name" value="{{ old('contact_name') }}" placeholder="Jane Doe" required>
-                @error('contact_name')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
+                First name
+                <input name="contact_first_name" value="{{ old('contact_first_name') }}" placeholder="Jane" required>
+                @error('contact_first_name')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
+              </label>
+
+              <label>
+                Last name
+                <input name="contact_last_name" value="{{ old('contact_last_name') }}" placeholder="Doe" required>
+                @error('contact_last_name')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
+              </label>
+            </div>
+
+            <div class="tenant-post-job-form__grid">
+              <label>
+                Phone number
+                <input name="contact_phone" value="{{ old('contact_phone') }}" placeholder="+1 555 123 4567">
+                @error('contact_phone')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
               </label>
 
               <label>
@@ -172,15 +135,13 @@
                 @error('contact_email')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
               </label>
             </div>
-
-            <label>
-              Phone number
-              <input name="contact_phone" value="{{ old('contact_phone') }}" placeholder="+1 555 123 4567">
-              @error('contact_phone')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
-            </label>
           </div>
 
-          <div class="tenant-post-job-form__section tenant-post-job-form__account">
+          <div class="tenant-post-job-account">
+            <div class="tenant-form-section-head">
+              <h2 class="tenant-form-section-title">Create account</h2>
+            </div>
+
             <label class="tenant-post-job-form__check">
               <input type="checkbox" name="create_account" value="1" @checked(old('create_account'))>
               <span>
@@ -270,6 +231,50 @@
         field.classList.add('is-enhanced');
         editor.dataset.quillReady = 'true';
         syncSource();
+      });
+    })();
+
+    (() => {
+      document.querySelectorAll('[data-multiselect]').forEach((multiselect) => {
+        const button = multiselect.querySelector('[data-multiselect-button]');
+        const options = Array.from(multiselect.querySelectorAll('[data-multiselect-option]'));
+
+        if (!button || !options.length) {
+          return;
+        }
+
+        const updateButton = () => {
+          const selected = options
+            .filter((option) => option.checked)
+            .map((option) => option.value);
+
+          button.textContent = selected.length ? selected.join(', ') : 'Select job types';
+        };
+
+        button.addEventListener('click', () => {
+          const isOpen = multiselect.classList.toggle('is-open');
+          button.setAttribute('aria-expanded', String(isOpen));
+        });
+
+        options.forEach((option) => {
+          option.addEventListener('change', updateButton);
+        });
+
+        document.addEventListener('click', (event) => {
+          if (!multiselect.contains(event.target)) {
+            multiselect.classList.remove('is-open');
+            button.setAttribute('aria-expanded', 'false');
+          }
+        });
+
+        document.addEventListener('keydown', (event) => {
+          if (event.key === 'Escape') {
+            multiselect.classList.remove('is-open');
+            button.setAttribute('aria-expanded', 'false');
+          }
+        });
+
+        updateButton();
       });
     })();
   </script>

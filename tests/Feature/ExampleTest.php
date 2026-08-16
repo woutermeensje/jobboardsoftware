@@ -5,12 +5,9 @@ namespace Tests\Feature;
 use App\Models\Domain;
 use App\Models\JobApplication;
 use App\Models\Tenant;
-use App\Models\TenantCompany;
 use App\Models\TenantJob;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class ExampleTest extends TestCase
@@ -246,7 +243,6 @@ class ExampleTest extends TestCase
     public function test_public_tenant_post_job_form_creates_a_draft_without_account(): void
     {
         $tenant = $this->tenantWithDomain('public-post', 'public-post.test');
-        Storage::fake('public');
 
         $tenant->forceFill([
             'settings' => [
@@ -255,30 +251,25 @@ class ExampleTest extends TestCase
             ],
         ])->save();
 
-        $company = TenantCompany::query()->create([
-            'tenant_id' => $tenant->id,
-            'name' => 'Stored Company',
-            'slug' => 'stored-company',
-            'logo_path' => 'company-logos/stored-company.svg',
-        ]);
-
         $this->get('http://public-post.test/post-a-job/')
             ->assertOk()
             ->assertSee('tenant-post-job__main', false)
             ->assertSee('tenant-post-job__aside', false)
-            ->assertSee('tenant-post-job-form__logo-title-grid', false)
+            ->assertSee('tenant-post-job-form__half-grid', false)
             ->assertSee('tenant-form-title', false)
             ->assertSee('tenant-form-section-title', false)
-            ->assertSee('data-file-picker', false)
+            ->assertSee('data-multiselect', false)
             ->assertSee('data-quill-field', false)
             ->assertSee('data-quill-editor', false)
             ->assertSee('cdn.jsdelivr.net/npm/quill@2/dist/quill.js', false)
             ->assertSee('Submit a vacancy')
-            ->assertSee('Company logo')
-            ->assertSee('Select company')
-            ->assertSee('Stored Company')
-            ->assertSee('Category')
+            ->assertDontSee('Company logo')
+            ->assertDontSee('Select company')
+            ->assertDontSee('Category')
+            ->assertDontSee('Short intro')
             ->assertSee('Job type')
+            ->assertSee('First name')
+            ->assertSee('Last name')
             ->assertSee('Part time')
             ->assertSee('Full time')
             ->assertSee('Freelance')
@@ -289,16 +280,12 @@ class ExampleTest extends TestCase
 
         $this->post('http://public-post.test/post-a-job', [
             'title' => 'Community Manager',
-            'tenant_company_id' => $company->id,
-            'company_logo' => UploadedFile::fake()->create('community-logo.png', 20, 'image/png'),
-            'contact_name' => 'Casey Contact',
+            'contact_first_name' => 'Casey',
+            'contact_last_name' => 'Contact',
             'contact_email' => 'casey@example.com',
             'contact_phone' => '+1 555 444 5555',
-            'category' => 'Community',
             'location' => 'Remote',
-            'employment_type' => 'Full time',
-            'salary_range' => 'Upon request',
-            'intro' => '<p>Build a <strong>strong</strong> community.</p>',
+            'employment_type' => ['Full time', 'Volunteer'],
             'description' => '<p>Own <strong>community</strong> programs and member engagement.</p><script>alert("xss")</script>',
         ])
             ->assertRedirect('http://public-post.test/post-a-job')
@@ -309,10 +296,9 @@ class ExampleTest extends TestCase
             'tenant_id' => $tenant->id,
             'title' => 'Community Manager',
             'slug' => 'community-manager',
-            'department' => 'Community',
-            'employment_type' => 'Full time',
-            'tenant_company_id' => $company->id,
-            'company_name' => 'Stored Company',
+            'department' => null,
+            'employment_type' => 'Full time, Volunteer',
+            'company_name' => 'Public Post Careers',
             'contact_name' => 'Casey Contact',
             'contact_email' => 'casey@example.com',
             'submitted_by_user_id' => null,
@@ -325,10 +311,8 @@ class ExampleTest extends TestCase
             ->where('slug', 'community-manager')
             ->firstOrFail();
 
-        $this->assertSame('<p>Build a <strong>strong</strong> community.</p>', $job->intro);
-        $this->assertNotNull($job->company_logo_path);
-        Storage::disk('public')->assertExists($job->company_logo_path);
-        Storage::disk('public')->delete($job->company_logo_path);
+        $this->assertNull($job->intro);
+        $this->assertNull($job->company_logo_path);
         $this->assertStringContainsString('<strong>community</strong>', $job->description);
         $this->assertStringNotContainsString('script', $job->description);
 
@@ -344,13 +328,12 @@ class ExampleTest extends TestCase
 
         $this->post('http://public-post-account.test/post-a-job', [
             'title' => 'Sales Lead',
-            'company_name' => 'Sales Co.',
-            'contact_name' => 'Elliot Employer',
+            'contact_first_name' => 'Elliot',
+            'contact_last_name' => 'Employer',
             'contact_email' => 'elliot@example.com',
             'contact_phone' => '+1 555 777 8888',
-            'category' => 'Sales',
             'location' => 'Amsterdam',
-            'employment_type' => 'Freelance',
+            'employment_type' => ['Freelance'],
             'description' => 'Lead sales conversations for a growing team.',
             'create_account' => '1',
             'password' => 'password123',
@@ -365,14 +348,14 @@ class ExampleTest extends TestCase
 
         $this->assertAuthenticatedAs($user);
         $this->assertSame(User::ROLE_EMPLOYER, $user->role);
-        $this->assertSame('Sales Co.', $user->company_name);
+        $this->assertSame('Public Post Account Careers', $user->company_name);
 
         $this->assertDatabaseHas('tenant_jobs', [
             'tenant_id' => $tenant->id,
             'title' => 'Sales Lead',
-            'department' => 'Sales',
+            'department' => null,
             'employment_type' => 'Freelance',
-            'company_name' => 'Sales Co.',
+            'company_name' => 'Public Post Account Careers',
             'contact_email' => 'elliot@example.com',
             'submitted_by_user_id' => $user->id,
             'status' => TenantJob::STATUS_DRAFT,
