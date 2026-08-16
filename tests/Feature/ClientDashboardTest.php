@@ -32,6 +32,12 @@ class ClientDashboardTest extends TestCase
         ]);
 
         $tenant = $this->tenantFor($owner, 'Acme Careers', 'acme-careers');
+        $company = TenantCompany::query()->create([
+            'tenant_id' => $tenant->id,
+            'organization_name' => 'Acme Group',
+            'name' => 'Acme Hiring',
+            'slug' => 'acme-hiring',
+        ]);
         $job = TenantJob::factory()->create([
             'tenant_id' => $tenant->id,
             'title' => 'Sustainable Recruiter',
@@ -70,6 +76,7 @@ class ClientDashboardTest extends TestCase
             '/client/dashboard/jobs-settings/organization-type',
             '/client/dashboard/companies',
             '/client/dashboard/companies/create',
+            '/client/dashboard/companies/'.$company->id.'/edit',
             '/client/dashboard/packages',
             '/client/dashboard/packages/create',
         ] as $path) {
@@ -553,9 +560,88 @@ class ClientDashboardTest extends TestCase
             ->get('/client/dashboard/companies')
             ->assertOk()
             ->assertSee('Northwind Hiring')
+            ->assertSee('/client/dashboard/companies/'.$company->id.'/edit', false)
             ->assertSee('Northwind Group')
             ->assertSee('Maya Collins')
             ->assertSee('storage/company-logos', false);
+    }
+
+    public function test_tenant_owner_can_edit_company_from_the_client_dashboard(): void
+    {
+        Storage::fake('public');
+
+        $owner = User::factory()->create(['role' => User::ROLE_TENANT_OWNER]);
+        $tenant = $this->tenantFor($owner, 'Acme Careers', 'acme-careers');
+        $company = TenantCompany::query()->create([
+            'tenant_id' => $tenant->id,
+            'organization_name' => 'Northwind Group',
+            'name' => 'Northwind Hiring',
+            'slug' => 'northwind-hiring',
+            'contact_first_name' => 'Maya',
+            'contact_last_name' => 'Collins',
+            'contact_name' => 'Maya Collins',
+            'contact_email' => 'maya@example.com',
+            'contact_phone' => '+31 20 123 4567',
+            'logo_path' => 'company-logos/original.svg',
+            'description' => '<p>Original company description.</p>',
+        ]);
+        $job = TenantJob::query()->create([
+            'tenant_id' => $tenant->id,
+            'tenant_company_id' => $company->id,
+            'company_name' => 'Northwind Hiring',
+            'company_logo_path' => 'company-logos/original.svg',
+            'contact_name' => 'Maya Collins',
+            'contact_email' => 'maya@example.com',
+            'title' => 'Operations Lead',
+            'slug' => 'operations-lead',
+            'location' => 'Amsterdam',
+            'employment_type' => 'Full time',
+            'description' => '<p>Lead operations.</p>',
+            'status' => TenantJob::STATUS_DRAFT,
+        ]);
+
+        $this->actingAs($owner)
+            ->get('/client/dashboard/companies/'.$company->id.'/edit')
+            ->assertOk()
+            ->assertSee('Edit company')
+            ->assertSee('Northwind Group')
+            ->assertSee('Northwind Hiring')
+            ->assertSee('value="Maya"', false)
+            ->assertSee('value="Collins"', false)
+            ->assertDontSee('placeholder=', false);
+
+        $this->actingAs($owner)
+            ->patch('/client/dashboard/companies/'.$company->id, [
+                'tenant_id' => $tenant->id,
+                'organization_name' => 'Northwind Collective',
+                'name' => 'Northwind Talent',
+                'contact_first_name' => 'Nina',
+                'contact_last_name' => 'Owner',
+                'contact_email' => 'nina@example.com',
+                'contact_phone' => '+31 20 987 6543',
+                'description' => '<p>Updated <strong>company</strong> profile.</p><script>alert("xss")</script>',
+                'logo' => UploadedFile::fake()->create('northwind-updated.png', 32, 'image/png'),
+            ])
+            ->assertRedirect(route('client.companies.edit', $company))
+            ->assertSessionHas('status', 'Company updated.');
+
+        $company->refresh();
+        $job->refresh();
+
+        $this->assertSame('Northwind Collective', $company->organization_name);
+        $this->assertSame('Northwind Talent', $company->name);
+        $this->assertSame('northwind-talent', $company->slug);
+        $this->assertSame('Nina', $company->contact_first_name);
+        $this->assertSame('Owner', $company->contact_last_name);
+        $this->assertSame('Nina Owner', $company->contact_name);
+        $this->assertSame('nina@example.com', $company->contact_email);
+        $this->assertSame('+31 20 987 6543', $company->contact_phone);
+        $this->assertSame('<p>Updated <strong>company</strong> profile.</p>', $company->description);
+        $this->assertNotNull($company->logo_path);
+        $this->assertNotSame('company-logos/original.svg', $company->logo_path);
+        Storage::disk('public')->assertExists($company->logo_path);
+        $this->assertSame('Northwind Talent', $job->company_name);
+        $this->assertSame($company->logo_path, $job->company_logo_path);
     }
 
     public function test_tenant_owner_cannot_create_company_for_unowned_environment(): void
@@ -580,6 +666,33 @@ class ClientDashboardTest extends TestCase
             'name' => 'Blocked Company',
         ]);
         Storage::disk('public')->assertMissing('company-logos/blocked-logo.png');
+    }
+
+    public function test_tenant_owner_cannot_edit_another_owners_company(): void
+    {
+        $owner = User::factory()->create(['role' => User::ROLE_TENANT_OWNER]);
+        $otherOwner = User::factory()->create(['role' => User::ROLE_TENANT_OWNER]);
+        $otherTenant = $this->tenantFor($otherOwner, 'Other Careers', 'other-careers');
+        $company = TenantCompany::query()->create([
+            'tenant_id' => $otherTenant->id,
+            'organization_name' => 'Other Group',
+            'name' => 'Other Hiring',
+            'slug' => 'other-hiring',
+        ]);
+
+        $this->actingAs($owner)
+            ->get('/client/dashboard/companies/'.$company->id.'/edit')
+            ->assertNotFound();
+
+        $this->actingAs($owner)
+            ->patch('/client/dashboard/companies/'.$company->id, [
+                'tenant_id' => $otherTenant->id,
+                'organization_name' => 'Blocked Group',
+                'name' => 'Blocked Company',
+            ])
+            ->assertNotFound();
+
+        $this->assertSame('Other Hiring', $company->fresh()->name);
     }
 
     public function test_tenant_owner_can_connect_a_custom_domain(): void

@@ -30,6 +30,7 @@
               <th>Environment</th>
               <th>Contact</th>
               <th>Created</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
@@ -46,7 +47,7 @@
                       <span class="company-logo-thumb company-logo-thumb--empty" aria-hidden="true">{{ mb_strtoupper(mb_substr($company->name, 0, 1)) }}</span>
                     @endif
                     <div>
-                      <span class="dash-cell-title">{{ $company->name }}</span>
+                      <a class="dash-cell-title dash-cell-title--link" href="{{ route('client.companies.edit', $company) }}">{{ $company->name }}</a>
                       <span class="dash-cell-meta">{{ $company->organization_name ?: 'No organization name added' }}</span>
                     </div>
                   </div>
@@ -57,9 +58,10 @@
                   <span class="dash-cell-meta">{{ $company->contact_email ?: 'No email address' }}</span>
                 </td>
                 <td>{{ $company->created_at?->format('M j, Y') }}</td>
+                <td><a class="dash-link" href="{{ route('client.companies.edit', $company) }}">Edit</a></td>
               </tr>
             @empty
-              <tr><td colspan="4">No companies yet.</td></tr>
+              <tr><td colspan="5">No companies yet.</td></tr>
             @endforelse
           </tbody>
         </table>

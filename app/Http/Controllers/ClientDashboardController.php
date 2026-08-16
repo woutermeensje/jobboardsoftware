@@ -176,11 +176,18 @@ class ClientDashboardController extends Controller
     public function createCompany(Request $request): View
     {
         return view('client.create-company', [
-            'user' => $request->user(),
-            'tenants' => $request->user()
-                ->ownedTenants()
-                ->latest()
-                ->get(),
+            ...$this->companyFormData($request),
+            'company' => null,
+        ]);
+    }
+
+    public function editCompany(Request $request, TenantCompany $company): View
+    {
+        $this->abortUnlessOwnedCompany($request, $company);
+
+        return view('client.create-company', [
+            ...$this->companyFormData($request),
+            'company' => $company->loadMissing('tenant'),
         ]);
     }
 
@@ -242,51 +249,21 @@ class ClientDashboardController extends Controller
 
     public function storeCompany(Request $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'tenant_id' => [
-                'required',
-                Rule::exists('tenants', 'id')->where(fn ($query) => $query->where('owner_user_id', $request->user()->id)),
-            ],
-            'organization_name' => ['required', 'string', 'max:255'],
-            'name' => ['required', 'string', 'max:255'],
-            'contact_first_name' => ['nullable', 'string', 'max:255'],
-            'contact_last_name' => ['nullable', 'string', 'max:255'],
-            'contact_email' => ['nullable', 'email', 'max:255'],
-            'contact_phone' => ['nullable', 'string', 'max:50'],
-            'logo' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,svg', 'max:2048'],
-            'description' => ['nullable', 'string', 'max:10000'],
-        ]);
-
-        $tenant = Tenant::query()
-            ->where('owner_user_id', $request->user()->id)
-            ->findOrFail($validated['tenant_id']);
-
-        $logoPath = $request->hasFile('logo')
-            ? $request->file('logo')->store('company-logos', 'public')
-            : null;
-        $contactName = trim(collect([
-            $validated['contact_first_name'] ?? null,
-            $validated['contact_last_name'] ?? null,
-        ])->filter()->implode(' '));
-        $description = RichTextSanitizer::sanitize($validated['description'] ?? null);
-
-        TenantCompany::query()->create([
-            'tenant_id' => $tenant->id,
-            'organization_name' => $validated['organization_name'],
-            'name' => $validated['name'],
-            'slug' => $this->uniqueCompanySlug($tenant, $validated['name']),
-            'contact_first_name' => $validated['contact_first_name'] ?? null,
-            'contact_last_name' => $validated['contact_last_name'] ?? null,
-            'contact_name' => $contactName !== '' ? $contactName : null,
-            'contact_email' => $validated['contact_email'] ?? null,
-            'contact_phone' => $validated['contact_phone'] ?? null,
-            'logo_path' => $logoPath,
-            'description' => $description,
-        ]);
+        $this->saveClientCompany($request);
 
         return redirect()
             ->route('client.companies.index')
             ->with('status', 'Company created.');
+    }
+
+    public function updateCompany(Request $request, TenantCompany $company): RedirectResponse
+    {
+        $this->abortUnlessOwnedCompany($request, $company);
+        $this->saveClientCompany($request, $company);
+
+        return redirect()
+            ->route('client.companies.edit', $company)
+            ->with('status', 'Company updated.');
     }
 
     public function jobTypes(Request $request): View
@@ -431,6 +408,103 @@ class ClientDashboardController extends Controller
         return redirect()
             ->route('client.packages.index')
             ->with('status', 'Package added.');
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function companyFormData(Request $request): array
+    {
+        return [
+            'user' => $request->user(),
+            'tenants' => $request->user()
+                ->ownedTenants()
+                ->latest()
+                ->get(),
+        ];
+    }
+
+    private function saveClientCompany(Request $request, ?TenantCompany $company = null): TenantCompany
+    {
+        $validated = $request->validate([
+            'tenant_id' => [
+                'required',
+                Rule::exists('tenants', 'id')->where(fn ($query) => $query->where('owner_user_id', $request->user()->id)),
+            ],
+            'organization_name' => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:255'],
+            'contact_first_name' => ['nullable', 'string', 'max:255'],
+            'contact_last_name' => ['nullable', 'string', 'max:255'],
+            'contact_email' => ['nullable', 'email', 'max:255'],
+            'contact_phone' => ['nullable', 'string', 'max:50'],
+            'logo' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,svg', 'max:2048'],
+            'description' => ['nullable', 'string', 'max:10000'],
+        ]);
+
+        $tenant = Tenant::query()
+            ->where('owner_user_id', $request->user()->id)
+            ->findOrFail($validated['tenant_id']);
+        $logoPath = $request->hasFile('logo')
+            ? $request->file('logo')->store('company-logos', 'public')
+            : $company?->logo_path;
+        $description = RichTextSanitizer::sanitize($validated['description'] ?? null);
+        $contactName = trim(collect([
+            $validated['contact_first_name'] ?? null,
+            $validated['contact_last_name'] ?? null,
+        ])->filter()->implode(' '));
+        $shouldRefreshSlug = ! $company
+            || $company->tenant_id !== $tenant->id
+            || trim($company->name) !== trim($validated['name']);
+        $companyAttributes = [
+            'tenant_id' => $tenant->id,
+            'organization_name' => $validated['organization_name'],
+            'name' => $validated['name'],
+            'slug' => $shouldRefreshSlug ? $this->uniqueCompanySlug($tenant, $validated['name'], $company) : $company->slug,
+            'contact_first_name' => $validated['contact_first_name'] ?? null,
+            'contact_last_name' => $validated['contact_last_name'] ?? null,
+            'contact_name' => $contactName !== '' ? $contactName : null,
+            'contact_email' => $validated['contact_email'] ?? null,
+            'contact_phone' => $validated['contact_phone'] ?? null,
+            'logo_path' => $logoPath,
+            'description' => $description,
+        ];
+
+        if ($company) {
+            $company->update($companyAttributes);
+            $company->refresh();
+        } else {
+            $company = TenantCompany::query()->create($companyAttributes);
+        }
+
+        $this->syncCompanyJobs($company);
+
+        return $company;
+    }
+
+    private function syncCompanyJobs(TenantCompany $company): void
+    {
+        if (! Schema::hasColumn('tenant_jobs', 'tenant_company_id')) {
+            return;
+        }
+
+        $updates = [];
+
+        if (Schema::hasColumn('tenant_jobs', 'company_name')) {
+            $updates['company_name'] = $company->name;
+        }
+
+        if (Schema::hasColumn('tenant_jobs', 'company_logo_path')) {
+            $updates['company_logo_path'] = $company->logo_path;
+        }
+
+        if ($updates === []) {
+            return;
+        }
+
+        TenantJob::query()
+            ->where('tenant_id', $company->tenant_id)
+            ->where('tenant_company_id', $company->id)
+            ->update($updates);
     }
 
     /**
@@ -644,6 +718,14 @@ class ClientDashboardController extends Controller
         );
     }
 
+    private function abortUnlessOwnedCompany(Request $request, TenantCompany $company): void
+    {
+        abort_unless(
+            $request->user()->ownedTenants()->whereKey($company->tenant_id)->exists(),
+            404,
+        );
+    }
+
     /**
      * @return array<string, array<string, string>>
      */
@@ -810,7 +892,7 @@ class ClientDashboardController extends Controller
         return Str::contains($value, '://') ? $value : 'https://'.$value;
     }
 
-    private function uniqueCompanySlug(Tenant $tenant, string $name): string
+    private function uniqueCompanySlug(Tenant $tenant, string $name, ?TenantCompany $ignoreCompany = null): string
     {
         $base = Str::slug($name) ?: 'company';
         $slug = $base;
@@ -819,6 +901,7 @@ class ClientDashboardController extends Controller
         while (TenantCompany::query()
             ->where('tenant_id', $tenant->id)
             ->where('slug', $slug)
+            ->when($ignoreCompany, fn ($query) => $query->whereKeyNot($ignoreCompany->getKey()))
             ->exists()) {
             $slug = $base.'-'.$suffix;
             $suffix++;

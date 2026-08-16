@@ -1,17 +1,29 @@
 @extends('layouts.app')
 
-@section('title', 'Create company | Client dashboard')
-@section('meta_description', 'Create a company profile with a logo for a job board environment.')
+@php
+  $company = $company ?? null;
+  $isEditing = $company instanceof \App\Models\TenantCompany;
+  $formTitle = $isEditing ? 'Edit company' : 'Create company';
+  $formIntro = $isEditing ? 'Update this company profile and save the changes.' : 'Add a company profile and upload a logo for your account.';
+  $formAction = $isEditing ? route('client.companies.update', $company) : route('client.companies.store');
+  $submitLabel = $isEditing ? 'Save company' : 'Create company';
+  $selectedTenantId = old('tenant_id', $company?->tenant_id ?? $tenants->first()?->id);
+@endphp
+
+@section('title', $formTitle.' | Client dashboard')
+@section('meta_description', $isEditing ? 'Edit a company profile for a job board environment.' : 'Create a company profile with a logo for a job board environment.')
 @section('layout', 'dashboard')
 @section('dashboard_sidebar')
   @include('client.partials.navigation')
 @endsection
 
-@php
-  $selectedTenantId = old('tenant_id', $tenants->first()?->id);
-@endphp
-
 @section('content')
+      @if(session('status'))
+        <section class="dash-card dash-card--success">
+          {{ session('status') }}
+        </section>
+      @endif
+
       @if($errors->any())
         <section class="dash-card dash-card--danger">
           <strong>Check the company details.</strong>
@@ -29,7 +41,7 @@
             @if($tenants->isEmpty())
               <div class="dash-panel__head">
                 <div>
-                  <h2>Create company</h2>
+                  <h2>{{ $formTitle }}</h2>
                   <p>Add a company profile and upload a logo for your account.</p>
                 </div>
                 <a class="dash-link" href="{{ route('client.companies.index') }}">Back to companies</a>
@@ -41,14 +53,17 @@
                 <a class="dash-link" href="{{ route('client.environments.create') }}">Create environment</a>
               </div>
             @else
-              <form class="tenant-form tenant-company-form" method="POST" action="{{ route('client.companies.store') }}" enctype="multipart/form-data">
+              <form class="tenant-form tenant-company-form" method="POST" action="{{ $formAction }}" enctype="multipart/form-data">
                 @csrf
+                @if($isEditing)
+                  @method('PATCH')
+                @endif
                 <input type="hidden" name="tenant_id" value="{{ $selectedTenantId }}">
 
                 <div class="tenant-form-header tenant-company-form__header">
                   <div>
-                    <h2 class="tenant-form-title">Create company</h2>
-                    <p class="tenant-form-intro">Add a company profile and upload a logo for your account.</p>
+                    <h2 class="tenant-form-title">{{ $formTitle }}</h2>
+                    <p class="tenant-form-intro">{{ $formIntro }}</p>
                   </div>
                   <a class="dash-link" href="{{ route('client.companies.index') }}">Back to companies</a>
                 </div>
@@ -62,13 +77,13 @@
 
                   <label>
                     Organization name
-                    <input name="organization_name" value="{{ old('organization_name') }}" required>
+                    <input name="organization_name" value="{{ old('organization_name', $company?->organization_name) }}" required>
                     @error('organization_name')<span class="tenant-form__error">{{ $message }}</span>@enderror
                   </label>
 
                   <label>
                     Company name (for job posts)
-                    <input name="name" value="{{ old('name') }}" required>
+                    <input name="name" value="{{ old('name', $company?->name) }}" required>
                     @error('name')<span class="tenant-form__error">{{ $message }}</span>@enderror
                   </label>
                 </section>
@@ -86,6 +101,9 @@
                       <input type="file" name="logo" accept=".jpg,.jpeg,.png,.webp,.svg,image/jpeg,image/png,image/webp,image/svg+xml">
                     </span>
                     <span class="input-description">Upload a PNG, JPG, WebP or SVG logo. Maximum file size: 2 MB.</span>
+                    @if($isEditing && $company?->logo_path)
+                      <span class="input-description">Current logo is saved. Choose a new file only if you want to replace it.</span>
+                    @endif
                     @error('logo')<span class="tenant-form__error">{{ $message }}</span>@enderror
                   </label>
                 </section>
@@ -98,13 +116,13 @@
                   <div class="tenant-form__grid">
                     <label>
                       First name
-                      <input name="contact_first_name" value="{{ old('contact_first_name') }}">
+                      <input name="contact_first_name" value="{{ old('contact_first_name', $company?->contact_first_name) }}">
                       @error('contact_first_name')<span class="tenant-form__error">{{ $message }}</span>@enderror
                     </label>
 
                     <label>
                       Last name
-                      <input name="contact_last_name" value="{{ old('contact_last_name') }}">
+                      <input name="contact_last_name" value="{{ old('contact_last_name', $company?->contact_last_name) }}">
                       @error('contact_last_name')<span class="tenant-form__error">{{ $message }}</span>@enderror
                     </label>
                   </div>
@@ -112,13 +130,13 @@
                   <div class="tenant-form__grid">
                     <label>
                       Email address
-                      <input type="email" name="contact_email" value="{{ old('contact_email') }}">
+                      <input type="email" name="contact_email" value="{{ old('contact_email', $company?->contact_email) }}">
                       @error('contact_email')<span class="tenant-form__error">{{ $message }}</span>@enderror
                     </label>
 
                     <label>
                       Phone number
-                      <input name="contact_phone" value="{{ old('contact_phone') }}">
+                      <input name="contact_phone" value="{{ old('contact_phone', $company?->contact_phone) }}">
                       @error('contact_phone')<span class="tenant-form__error">{{ $message }}</span>@enderror
                     </label>
                   </div>
@@ -136,7 +154,7 @@
                       name="description"
                       rows="6"
                       data-quill-source
-                    >{{ old('description') }}</textarea>
+                    >{{ old('description', $company?->description) }}</textarea>
                     <div
                       class="richtext-field dash-rich-text__editor"
                       data-quill-editor
@@ -146,7 +164,7 @@
                 </section>
 
                 <div class="tenant-company-form__actions">
-                  <button class="tenant-btn tenant-btn--primary tenant-post-job-form__submit" type="submit">Create company</button>
+                  <button class="tenant-btn tenant-btn--primary tenant-post-job-form__submit" type="submit">{{ $submitLabel }}</button>
                   <a class="dash-link" href="{{ route('client.companies.index') }}">Cancel</a>
                 </div>
               </form>
