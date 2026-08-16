@@ -235,9 +235,30 @@ class TenantFrontendController extends Controller
     {
         abort_unless($job->tenant_id === tenant('id') && $job->isPublished(), 404);
 
+        if (Schema::hasTable('tenant_companies')) {
+            $job->loadMissing('company');
+        }
+
+        $companyVacancyCount = null;
+
+        if (Schema::hasColumn('tenant_jobs', 'tenant_company_id') && $job->tenant_company_id) {
+            $companyVacancyCount = TenantJob::query()
+                ->where('tenant_id', tenant('id'))
+                ->where('tenant_company_id', $job->tenant_company_id)
+                ->where('status', TenantJob::STATUS_PUBLISHED)
+                ->count();
+        } elseif ($job->company_name) {
+            $companyVacancyCount = TenantJob::query()
+                ->where('tenant_id', tenant('id'))
+                ->where('company_name', $job->company_name)
+                ->where('status', TenantJob::STATUS_PUBLISHED)
+                ->count();
+        }
+
         return view('tenant.job-show', [
             'tenant' => tenant(),
             'job' => $job,
+            'companyVacancyCount' => $companyVacancyCount,
         ]);
     }
 
