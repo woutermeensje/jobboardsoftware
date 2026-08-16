@@ -86,7 +86,7 @@
   padding: 24px;
 }
 
-.tenant-post-job-form {
+.tenant-panel.tenant-post-job__main > form.tenant-post-job-form {
   padding: 24px;
 }
 
