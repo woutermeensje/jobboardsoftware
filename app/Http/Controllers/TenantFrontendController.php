@@ -278,7 +278,13 @@ class TenantFrontendController extends Controller
 
     private function jobsQuery(Request $request)
     {
-        return TenantJob::query()
+        $query = TenantJob::query();
+
+        if (Schema::hasTable('tenant_companies')) {
+            $query->with('company');
+        }
+
+        return $query
             ->where('tenant_id', tenant('id'))
             ->where('status', TenantJob::STATUS_PUBLISHED)
             ->when($request->filled('search'), function ($query) use ($request): void {

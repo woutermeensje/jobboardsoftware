@@ -26,7 +26,7 @@
 
     <section class="tenant-post-job">
       <article class="tenant-panel tenant-post-job__main">
-        <form method="POST" action="{{ route('tenant.post-job.store') }}" class="tenant-post-job-form">
+        <form method="POST" action="{{ route('tenant.post-job.store') }}" class="tenant-post-job-form" enctype="multipart/form-data">
           @csrf
 
           <div class="tenant-panel__head tenant-form-header">
@@ -41,14 +41,16 @@
 
             <label>
               Job title
-              <input name="title" value="{{ old('title') }}" placeholder="Senior Laravel Developer" required autofocus>
+              <input name="title" value="{{ old('title') }}" required autofocus>
+              <span class="input-description">Example: "Senior Laravel Developer", "Software Engineer"</span>
               @error('title')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
             </label>
 
             <div class="tenant-post-job-form__half-grid">
               <label>
                 Location
-                <input name="location" value="{{ old('location') }}" placeholder="Amsterdam or remote" required>
+                <input name="location" value="{{ old('location') }}" required>
+                <span class="input-description">Example: "Remote", "Remote / USA", "New York City", "Remote GMT-5".</span>
                 @error('location')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
               </label>
 
@@ -89,17 +91,36 @@
                 id="job-description"
                 name="description"
                 rows="8"
-                placeholder="Describe responsibilities, requirements and benefits."
                 required
                 data-quill-source
               >{{ old('description') }}</textarea>
               <div
                 class="tenant-rich-text__editor"
                 data-quill-editor
-                data-placeholder="Describe responsibilities, requirements and benefits."
               ></div>
               @error('description')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
             </div>
+          </div>
+
+          <div class="tenant-post-job-form__section">
+            <div class="tenant-form-section-head">
+              <h2 class="tenant-form-section-title">Company information</h2>
+            </div>
+
+            <label class="tenant-post-job-form__field tenant-post-job-form__logo-field">
+              Add logo
+              <span class="tenant-logo-upload" data-file-picker>
+                <i class="ph ph-image-square" aria-hidden="true"></i>
+                <span class="tenant-logo-upload__copy">
+                  Upload a PNG, JPG, WebP or SVG logo.
+                  <small>Maximum file size: 2 MB.</small>
+                </span>
+                <span class="tenant-file-picker__button">Choose file</span>
+                <span class="tenant-file-picker__filename" data-file-name data-empty-label="No file selected">No file selected</span>
+                <input type="file" name="company_logo" accept=".jpg,.jpeg,.png,.webp,.svg,image/jpeg,image/png,image/webp,image/svg+xml">
+              </span>
+              @error('company_logo')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
+            </label>
           </div>
 
           <div class="tenant-post-job-form__section">
@@ -110,13 +131,13 @@
             <div class="tenant-post-job-form__grid">
               <label>
                 First name
-                <input name="contact_first_name" value="{{ old('contact_first_name') }}" placeholder="Jane" required>
+                <input name="contact_first_name" value="{{ old('contact_first_name') }}" required>
                 @error('contact_first_name')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
               </label>
 
               <label>
                 Last name
-                <input name="contact_last_name" value="{{ old('contact_last_name') }}" placeholder="Doe" required>
+                <input name="contact_last_name" value="{{ old('contact_last_name') }}" required>
                 @error('contact_last_name')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
               </label>
             </div>
@@ -124,13 +145,13 @@
             <div class="tenant-post-job-form__grid">
               <label>
                 Phone number
-                <input name="contact_phone" value="{{ old('contact_phone') }}" placeholder="+1 555 123 4567">
+                <input name="contact_phone" value="{{ old('contact_phone') }}">
                 @error('contact_phone')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
               </label>
 
               <label>
                 Email address
-                <input name="contact_email" type="email" value="{{ old('contact_email') }}" placeholder="jane@example.com" required>
+                <input name="contact_email" type="email" value="{{ old('contact_email') }}" required>
                 @error('contact_email')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
               </label>
             </div>

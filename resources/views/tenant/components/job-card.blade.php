@@ -1,50 +1,69 @@
-<article class="tenant-job-card">
+@php
+  $company = $job->relationLoaded('company') ? $job->company : null;
+  $companyName = $job->company_name ?: ($company?->name ?? null);
+  $companyLogoPath = $job->company_logo_path ?: ($company?->logo_path ?? null);
+  $publishedAt = $job->published_at ?? $job->created_at;
+  $daysAgo = $publishedAt ? max(1, (int) $publishedAt->diffInDays(now())) : null;
+  $employmentTypes = collect(explode(',', (string) $job->employment_type))
+    ->map(fn (string $type): string => trim($type))
+    ->filter()
+    ->values();
+  $tagLabels = collect([$job->department])
+    ->merge($employmentTypes)
+    ->filter()
+    ->unique(fn (string $tag): string => mb_strtolower($tag))
+    ->values();
+@endphp
+
+<article class="tenant-job-card @if($companyLogoPath) tenant-job-card--has-logo @endif">
+  @if($companyLogoPath)
+    <span class="tenant-job-card__logo" aria-hidden="true">
+      <img src="{{ asset('storage/'.ltrim($companyLogoPath, '/')) }}" alt="">
+    </span>
+  @endif
+
   <a class="tenant-job-card__body" href="{{ route('tenant.jobs.show', $job) }}">
     <div class="tenant-job-card__main">
+      @if($companyName)
+        <p class="tenant-job-card__company">{{ $companyName }}</p>
+      @endif
+
       <h3>{{ $job->title }}</h3>
 
-      <div class="tenant-job-card__meta">
-        @if($job->department)
-          <span>
-            <i class="ph ph-buildings" aria-hidden="true"></i>
-            {{ $job->department }}
-          </span>
-        @endif
+      @if($employmentTypes->isNotEmpty() || $job->salary_range)
+        <p class="tenant-job-card__summary">
+          {{ $employmentTypes->isNotEmpty() ? $employmentTypes->implode(', ') : 'Job type open' }}
+          @if($job->salary_range)
+            - {{ $job->salary_range }}
+          @endif
+        </p>
+      @endif
+    </div>
 
+    <div class="tenant-job-card__side">
+      <div class="tenant-job-card__meta">
         @if($job->location)
           <span>
-            <i class="ph ph-map-pin" aria-hidden="true"></i>
+            <i class="ph ph-globe-hemisphere-west" aria-hidden="true"></i>
             {{ $job->location }}
           </span>
         @endif
 
-        @if($job->published_at)
+        @if($daysAgo)
           <span>
             <i class="ph ph-calendar-blank" aria-hidden="true"></i>
-            {{ $job->published_at->format('d-m-Y') }}
+            {{ $daysAgo }}d
           </span>
         @endif
       </div>
 
-      @if($job->intro)
-        <p>{{ \Illuminate\Support\Str::limit(trim(strip_tags((string) $job->intro)), 180) }}</p>
+      @if($tagLabels->isNotEmpty())
+        <div class="tenant-job-card__tags">
+          @foreach($tagLabels as $tag)
+            <span>{{ $tag }}</span>
+          @endforeach
+        </div>
       @endif
-
-      <div class="tenant-job-card__tags">
-        @if($job->department)
-          <span>{{ $job->department }}</span>
-        @endif
-
-        @if($job->employment_type)
-          <span class="tenant-job-card__tag--alt">{{ $job->employment_type }}</span>
-        @endif
-
-        @if($job->salary_range)
-          <span>{{ $job->salary_range }}</span>
-        @endif
-      </div>
     </div>
-
-    <span class="tenant-job-card__chevron" aria-hidden="true"></span>
   </a>
 </article>

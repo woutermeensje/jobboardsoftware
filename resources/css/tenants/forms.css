@@ -146,6 +146,15 @@
   gap: 7px;
 }
 
+.input-description {
+  display: block;
+  color: #6b7280;
+  font-family: 'Poppins', var(--font-text), sans-serif;
+  font-size: 13px;
+  font-weight: 300;
+  line-height: 1.5;
+}
+
 .tenant-multiselect {
   position: relative;
 }

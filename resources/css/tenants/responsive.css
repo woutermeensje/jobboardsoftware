@@ -30,11 +30,6 @@
     justify-items: start;
   }
 
-  .tenant-job-card__body {
-    align-items: flex-start;
-    padding: 18px;
-  }
-
   .tenant-navigation,
   .tenant-footer__links {
     justify-content: start;
