@@ -7,12 +7,6 @@
   @include('client.partials.navigation')
 @endsection
 
-@push('styles')
-  @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
-    <link rel="stylesheet" href="{{ Vite::asset('resources/css/tenants/forms.css') }}">
-  @endif
-@endpush
-
 @section('content')
       @if($errors->any())
         <section class="dash-card dash-card--danger">

@@ -291,14 +291,14 @@
 
 .tenant-post-job-form .tenant-multiselect__search {
   width: 100%;
-  min-height: 52px;
-  padding: 10px 14px;
+  min-height: 40px;
+  padding: 8px 12px;
   border: 1px solid var(--tenant-accent);
   border-radius: 6px;
   background: #ffffff;
   color: var(--color-text);
   font-family: var(--font-text);
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 400;
   outline: none;
   box-shadow: 0 0 0 4px color-mix(in srgb, var(--tenant-accent) 16%, transparent);
