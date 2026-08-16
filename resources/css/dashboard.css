@@ -1,6 +1,7 @@
 @import './tenants/forms.css';
 
 .dashboard-body {
+  --dashboard-content-offset: 56px;
   min-height: 100vh;
   background: #f7f6f2;
 }
@@ -144,7 +145,7 @@
 
 .dashboard-main {
   min-width: 0;
-  padding: 24px 28px 56px;
+  padding: var(--dashboard-content-offset) 28px 56px var(--dashboard-content-offset);
 }
 
 .dash-nav {
@@ -978,7 +979,7 @@
   }
 
   .dashboard-main {
-    padding: 22px 18px 48px;
+    padding: 28px 18px 48px;
   }
 
   .dash-stats {

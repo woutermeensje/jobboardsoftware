@@ -71,16 +71,27 @@ class TenantDashboardController extends Controller
             return $user;
         }
 
-        $jobs = TenantJob::query()
+        $tenantId = tenant('id');
+        $employerJobs = fn () => TenantJob::query()
+            ->where('tenant_id', $tenantId)
+            ->where('submitted_by_user_id', $user->id);
+
+        $jobIds = TenantJob::query()
+            ->select('id')
+            ->where('tenant_id', $tenantId)
+            ->where('submitted_by_user_id', $user->id);
+        $employerApplications = fn () => JobApplication::query()
+            ->where('tenant_id', $tenantId)
+            ->whereIn('tenant_job_id', clone $jobIds);
+
+        $jobs = $employerJobs()
             ->withCount('applications')
-            ->where('tenant_id', tenant('id'))
             ->latest()
             ->take(8)
             ->get();
 
-        $applications = JobApplication::query()
+        $applications = $employerApplications()
             ->with('job')
-            ->where('tenant_id', tenant('id'))
             ->latest()
             ->take(8)
             ->get();
@@ -91,10 +102,10 @@ class TenantDashboardController extends Controller
             'jobs' => $jobs,
             'applications' => $applications,
             'stats' => [
-                ['label' => 'Published jobs', 'value' => TenantJob::query()->where('tenant_id', tenant('id'))->where('status', TenantJob::STATUS_PUBLISHED)->count()],
-                ['label' => 'Draft jobs', 'value' => TenantJob::query()->where('tenant_id', tenant('id'))->where('status', TenantJob::STATUS_DRAFT)->count()],
-                ['label' => 'New applications', 'value' => JobApplication::query()->where('tenant_id', tenant('id'))->where('status', JobApplication::STATUS_NEW)->count()],
-                ['label' => 'Total applications', 'value' => JobApplication::query()->where('tenant_id', tenant('id'))->count()],
+                ['label' => 'Published jobs', 'value' => $employerJobs()->where('status', TenantJob::STATUS_PUBLISHED)->count()],
+                ['label' => 'Draft jobs', 'value' => $employerJobs()->where('status', TenantJob::STATUS_DRAFT)->count()],
+                ['label' => 'New applications', 'value' => $employerApplications()->where('status', JobApplication::STATUS_NEW)->count()],
+                ['label' => 'Total applications', 'value' => $employerApplications()->count()],
             ],
         ]);
     }

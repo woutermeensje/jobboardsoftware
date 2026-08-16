@@ -388,6 +388,22 @@ class ExampleTest extends TestCase
             'submitted_by_user_id' => $user->id,
             'status' => TenantJob::STATUS_DRAFT,
         ]);
+
+        $tenant->jobs()->create([
+            'title' => 'Unowned Public Draft',
+            'slug' => 'unowned-public-draft',
+            'location' => 'Remote',
+            'employment_type' => 'Full time',
+            'description' => 'This draft was not submitted by this employer account.',
+            'status' => TenantJob::STATUS_DRAFT,
+            'submitted_by_user_id' => null,
+        ]);
+
+        $this->get('http://public-post-account.test/employer/dashboard')
+            ->assertOk()
+            ->assertSee('Sales Lead')
+            ->assertSee('Draft')
+            ->assertDontSee('Unowned Public Draft');
     }
 
     public function test_tenant_accounts_are_scoped_by_tenant_domain(): void
@@ -448,6 +464,14 @@ class ExampleTest extends TestCase
     public function test_tenant_jobseeker_and_employer_dashboards_use_the_dashboard_shell(): void
     {
         $tenant = $this->tenantWithDomain('dash-auth', 'dash-auth.test');
+        $employer = User::factory()->create([
+            'tenant_id' => $tenant->id,
+            'name' => 'Evan Employer',
+            'email' => 'employer@example.com',
+            'company_name' => 'Dash Hiring Co.',
+            'role' => User::ROLE_EMPLOYER,
+        ]);
+
         $job = $tenant->jobs()->create([
             'title' => 'Product Designer',
             'slug' => 'product-designer',
@@ -457,9 +481,10 @@ class ExampleTest extends TestCase
             'description' => 'Design polished product experiences.',
             'status' => TenantJob::STATUS_PUBLISHED,
             'published_at' => now(),
+            'submitted_by_user_id' => $employer->id,
         ]);
 
-        $tenant->jobs()->create([
+        $unownedJob = $tenant->jobs()->create([
             'title' => 'Draft Recruiter',
             'slug' => 'draft-recruiter',
             'department' => 'People',
@@ -467,6 +492,7 @@ class ExampleTest extends TestCase
             'employment_type' => 'Parttime',
             'description' => 'Draft role.',
             'status' => TenantJob::STATUS_DRAFT,
+            'submitted_by_user_id' => null,
         ]);
 
         JobApplication::create([
@@ -485,19 +511,19 @@ class ExampleTest extends TestCase
             'status' => JobApplication::STATUS_NEW,
         ]);
 
+        JobApplication::create([
+            'tenant_id' => $tenant->id,
+            'tenant_job_id' => $unownedJob->id,
+            'name' => 'Hidden Candidate',
+            'email' => 'hidden@example.com',
+            'status' => JobApplication::STATUS_NEW,
+        ]);
+
         $jobseeker = User::factory()->create([
             'tenant_id' => $tenant->id,
             'name' => 'Jane Candidate',
             'email' => 'candidate@example.com',
             'role' => User::ROLE_JOBSEEKER,
-        ]);
-
-        $employer = User::factory()->create([
-            'tenant_id' => $tenant->id,
-            'name' => 'Evan Employer',
-            'email' => 'employer@example.com',
-            'company_name' => 'Dash Hiring Co.',
-            'role' => User::ROLE_EMPLOYER,
         ]);
 
         $this->get('http://dash-auth.test/jobseeker/dashboard')
@@ -527,7 +553,9 @@ class ExampleTest extends TestCase
             ->assertSee('Jobs')
             ->assertSee('Applications')
             ->assertSee('Product Designer')
-            ->assertSee('Other Candidate');
+            ->assertSee('Other Candidate')
+            ->assertDontSee('Draft Recruiter')
+            ->assertDontSee('Hidden Candidate');
 
         $this->actingAs($employer)
             ->get('http://dash-auth.test/jobseeker/dashboard')

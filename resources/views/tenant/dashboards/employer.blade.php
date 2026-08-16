@@ -27,7 +27,7 @@
           <div class="dash-panel__head">
             <div>
               <h2 id="jobs-title">Jobs</h2>
-              <p>Current jobs and application counts for {{ $brandName }}.</p>
+              <p>Current jobs and application counts for your employer account.</p>
             </div>
             <a class="dash-btn dash-btn--primary" href="{{ route('tenant.jobs') }}">
               <i class="ph ph-briefcase"></i>
@@ -66,7 +66,7 @@
           <div class="dash-panel__head">
             <div>
               <h2 id="employer-applications-title">Applications</h2>
-              <p>Latest candidate applications for this tenant.</p>
+              <p>Latest candidate applications for your jobs.</p>
             </div>
           </div>
 
