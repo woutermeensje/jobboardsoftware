@@ -16,6 +16,8 @@
     ->filter()
     ->unique(fn (string $tag): string => mb_strtolower($tag))
     ->values();
+  $excerptSource = trim(strip_tags((string) ($job->intro ?: $job->description)));
+  $excerpt = $excerptSource !== '' ? \Illuminate\Support\Str::words($excerptSource, 35) : null;
 @endphp
 
 <article class="tenant-job-card">
@@ -37,6 +39,10 @@
       @endif
 
       <h3>{{ $job->title }}</h3>
+
+      @if($excerpt)
+        <p class="tenant-job-card__excerpt">{{ $excerpt }}</p>
+      @endif
 
       @if($job->location || $postedLabel || $job->salary_range)
         <div class="tenant-job-card__meta">

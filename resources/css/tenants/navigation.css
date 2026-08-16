@@ -195,3 +195,9 @@
   font-size: 14px;
   font-weight: 600;
 }
+
+@media (max-width: 1180px) {
+  .tenant-header__nav {
+    display: none;
+  }
+}

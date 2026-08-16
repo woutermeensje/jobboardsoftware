@@ -150,6 +150,16 @@
   line-height: 1.25;
 }
 
+.tenant-job-card__excerpt {
+  max-width: 62ch;
+  margin: 0;
+  color: var(--color-text-muted);
+  font-family: var(--font-text);
+  font-size: 13px;
+  font-weight: 300;
+  line-height: 1.5;
+}
+
 .tenant-job-card__side {
   min-width: 0;
   display: grid;
@@ -268,7 +278,7 @@
   .tenant-job-card__logo {
     width: 52px;
     height: 52px;
-    padding: 9px;
+    padding: 0;
   }
 
   .tenant-job-card__body {
