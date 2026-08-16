@@ -29,26 +29,6 @@
 @endphp
 
 <header id="tenant-header" class="tenant-header" role="banner">
-  <div class="tenant-topbar" aria-label="Quick links">
-    <div class="tenant-topbar__inner">
-      <div class="tenant-topbar__group">
-        <a class="tenant-topbar__link" href="{{ route('tenant.jobs') }}#jobs">Jobs</a>
-        <span class="tenant-topbar__sep" aria-hidden="true">|</span>
-        <a class="tenant-topbar__link" href="{{ route('tenant.pricing') }}">Pricing</a>
-        <span class="tenant-topbar__sep" aria-hidden="true">|</span>
-        <a class="tenant-topbar__link" href="{{ route('tenant.contact') }}">Contact</a>
-      </div>
-
-      <div class="tenant-topbar__group tenant-topbar__group--right">
-        <a class="tenant-topbar__link" href="{{ route('tenant.jobs') }}#jobs">View open roles</a>
-        <span class="tenant-topbar__sep" aria-hidden="true">|</span>
-        <a class="tenant-topbar__link" href="{{ route('tenant.pricing') }}">View pricing</a>
-        <span class="tenant-topbar__sep" aria-hidden="true">|</span>
-        <a class="tenant-topbar__link" href="{{ route('tenant.contact') }}">Get in touch</a>
-      </div>
-    </div>
-  </div>
-
   <div class="tenant-header__inner">
     <div class="tenant-header__brand">
       <a class="tenant-brand" href="{{ route('tenant.home') }}" aria-label="{{ $brandName }} home">
