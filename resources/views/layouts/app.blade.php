@@ -26,7 +26,7 @@
 
   @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
     @vite($usesDashboardLayout
-      ? ['resources/css/app.css', 'resources/css/dashboard.css', 'resources/js/app.js']
+      ? ['resources/css/app.css', 'resources/css/dashboard.css', 'resources/css/tenants/index.css', 'resources/js/app.js']
       : ['resources/css/app.css', 'resources/css/header.css', 'resources/css/footer.css', 'resources/js/app.js']
     )
   @endif

@@ -27,55 +27,6 @@
     @vite(['resources/css/app.css', 'resources/css/tenants/index.css', 'resources/js/app.js'])
   @endif
 
-  <style>
-    :root {
-      --color-bg: #f7f6f2;
-      --color-bg-white: #ffffff;
-      --color-card: #ffffff;
-      --color-border: #DEDEDE;
-      --color-border-strong: #cbd5e1;
-      --color-text: #333;
-      --color-text-muted: #555;
-      --color-text-subtle: #94a3b8;
-      --color-primary: #3f7296;
-      --color-primary-strong: #2f5f80;
-      --color-primary-soft: rgba(63, 114, 150, 0.08);
-      --color-primary-muted: rgba(63, 114, 150, 0.24);
-      --color-accent: #d99a5b;
-      --color-accent-strong: #a9652f;
-      --color-accent-soft: rgba(217, 154, 91, 0.10);
-      --font-ui: 'Inter', sans-serif;
-      --font-text: 'Poppins', sans-serif;
-      --font-heading: 'Inter', sans-serif;
-      --shadow-sm: 0 1px 2px rgba(17, 24, 39, 0.05);
-      --shadow-md: 0 14px 32px rgba(17, 24, 39, 0.08);
-      --radius-default: 5px;
-      --border-default: 1px solid var(--color-border);
-      --field-bg: #ffffff;
-      --field-border: #DEDEDE;
-      --field-border-hover: #DEDEDE;
-      --field-focus: #DEDEDE;
-    }
-
-    *,
-    *::before,
-    *::after {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      background: var(--color-bg);
-      color: var(--color-text);
-      font-family: var(--font-text);
-    }
-
-    a {
-      color: inherit;
-    }
-  </style>
-
   @stack('styles')
 </head>
 <body

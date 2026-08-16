@@ -1,4 +1,12 @@
+.tenant-body,
+.tenant-body *,
+.tenant-body *::before,
+.tenant-body *::after {
+  box-sizing: border-box;
+}
+
 .tenant-body {
+  margin: 0;
   min-height: 100vh;
   background: var(--color-bg);
   color: var(--color-text);

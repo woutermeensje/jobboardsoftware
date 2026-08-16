@@ -147,7 +147,7 @@
                     <h2 id="company-description-title" class="tenant-form-section-title">Company description</h2>
                   </div>
 
-                  <div class="tenant-form__field dash-rich-text" data-quill-field>
+                  <div class="tenant-form__field tenant-rich-text" data-quill-field>
                     <label for="company-description">Description</label>
                     <textarea
                       id="company-description"
@@ -156,7 +156,7 @@
                       data-quill-source
                     >{{ old('description', $company?->description) }}</textarea>
                     <div
-                      class="richtext-field dash-rich-text__editor"
+                      class="richtext-field tenant-rich-text__editor"
                       data-quill-editor
                     ></div>
                     @error('description')<span class="tenant-form__error">{{ $message }}</span>@enderror
