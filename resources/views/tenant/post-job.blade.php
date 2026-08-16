@@ -51,7 +51,6 @@
                 <label>
                   Location
                   <input name="location" value="{{ old('location') }}" required>
-                  <span class="input-description">Example: "Remote", "Remote / USA", "New York City", "Remote GMT-5".</span>
                   @error('location')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
                 </label>
 
