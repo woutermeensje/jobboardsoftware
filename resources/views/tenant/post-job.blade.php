@@ -25,145 +25,149 @@
     @endif
 
     <section class="tenant-post-job">
-      <article class="tenant-panel tenant-post-job__main">
-        <form method="POST" action="{{ route('tenant.post-job.store') }}" class="tenant-post-job-form" enctype="multipart/form-data">
-          @csrf
+      <div class="tenant-post-job__content">
+        <article class="tenant-panel tenant-post-job__main">
+          <form id="tenant-post-job-form" method="POST" action="{{ route('tenant.post-job.store') }}" class="tenant-post-job-form" enctype="multipart/form-data">
+            @csrf
 
-          <div class="tenant-panel__head tenant-form-header">
-            <h2 class="tenant-form-title">Submit a vacancy</h2>
-            <p>Your job will be saved as a draft first. Publishing and payment can be completed in the next step later.</p>
-          </div>
-
-          <div class="tenant-post-job-form__section">
-            <div class="tenant-form-section-head">
-              <h2 class="tenant-form-section-title">Job details</h2>
+            <div class="tenant-panel__head tenant-form-header">
+              <h2 class="tenant-form-title">Submit a vacancy</h2>
+              <p>Your job will be saved as a draft first. Publishing and payment can be completed in the next step later.</p>
             </div>
 
-            <label>
-              Job title
-              <input name="title" value="{{ old('title') }}" required autofocus>
-              <span class="input-description">Example: "Senior Laravel Developer", "Software Engineer"</span>
-              @error('title')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
-            </label>
+            <div class="tenant-post-job-form__section">
+              <div class="tenant-form-section-head">
+                <h2 class="tenant-form-section-title">Job details</h2>
+              </div>
 
-            <div class="tenant-post-job-form__half-grid">
               <label>
-                Location
-                <input name="location" value="{{ old('location') }}" required>
-                <span class="input-description">Example: "Remote", "Remote / USA", "New York City", "Remote GMT-5".</span>
-                @error('location')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
+                Job title
+                <input name="title" value="{{ old('title') }}" required autofocus>
+                <span class="input-description">Example: "Senior Laravel Developer", "Software Engineer"</span>
+                @error('title')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
               </label>
 
-              <div class="tenant-post-job-form__field tenant-multiselect" data-multiselect>
-                <label id="tenant-job-type-label">Job type</label>
-                <button
-                  class="tenant-multiselect__button"
-                  type="button"
-                  aria-haspopup="listbox"
-                  aria-expanded="false"
-                  aria-labelledby="tenant-job-type-label"
-                  data-multiselect-button
-                >
-                  Select job types
-                </button>
-                <div class="tenant-multiselect__menu" role="listbox" aria-multiselectable="true" data-multiselect-menu>
-                  @foreach($jobTypes as $jobType)
-                    <label class="tenant-multiselect__option">
-                      <input
-                        type="checkbox"
-                        name="employment_type[]"
-                        value="{{ $jobType }}"
-                        @checked($selectedJobTypes->contains($jobType))
-                        data-multiselect-option
-                      >
-                      <span>{{ $jobType }}</span>
-                    </label>
-                  @endforeach
+              <div class="tenant-post-job-form__half-grid">
+                <label>
+                  Location
+                  <input name="location" value="{{ old('location') }}" required>
+                  <span class="input-description">Example: "Remote", "Remote / USA", "New York City", "Remote GMT-5".</span>
+                  @error('location')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
+                </label>
+
+                <div class="tenant-post-job-form__field tenant-multiselect" data-multiselect>
+                  <label id="tenant-job-type-label">Job type</label>
+                  <button
+                    class="tenant-multiselect__button"
+                    type="button"
+                    aria-haspopup="listbox"
+                    aria-expanded="false"
+                    aria-labelledby="tenant-job-type-label"
+                    data-multiselect-button
+                  >
+                    Select job types
+                  </button>
+                  <div class="tenant-multiselect__menu" role="listbox" aria-multiselectable="true" data-multiselect-menu>
+                    @foreach($jobTypes as $jobType)
+                      <label class="tenant-multiselect__option">
+                        <input
+                          type="checkbox"
+                          name="employment_type[]"
+                          value="{{ $jobType }}"
+                          @checked($selectedJobTypes->contains($jobType))
+                          data-multiselect-option
+                        >
+                        <span>{{ $jobType }}</span>
+                      </label>
+                    @endforeach
+                  </div>
+                  @error('employment_type')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
+                  @error('employment_type.*')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
                 </div>
-                @error('employment_type')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
-                @error('employment_type.*')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
+              </div>
+
+              <div class="tenant-post-job-form__field tenant-rich-text" data-quill-field>
+                <label for="job-description">Job description</label>
+                <textarea
+                  id="job-description"
+                  name="description"
+                  rows="8"
+                  required
+                  data-quill-source
+                >{{ old('description') }}</textarea>
+                <div
+                  class="tenant-rich-text__editor"
+                  data-quill-editor
+                ></div>
+                @error('description')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
               </div>
             </div>
 
-            <div class="tenant-post-job-form__field tenant-rich-text" data-quill-field>
-              <label for="job-description">Job description</label>
-              <textarea
-                id="job-description"
-                name="description"
-                rows="8"
-                required
-                data-quill-source
-              >{{ old('description') }}</textarea>
-              <div
-                class="tenant-rich-text__editor"
-                data-quill-editor
-              ></div>
-              @error('description')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
-            </div>
-          </div>
+            <div class="tenant-post-job-form__section">
+              <div class="tenant-form-section-head">
+                <h2 class="tenant-form-section-title">Company information</h2>
+              </div>
 
-          <div class="tenant-post-job-form__section">
-            <div class="tenant-form-section-head">
-              <h2 class="tenant-form-section-title">Company information</h2>
-            </div>
-
-            <label class="tenant-post-job-form__field tenant-post-job-form__logo-field">
-              Add logo
-              <span class="tenant-logo-upload" data-file-picker>
-                <i class="ph ph-image-square" aria-hidden="true"></i>
-                <span class="tenant-logo-upload__copy">
-                  Upload a PNG, JPG, WebP or SVG logo.
-                  <small>Maximum file size: 2 MB.</small>
+              <label class="tenant-post-job-form__field tenant-post-job-form__logo-field">
+                Add logo
+                <span class="tenant-logo-upload" data-file-picker>
+                  <i class="ph ph-image-square" aria-hidden="true"></i>
+                  <span class="tenant-logo-upload__copy">
+                    Upload a PNG, JPG, WebP or SVG logo.
+                    <small>Maximum file size: 2 MB.</small>
+                  </span>
+                  <span class="tenant-file-picker__button">Choose file</span>
+                  <span class="tenant-file-picker__filename" data-file-name data-empty-label="No file selected">No file selected</span>
+                  <input type="file" name="company_logo" accept=".jpg,.jpeg,.png,.webp,.svg,image/jpeg,image/png,image/webp,image/svg+xml">
                 </span>
-                <span class="tenant-file-picker__button">Choose file</span>
-                <span class="tenant-file-picker__filename" data-file-name data-empty-label="No file selected">No file selected</span>
-                <input type="file" name="company_logo" accept=".jpg,.jpeg,.png,.webp,.svg,image/jpeg,image/png,image/webp,image/svg+xml">
-              </span>
-              @error('company_logo')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
-            </label>
-          </div>
-
-          <div class="tenant-post-job-form__section">
-            <div class="tenant-form-section-head">
-              <h2 class="tenant-form-section-title">Contact details</h2>
-            </div>
-
-            <div class="tenant-post-job-form__grid">
-              <label>
-                First name
-                <input name="contact_first_name" value="{{ old('contact_first_name') }}" required>
-                @error('contact_first_name')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
-              </label>
-
-              <label>
-                Last name
-                <input name="contact_last_name" value="{{ old('contact_last_name') }}" required>
-                @error('contact_last_name')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
+                @error('company_logo')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
               </label>
             </div>
 
-            <div class="tenant-post-job-form__grid">
-              <label>
-                Phone number
-                <input name="contact_phone" value="{{ old('contact_phone') }}">
-                @error('contact_phone')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
-              </label>
+            <div class="tenant-post-job-form__section">
+              <div class="tenant-form-section-head">
+                <h2 class="tenant-form-section-title">Contact details</h2>
+              </div>
 
-              <label>
-                Email address
-                <input name="contact_email" type="email" value="{{ old('contact_email') }}" required>
-                @error('contact_email')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
-              </label>
+              <div class="tenant-post-job-form__grid">
+                <label>
+                  First name
+                  <input name="contact_first_name" value="{{ old('contact_first_name') }}" required>
+                  @error('contact_first_name')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
+                </label>
+
+                <label>
+                  Last name
+                  <input name="contact_last_name" value="{{ old('contact_last_name') }}" required>
+                  @error('contact_last_name')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
+                </label>
+              </div>
+
+              <div class="tenant-post-job-form__grid">
+                <label>
+                  Phone number
+                  <input name="contact_phone" value="{{ old('contact_phone') }}">
+                  @error('contact_phone')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
+                </label>
+
+                <label>
+                  Email address
+                  <input name="contact_email" type="email" value="{{ old('contact_email') }}" required>
+                  @error('contact_email')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
+                </label>
+              </div>
             </div>
-          </div>
+          </form>
+        </article>
 
+        <article class="tenant-panel tenant-post-job__account-panel">
           <div class="tenant-post-job-account">
             <div class="tenant-form-section-head">
               <h2 class="tenant-form-section-title">Create account</h2>
             </div>
 
             <label class="tenant-post-job-form__check">
-              <input type="checkbox" name="create_account" value="1" @checked(old('create_account'))>
+              <input form="tenant-post-job-form" type="checkbox" name="create_account" value="1" @checked(old('create_account'))>
               <span>
                 Create an employer account with this submission
                 <small>Use the password fields below if you want an account for managing this job later.</small>
@@ -173,22 +177,22 @@
             <div class="tenant-post-job-form__grid">
               <label>
                 Password
-                <input name="password" type="password" autocomplete="new-password">
+                <input form="tenant-post-job-form" name="password" type="password" autocomplete="new-password">
                 @error('password')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
               </label>
 
               <label>
                 Confirm password
-                <input name="password_confirmation" type="password" autocomplete="new-password">
+                <input form="tenant-post-job-form" name="password_confirmation" type="password" autocomplete="new-password">
               </label>
             </div>
           </div>
+        </article>
 
-          <button class="tenant-btn tenant-btn--primary tenant-post-job-form__submit" type="submit">
-            Submit job
-          </button>
-        </form>
-      </article>
+        <button class="tenant-btn tenant-btn--primary tenant-post-job-form__submit" type="submit" form="tenant-post-job-form">
+          Submit job
+        </button>
+      </div>
 
       <aside class="tenant-panel tenant-post-job__aside">
         <p class="tenant-eyebrow">Next step</p>

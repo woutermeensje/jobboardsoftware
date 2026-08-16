@@ -70,9 +70,20 @@
   margin: 56px 0;
 }
 
-.tenant-panel.tenant-post-job__main {
+.tenant-post-job__content {
+  display: grid;
+  gap: 22px;
+  min-width: 0;
+}
+
+.tenant-panel.tenant-post-job__main,
+.tenant-panel.tenant-post-job__account-panel {
   min-width: 0;
   padding: 0;
+}
+
+.tenant-panel.tenant-post-job__account-panel {
+  padding: 24px;
 }
 
 .tenant-post-job-form .tenant-panel__head p {
@@ -432,10 +443,10 @@
 .tenant-post-job-form__account {
   display: grid;
   gap: 14px;
-  padding: 24px;
-  border: 1px solid var(--color-border);
-  border-radius: 5px;
-  background: var(--tenant-subtle-surface);
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
 }
 
 .tenant-post-job-form__check {
