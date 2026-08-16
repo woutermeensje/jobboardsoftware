@@ -216,27 +216,54 @@ class ClientDashboardController extends Controller
         ]);
     }
 
+    public function jobs(Request $request): View
+    {
+        $tenants = $request->user()
+            ->ownedTenants()
+            ->latest()
+            ->get();
+
+        return view('client.jobs', [
+            'user' => $request->user(),
+            'tenants' => $tenants,
+            'jobs' => TenantJob::query()
+                ->with(['tenant', 'company'])
+                ->whereIn('tenant_id', $tenants->pluck('id'))
+                ->whereIn('status', [TenantJob::STATUS_PUBLISHED, TenantJob::STATUS_DRAFT])
+                ->latest()
+                ->get(),
+        ]);
+    }
+
     public function storeJob(Request $request): RedirectResponse
     {
         $companyTableReady = Schema::hasTable('tenant_companies');
+
+        $request->merge([
+            'job_url' => $this->normalizeExternalUrl($request->input('job_url')),
+            'company_url' => $this->normalizeExternalUrl($request->input('company_url')),
+        ]);
 
         $validated = $request->validate([
             'tenant_id' => [
                 'required',
                 Rule::exists('tenants', 'id')->where(fn ($query) => $query->where('owner_user_id', $request->user()->id)),
             ],
-            'tenant_company_id' => ['nullable', 'integer'],
-            'company_name' => [Rule::requiredIf(! $request->filled('tenant_company_id')), 'nullable', 'string', 'max:255'],
+            'tenant_company_id' => ['required', 'integer'],
+            'company_name' => ['nullable', 'string', 'max:255'],
             'company_logo' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,svg', 'max:2048'],
             'title' => ['required', 'string', 'max:255'],
-            'category' => ['required', 'string', 'max:255'],
+            'category' => ['nullable', 'string', 'max:255'],
             'location' => ['required', 'string', 'max:255'],
             'employment_type' => ['required', 'string', 'max:80'],
             'salary_range' => ['nullable', 'string', 'max:255'],
             'intro' => ['nullable', 'string', 'max:3000'],
             'description' => ['required', 'string', 'max:10000'],
-            'contact_name' => ['nullable', 'string', 'max:255'],
-            'contact_email' => ['nullable', 'email', 'max:255'],
+            'job_url' => ['nullable', 'url', 'starts_with:http://,https://', 'max:2048'],
+            'company_url' => ['nullable', 'url', 'starts_with:http://,https://', 'max:2048'],
+            'contact_first_name' => ['required', 'string', 'max:255'],
+            'contact_last_name' => ['required', 'string', 'max:255'],
+            'contact_email' => ['required', 'email', 'max:255'],
             'contact_phone' => ['nullable', 'string', 'max:50'],
             'status' => ['required', Rule::in([TenantJob::STATUS_DRAFT, TenantJob::STATUS_PUBLISHED])],
             'closes_at' => ['nullable', 'date'],
@@ -254,14 +281,14 @@ class ClientDashboardController extends Controller
 
         $company = null;
 
-        if ($companyTableReady && ! empty($validated['tenant_company_id'])) {
+        if ($companyTableReady) {
             $company = TenantCompany::query()
                 ->where('tenant_id', $tenant->id)
                 ->find($validated['tenant_company_id']);
 
             if (! $company) {
                 return back()
-                    ->withErrors(['tenant_company_id' => 'Select a company that belongs to this environment.'])
+                    ->withErrors(['tenant_company_id' => 'Select a company that belongs to this account.'])
                     ->withInput();
             }
         }
@@ -283,6 +310,7 @@ class ClientDashboardController extends Controller
         }
 
         $intro = RichTextSanitizer::sanitize($validated['intro'] ?? null);
+        $contactName = trim($validated['contact_first_name'].' '.$validated['contact_last_name']);
         $tenantJobsHasTenantCompanyId = Schema::hasColumn('tenant_jobs', 'tenant_company_id');
         $tenantJobsHasCompanyName = Schema::hasColumn('tenant_jobs', 'company_name');
         $tenantJobsHasCompanyLogoPath = Schema::hasColumn('tenant_jobs', 'company_logo_path');
@@ -290,6 +318,8 @@ class ClientDashboardController extends Controller
         $tenantJobsHasContactEmail = Schema::hasColumn('tenant_jobs', 'contact_email');
         $tenantJobsHasContactPhone = Schema::hasColumn('tenant_jobs', 'contact_phone');
         $tenantJobsHasSubmittedByUserId = Schema::hasColumn('tenant_jobs', 'submitted_by_user_id');
+        $tenantJobsHasJobUrl = Schema::hasColumn('tenant_jobs', 'job_url');
+        $tenantJobsHasCompanyUrl = Schema::hasColumn('tenant_jobs', 'company_url');
         $companyLogoPath = $tenantJobsHasCompanyLogoPath && $request->hasFile('company_logo')
             ? $request->file('company_logo')->store('company-logos', 'public')
             : ($tenantJobsHasCompanyLogoPath ? $company?->logo_path : null);
@@ -298,7 +328,7 @@ class ClientDashboardController extends Controller
             'tenant_id' => $tenant->id,
             'title' => $validated['title'],
             'slug' => $this->uniqueJobSlug($tenant, $validated['title']),
-            'department' => $validated['category'],
+            'department' => $validated['category'] ?? null,
             'location' => $validated['location'],
             'employment_type' => $validated['employment_type'],
             'salary_range' => $validated['salary_range'] ?? null,
@@ -308,6 +338,14 @@ class ClientDashboardController extends Controller
             'published_at' => $validated['status'] === TenantJob::STATUS_PUBLISHED ? now() : null,
             'closes_at' => $validated['closes_at'] ?? null,
         ];
+
+        if ($tenantJobsHasJobUrl) {
+            $jobAttributes['job_url'] = $validated['job_url'] ?? null;
+        }
+
+        if ($tenantJobsHasCompanyUrl) {
+            $jobAttributes['company_url'] = $validated['company_url'] ?? null;
+        }
 
         if ($tenantJobsHasTenantCompanyId) {
             $jobAttributes['tenant_company_id'] = $company?->id;
@@ -322,11 +360,11 @@ class ClientDashboardController extends Controller
         }
 
         if ($tenantJobsHasContactName) {
-            $jobAttributes['contact_name'] = $validated['contact_name'] ?? $company?->contact_name ?? $request->user()->name;
+            $jobAttributes['contact_name'] = $contactName;
         }
 
         if ($tenantJobsHasContactEmail) {
-            $jobAttributes['contact_email'] = $validated['contact_email'] ?? $company?->contact_email ?? $request->user()->email;
+            $jobAttributes['contact_email'] = $validated['contact_email'];
         }
 
         if ($tenantJobsHasContactPhone) {
@@ -340,7 +378,7 @@ class ClientDashboardController extends Controller
         TenantJob::query()->create($jobAttributes);
 
         return redirect()
-            ->route('client.jobs.create')
+            ->route('client.jobs.index')
             ->with('status', 'Job created.');
     }
 
@@ -690,6 +728,17 @@ class ClientDashboardController extends Controller
         }
 
         return Str::lower($domain);
+    }
+
+    private function normalizeExternalUrl(mixed $value): ?string
+    {
+        $value = trim((string) $value);
+
+        if ($value === '') {
+            return null;
+        }
+
+        return Str::contains($value, '://') ? $value : 'https://'.$value;
     }
 
     private function uniqueCompanySlug(Tenant $tenant, string $name): string

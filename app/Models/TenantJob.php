@@ -37,6 +37,8 @@ class TenantJob extends Model
         'salary_range',
         'intro',
         'description',
+        'job_url',
+        'company_url',
         'status',
         'published_at',
         'closes_at',

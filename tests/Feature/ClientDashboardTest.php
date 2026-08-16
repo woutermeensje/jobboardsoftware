@@ -189,11 +189,22 @@ class ClientDashboardTest extends TestCase
             ->assertOk()
             ->assertSee('dash-form-layout', false)
             ->assertSee('Create job')
+            ->assertDontSee('Publishing')
             ->assertSee('Job details')
-            ->assertSee('Company logo')
+            ->assertSee('Company information')
+            ->assertSee('Company website URL')
+            ->assertSee('Add a homepage, about page, or another relevant company page for this company.')
+            ->assertSee('Vacancy URL')
+            ->assertSee('Add the link to this vacancy on the client website.')
             ->assertSee('Select company')
+            ->assertSee('Search company')
             ->assertSee('Acme Hiring')
             ->assertSee('Volunteer')
+            ->assertSee('First name')
+            ->assertSee('Last name')
+            ->assertSee('Publish')
+            ->assertSee('Save as draft')
+            ->assertDontSee('Company logo')
             ->assertSee('data-quill-field', false)
             ->assertSee('cdn.jsdelivr.net/npm/quill@2/dist/quill.js', false)
             ->assertDontSee('placeholder=', false);
@@ -202,17 +213,19 @@ class ClientDashboardTest extends TestCase
             ->post('/client/dashboard/jobs', [
                 'tenant_id' => $tenant->id,
                 'tenant_company_id' => $company->id,
-                'company_logo' => UploadedFile::fake()->create('job-logo.png', 24, 'image/png'),
                 'title' => 'Community Lead',
-                'category' => 'Community',
+                'job_url' => 'jobs.example.com/community-lead',
+                'company_url' => 'https://acme.example.com/about',
                 'location' => 'Amsterdam',
                 'employment_type' => 'Volunteer',
-                'salary_range' => 'Upon request',
-                'intro' => '<p>Lead a <strong>community</strong>.</p>',
                 'description' => '<p>Own events and candidate engagement.</p><script>alert("xss")</script>',
+                'contact_first_name' => 'Maya',
+                'contact_last_name' => 'Collins',
+                'contact_email' => 'maya@example.com',
+                'contact_phone' => '+31 20 123 4567',
                 'status' => TenantJob::STATUS_PUBLISHED,
             ])
-            ->assertRedirect(route('client.jobs.create'))
+            ->assertRedirect(route('client.jobs.index'))
             ->assertSessionHas('status', 'Job created.');
 
         $job = TenantJob::query()
@@ -227,11 +240,76 @@ class ClientDashboardTest extends TestCase
         $this->assertNotNull($job->published_at);
         $this->assertSame('Maya Collins', $job->contact_name);
         $this->assertSame('maya@example.com', $job->contact_email);
-        $this->assertSame('<p>Lead a <strong>community</strong>.</p>', $job->intro);
+        $this->assertSame('https://jobs.example.com/community-lead', $job->job_url);
+        $this->assertSame('https://acme.example.com/about', $job->company_url);
         $this->assertStringNotContainsString('script', $job->description);
-        $this->assertNotNull($job->company_logo_path);
-        Storage::disk('public')->assertExists($job->company_logo_path);
-        Storage::disk('public')->delete($job->company_logo_path);
+        $this->assertSame('company-logos/acme.svg', $job->company_logo_path);
+
+        $this->actingAs($owner)
+            ->post('/client/dashboard/jobs', [
+                'tenant_id' => $tenant->id,
+                'tenant_company_id' => $company->id,
+                'title' => 'Community Coordinator',
+                'location' => 'Remote',
+                'employment_type' => 'Volunteer',
+                'description' => '<p>Coordinate the community calendar.</p>',
+                'contact_first_name' => 'Maya',
+                'contact_last_name' => 'Collins',
+                'contact_email' => 'maya@example.com',
+                'status' => TenantJob::STATUS_DRAFT,
+            ])
+            ->assertRedirect(route('client.jobs.index'))
+            ->assertSessionHas('status', 'Job created.');
+
+        $this->actingAs($owner)
+            ->get('/client/dashboard/jobs')
+            ->assertOk()
+            ->assertSee('Community Lead')
+            ->assertSee('Community Coordinator')
+            ->assertSee('Published')
+            ->assertSee('Draft');
+    }
+
+    public function test_public_post_job_submission_appears_as_draft_in_client_jobs_overview(): void
+    {
+        $owner = User::factory()->create(['role' => User::ROLE_TENANT_OWNER]);
+        $tenant = $this->tenantFor($owner, 'Public Board', 'public-board');
+        $tenant->domains()->create([
+            'domain' => 'public-board.test',
+            'is_primary' => false,
+            'status' => Domain::STATUS_ACTIVE,
+            'ssl_status' => Domain::SSL_ACTIVE,
+            'verified_at' => now(),
+            'ssl_issued_at' => now(),
+        ]);
+
+        $this->post('http://public-board.test/post-a-job', [
+            'title' => 'Public Draft Role',
+            'contact_first_name' => 'Casey',
+            'contact_last_name' => 'Contact',
+            'contact_email' => 'casey@example.com',
+            'contact_phone' => '+1 555 444 5555',
+            'location' => 'Remote',
+            'employment_type' => ['Full time'],
+            'description' => '<p>Submitted from the public post-a-job form.</p>',
+        ])
+            ->assertRedirect('http://public-board.test/post-a-job')
+            ->assertSessionHas('status', 'Your job has been submitted as a draft.');
+
+        $job = TenantJob::query()
+            ->where('tenant_id', $tenant->id)
+            ->where('slug', 'public-draft-role')
+            ->firstOrFail();
+
+        $this->assertSame(TenantJob::STATUS_DRAFT, $job->status);
+        $this->assertNull($job->published_at);
+
+        $this->actingAs($owner)
+            ->get('https://jobboardsoftware.co/client/dashboard/jobs')
+            ->assertOk()
+            ->assertSee('Public Draft Role')
+            ->assertSee('Public Board')
+            ->assertSee('Draft');
     }
 
     public function test_tenant_owner_can_create_company_with_logo(): void

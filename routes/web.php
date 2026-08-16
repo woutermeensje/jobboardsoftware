@@ -103,7 +103,7 @@ $centralRoutes = function (): void {
             Route::get('/', [ClientDashboardController::class, 'index'])->name('dashboard');
             Route::get('/environments', [ClientDashboardController::class, 'section'])->defaults('section', 'environments')->name('environments.index');
             Route::get('/environments/create', [ClientDashboardController::class, 'section'])->defaults('section', 'create-environment')->name('environments.create');
-            Route::get('/jobs', [ClientDashboardController::class, 'section'])->defaults('section', 'jobs')->name('jobs.index');
+            Route::get('/jobs', [ClientDashboardController::class, 'jobs'])->name('jobs.index');
             Route::post('/jobs', [ClientDashboardController::class, 'storeJob'])->name('jobs.store');
             Route::get('/jobs/create', [ClientDashboardController::class, 'createJob'])->name('jobs.create');
             Route::get('/domains', [ClientDashboardController::class, 'domains'])->name('domains.index');
