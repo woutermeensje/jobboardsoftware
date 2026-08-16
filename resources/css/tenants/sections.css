@@ -30,3 +30,76 @@
   font-family: var(--font-ui);
   font-weight: 800;
 }
+
+.tenant-pricing {
+  display: grid;
+  gap: 26px;
+}
+
+.tenant-pricing__head {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 0;
+}
+
+.tenant-pricing__head p {
+  max-width: 680px;
+  margin: 0;
+}
+
+.tenant-pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.tenant-pricing-card {
+  display: grid;
+  gap: 20px;
+  align-content: start;
+  padding: 22px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.tenant-pricing-card h2,
+.tenant-pricing-empty h2 {
+  margin: 0;
+  color: var(--color-text);
+  font-family: var(--font-heading);
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.tenant-pricing-card p,
+.tenant-pricing-empty p {
+  margin: 6px 0 0;
+  color: var(--color-text-muted);
+}
+
+.tenant-pricing-card strong {
+  color: var(--color-text);
+  font-family: var(--font-ui);
+  font-size: 34px;
+  font-weight: 800;
+}
+
+.tenant-pricing-card .tenant-btn {
+  justify-self: start;
+}
+
+.tenant-pricing-empty {
+  display: grid;
+  gap: 8px;
+  padding: 22px;
+  border: 1px dashed var(--color-border-strong);
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+@media (max-width: 900px) {
+  .tenant-pricing-grid {
+    grid-template-columns: 1fr;
+  }
+}

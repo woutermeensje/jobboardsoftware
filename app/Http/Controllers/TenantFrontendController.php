@@ -55,10 +55,18 @@ class TenantFrontendController extends Controller
             'tenant' => $tenant,
             'brandName' => $this->tenantBrandName(),
             'jobTypes' => JobTypeOptions::allForTenant($tenant),
-            'packages' => TenantPackage::query()
-                ->where('tenant_id', $tenant->id)
-                ->orderBy('name')
-                ->get(),
+            'packages' => $this->postJobPackages($tenant->id),
+        ]);
+    }
+
+    public function pricing(): View
+    {
+        $tenant = tenant();
+
+        return view('tenant.pricing', [
+            'tenant' => $tenant,
+            'brandName' => $this->tenantBrandName(),
+            'packages' => $this->pricingPackages($tenant->id),
         ]);
     }
 
@@ -67,19 +75,25 @@ class TenantFrontendController extends Controller
         $tenant = tenant();
         $createAccount = $request->boolean('create_account');
         $companyTableReady = Schema::hasTable('tenant_companies');
+        $packageSelectionReady = $this->packageSelectionReady();
+        $packagesAvailable = $packageSelectionReady
+            && TenantPackage::query()->where('tenant_id', $tenant->id)->exists();
         $tenantCompanyIdRules = ['nullable'];
+        $tenantPackageIdRules = ['nullable'];
 
         if ($companyTableReady) {
             $tenantCompanyIdRules[] = Rule::exists('tenant_companies', 'id')->where(fn ($query) => $query->where('tenant_id', $tenant->id));
         }
 
+        if ($packageSelectionReady) {
+            $tenantPackageIdRules = $packagesAvailable ? ['required'] : ['nullable'];
+            $tenantPackageIdRules[] = 'integer';
+            $tenantPackageIdRules[] = Rule::exists('tenant_packages', 'id')->where(fn ($query) => $query->where('tenant_id', $tenant->id));
+        }
+
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
-            'tenant_package_id' => [
-                'required',
-                'integer',
-                Rule::exists('tenant_packages', 'id')->where(fn ($query) => $query->where('tenant_id', $tenant->id)),
-            ],
+            'tenant_package_id' => $tenantPackageIdRules,
             'tenant_company_id' => $tenantCompanyIdRules,
             'company_name' => ['nullable', 'string', 'max:255'],
             'company_logo' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,svg', 'max:2048'],
@@ -125,7 +139,6 @@ class TenantFrontendController extends Controller
 
         $tenantJobsHasCompanyLogoPath = Schema::hasColumn('tenant_jobs', 'company_logo_path');
         $tenantJobsHasTenantCompanyId = Schema::hasColumn('tenant_jobs', 'tenant_company_id');
-        $tenantJobsHasTenantPackageId = Schema::hasColumn('tenant_jobs', 'tenant_package_id');
         $companyLogoPath = $tenantJobsHasCompanyLogoPath && $request->hasFile('company_logo')
             ? $request->file('company_logo')->store('company-logos', 'public')
             : ($tenantJobsHasCompanyLogoPath ? $company?->logo_path : null);
@@ -185,7 +198,7 @@ class TenantFrontendController extends Controller
             $jobAttributes['tenant_company_id'] = $company?->id;
         }
 
-        if ($tenantJobsHasTenantPackageId) {
+        if ($packageSelectionReady && ! empty($validated['tenant_package_id'])) {
             $jobAttributes['tenant_package_id'] = $validated['tenant_package_id'];
         }
 
@@ -316,6 +329,38 @@ class TenantFrontendController extends Controller
             ->when($request->filled('location'), fn ($query) => $query->where('location', 'like', '%'.$request->string('location')->toString().'%'))
             ->when($request->filled('employment_type'), fn ($query) => $query->whereIn('employment_type', $this->selectedFilterValues($request, 'employment_type')))
             ->latest('published_at');
+    }
+
+    private function postJobPackages(string $tenantId)
+    {
+        if (! $this->packageSelectionReady()) {
+            return collect();
+        }
+
+        return TenantPackage::query()
+            ->where('tenant_id', $tenantId)
+            ->orderBy('name')
+            ->get();
+    }
+
+    private function pricingPackages(string $tenantId)
+    {
+        if (! Schema::hasTable('tenant_packages')) {
+            return collect();
+        }
+
+        return TenantPackage::query()
+            ->where('tenant_id', $tenantId)
+            ->orderBy('price')
+            ->orderBy('name')
+            ->get();
+    }
+
+    private function packageSelectionReady(): bool
+    {
+        return Schema::hasTable('tenant_packages')
+            && Schema::hasTable('tenant_jobs')
+            && Schema::hasColumn('tenant_jobs', 'tenant_package_id');
     }
 
     /**

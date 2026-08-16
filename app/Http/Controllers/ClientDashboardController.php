@@ -463,20 +463,30 @@ class ClientDashboardController extends Controller
             ->ownedTenants()
             ->latest()
             ->get();
+        $packageTableReady = Schema::hasTable('tenant_packages');
 
         return view('client.packages', [
             'user' => $request->user(),
             'tenants' => $tenants,
-            'packages' => TenantPackage::query()
-                ->with('tenant')
-                ->whereIn('tenant_id', $tenants->pluck('id'))
-                ->latest()
-                ->get(),
+            'packageTableReady' => $packageTableReady,
+            'packages' => $packageTableReady
+                ? TenantPackage::query()
+                    ->with('tenant')
+                    ->whereIn('tenant_id', $tenants->pluck('id'))
+                    ->latest()
+                    ->get()
+                : collect(),
         ]);
     }
 
     public function storePackage(Request $request): RedirectResponse
     {
+        if (! Schema::hasTable('tenant_packages')) {
+            return redirect()
+                ->route('client.packages.index')
+                ->withErrors(['packages' => 'Package storage is not ready yet. Run the latest database migrations before adding packages.']);
+        }
+
         $request->merge([
             'currency' => Str::upper(trim((string) $request->input('currency'))),
         ]);

@@ -37,7 +37,12 @@
               </div>
             </div>
 
-            @if($tenants->isEmpty())
+            @if(! $packageTableReady)
+              <div class="dash-empty">
+                <h3>Package setup is not ready yet</h3>
+                <p>Run the latest database migrations before adding packages.</p>
+              </div>
+            @elseif($tenants->isEmpty())
               <div class="dash-empty">
                 <h3>No environments yet</h3>
                 <p>Create an environment before adding packages.</p>

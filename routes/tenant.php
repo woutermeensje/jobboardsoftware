@@ -34,6 +34,7 @@ Route::middleware([
     Route::post('/jobs/{job:slug}/apply', [TenantFrontendController::class, 'apply'])->name('tenant.jobs.apply');
     Route::get('/post-a-job', [TenantFrontendController::class, 'showPostJob'])->name('tenant.post-job');
     Route::post('/post-a-job', [TenantFrontendController::class, 'storePostJob'])->name('tenant.post-job.store');
+    Route::get('/pricing', [TenantFrontendController::class, 'pricing'])->name('tenant.pricing');
     Route::get('/contact', [TenantFrontendController::class, 'contact'])->name('tenant.contact');
 
     Route::controller(PortalAuthController::class)->group(function (): void {
@@ -67,6 +68,7 @@ Route::middleware([
     Route::get('/employer/dashboard', [TenantDashboardController::class, 'employer'])->name('tenant.employer.dashboard');
 
     Route::redirect('/vacatures', '/jobs');
+    Route::redirect('/tarieven', '/pricing');
     Route::get('/vacatures/{job:slug}', fn (TenantJob $job) => redirect()->route('tenant.jobs.show', $job));
     Route::post('/vacatures/{job:slug}/solliciteren', [TenantFrontendController::class, 'apply']);
 });

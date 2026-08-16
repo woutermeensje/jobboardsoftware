@@ -17,11 +17,13 @@
         ['label' => 'Contact', 'url' => route('tenant.contact'), 'active' => request()->routeIs('tenant.contact')],
       ],
     ],
+    ['label' => 'Pricing', 'url' => route('tenant.pricing'), 'active' => request()->routeIs('tenant.pricing')],
     ['label' => 'Contact', 'url' => route('tenant.contact'), 'active' => request()->routeIs('tenant.contact')],
   ];
 
   $utilityLinks = [
     ['label' => 'View jobs', 'url' => route('tenant.jobs').'#jobs'],
+    ['label' => 'Pricing', 'url' => route('tenant.pricing')],
     ['label' => 'Contact', 'url' => route('tenant.contact')],
   ];
 @endphp
@@ -32,11 +34,15 @@
       <div class="tenant-topbar__group">
         <a class="tenant-topbar__link" href="{{ route('tenant.jobs') }}#jobs">Jobs</a>
         <span class="tenant-topbar__sep" aria-hidden="true">|</span>
+        <a class="tenant-topbar__link" href="{{ route('tenant.pricing') }}">Pricing</a>
+        <span class="tenant-topbar__sep" aria-hidden="true">|</span>
         <a class="tenant-topbar__link" href="{{ route('tenant.contact') }}">Contact</a>
       </div>
 
       <div class="tenant-topbar__group tenant-topbar__group--right">
         <a class="tenant-topbar__link" href="{{ route('tenant.jobs') }}#jobs">View open roles</a>
+        <span class="tenant-topbar__sep" aria-hidden="true">|</span>
+        <a class="tenant-topbar__link" href="{{ route('tenant.pricing') }}">View pricing</a>
         <span class="tenant-topbar__sep" aria-hidden="true">|</span>
         <a class="tenant-topbar__link" href="{{ route('tenant.contact') }}">Get in touch</a>
       </div>

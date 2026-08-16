@@ -534,6 +534,48 @@ class ExampleTest extends TestCase
             ->assertForbidden();
     }
 
+    public function test_tenant_pricing_page_shows_packages_for_that_job_board(): void
+    {
+        $tenant = $this->tenantWithDomain('pricing-board', 'pricing-board.test');
+        $otherTenant = $this->tenantWithDomain('other-pricing-board', 'other-pricing-board.test');
+
+        TenantPackage::query()->create([
+            'tenant_id' => $tenant->id,
+            'name' => 'Starter job',
+            'price' => 99,
+            'currency' => 'EUR',
+            'online_days' => 30,
+        ]);
+
+        TenantPackage::query()->create([
+            'tenant_id' => $tenant->id,
+            'name' => 'Featured job',
+            'price' => 149,
+            'currency' => 'EUR',
+            'online_days' => 45,
+        ]);
+
+        TenantPackage::query()->create([
+            'tenant_id' => $otherTenant->id,
+            'name' => 'Other board package',
+            'price' => 299,
+            'currency' => 'EUR',
+            'online_days' => 60,
+        ]);
+
+        $this->get('http://pricing-board.test/pricing')
+            ->assertOk()
+            ->assertSee('Choose your package')
+            ->assertSee('Starter job')
+            ->assertSee('EUR 99.00')
+            ->assertSee('30 days online')
+            ->assertSee('Featured job')
+            ->assertSee('EUR 149.00')
+            ->assertSee('45 days online')
+            ->assertSee('/post-a-job', false)
+            ->assertDontSee('Other board package');
+    }
+
     public function test_saas_user_can_register_and_reaches_dashboard(): void
     {
         $response = $this->post('/sign-up', [
