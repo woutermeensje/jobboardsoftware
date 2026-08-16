@@ -241,6 +241,86 @@ class ExampleTest extends TestCase
         ]);
     }
 
+    public function test_tenant_jobseeker_and_employer_can_register_login_and_reach_their_dashboards(): void
+    {
+        $tenant = $this->tenantWithDomain('tenant-auth-full', 'tenant-auth-full.test');
+
+        $this->post('http://tenant-auth-full.test/sign-up/jobseeker', [
+            'first_name' => 'Jade',
+            'last_name' => 'Seeker',
+            'email' => 'jade@example.com',
+            'phone_number' => '+1 555 000 1111',
+            'heard_about_us' => 'Google',
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+        ])->assertRedirect('http://tenant-auth-full.test/jobseeker/dashboard');
+
+        $this->get('http://tenant-auth-full.test/jobseeker/dashboard')
+            ->assertOk()
+            ->assertSee('Job seeker dashboard')
+            ->assertSee('Jade Seeker');
+
+        $this->assertDatabaseHas('users', [
+            'tenant_id' => $tenant->id,
+            'email' => 'jade@example.com',
+            'role' => User::ROLE_JOBSEEKER,
+        ]);
+
+        $this->post('http://tenant-auth-full.test/logout')
+            ->assertRedirect('http://tenant-auth-full.test/login');
+
+        $this->post('http://tenant-auth-full.test/login/jobseeker', [
+            'email' => 'jade@example.com',
+            'password' => 'password123',
+        ])->assertRedirect('http://tenant-auth-full.test/jobseeker/dashboard');
+
+        $this->get('http://tenant-auth-full.test/jobseeker/dashboard')
+            ->assertOk()
+            ->assertSee('Job seeker dashboard')
+            ->assertSee('Jade Seeker');
+
+        $this->post('http://tenant-auth-full.test/logout')
+            ->assertRedirect('http://tenant-auth-full.test/login');
+
+        $this->post('http://tenant-auth-full.test/sign-up/employer', [
+            'first_name' => 'Eli',
+            'last_name' => 'Employer',
+            'email' => 'eli@example.com',
+            'phone_number' => '+1 555 000 2222',
+            'company_name' => 'Full Flow Hiring',
+            'heard_about_us' => 'LinkedIn',
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+        ])->assertRedirect('http://tenant-auth-full.test/employer/dashboard');
+
+        $this->get('http://tenant-auth-full.test/employer/dashboard')
+            ->assertOk()
+            ->assertSee('Employer dashboard')
+            ->assertSee('Eli Employer')
+            ->assertSee('Full Flow Hiring');
+
+        $this->assertDatabaseHas('users', [
+            'tenant_id' => $tenant->id,
+            'email' => 'eli@example.com',
+            'company_name' => 'Full Flow Hiring',
+            'role' => User::ROLE_EMPLOYER,
+        ]);
+
+        $this->post('http://tenant-auth-full.test/logout')
+            ->assertRedirect('http://tenant-auth-full.test/login');
+
+        $this->post('http://tenant-auth-full.test/login/employer', [
+            'email' => 'eli@example.com',
+            'password' => 'password123',
+        ])->assertRedirect('http://tenant-auth-full.test/employer/dashboard');
+
+        $this->get('http://tenant-auth-full.test/employer/dashboard')
+            ->assertOk()
+            ->assertSee('Employer dashboard')
+            ->assertSee('Eli Employer')
+            ->assertSee('Full Flow Hiring');
+    }
+
     public function test_public_tenant_post_job_form_creates_a_draft_without_account(): void
     {
         $tenant = $this->tenantWithDomain('public-post', 'public-post.test');

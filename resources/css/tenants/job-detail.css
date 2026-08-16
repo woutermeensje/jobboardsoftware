@@ -16,6 +16,52 @@
   min-width: 0;
 }
 
+.tenant-single-job__breadcrumbs ol {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--color-text-muted);
+  font-family: 'Poppins', var(--font-text), sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.tenant-single-job__breadcrumbs li {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.tenant-single-job__breadcrumbs li + li::before {
+  content: "/";
+  color: color-mix(in srgb, var(--color-text-muted) 55%, transparent);
+}
+
+.tenant-single-job__breadcrumbs a {
+  color: var(--tenant-accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.tenant-single-job__breadcrumbs a:hover {
+  text-decoration: underline;
+}
+
+.tenant-single-job__breadcrumbs [aria-current="page"] {
+  overflow: hidden;
+  max-width: min(52ch, 100%);
+  color: var(--color-text);
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .tenant-single-job__content,
 .tenant-single-job__question,
 .tenant-single-job__sidebar-card {

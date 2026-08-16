@@ -44,7 +44,8 @@
   transform: none;
 }
 
-.tenant-btn--primary {
+.tenant-btn--primary,
+.tenant-body .tenant-btn--primary {
   border-color: var(--tenant-accent);
   background: var(--tenant-accent);
   color: #ffffff;
@@ -52,7 +53,9 @@
 }
 
 .tenant-btn--primary:hover,
-.tenant-btn--primary:focus-visible {
+.tenant-btn--primary:focus-visible,
+.tenant-body .tenant-btn--primary:hover,
+.tenant-body .tenant-btn--primary:focus-visible {
   border-color: color-mix(in srgb, var(--tenant-accent) 82%, black 18%);
   background: color-mix(in srgb, var(--tenant-accent) 82%, black 18%);
   color: #ffffff;
@@ -60,14 +63,17 @@
   transform: translateY(-1px);
 }
 
-.tenant-btn--ghost {
+.tenant-btn--ghost,
+.tenant-body .tenant-btn--ghost {
   border-color: var(--color-border-strong);
   background: #ffffff;
   color: var(--tenant-accent);
 }
 
 .tenant-btn--ghost:hover,
-.tenant-btn--ghost:focus-visible {
+.tenant-btn--ghost:focus-visible,
+.tenant-body .tenant-btn--ghost:hover,
+.tenant-body .tenant-btn--ghost:focus-visible {
   border-color: var(--tenant-accent);
   background: color-mix(in srgb, var(--tenant-accent) 8%, white 92%);
   color: var(--tenant-accent);

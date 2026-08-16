@@ -35,11 +35,21 @@
       <section class="tenant-alert">{{ session('status') }}</section>
     @endif
 
+    <nav class="tenant-single-job__breadcrumbs" aria-label="Breadcrumb">
+      <ol>
+        <li>
+          <a href="{{ route('tenant.home') }}">Home</a>
+        </li>
+        <li>
+          <a href="{{ route('tenant.jobs') }}">Jobs</a>
+        </li>
+        <li aria-current="page">{{ $job->title }}</li>
+      </ol>
+    </nav>
+
     <div class="tenant-single-job__layout">
       <div class="tenant-single-job__main">
         <article class="tenant-single-job__content" aria-labelledby="tenant-single-job-title">
-          <a class="tenant-back" href="{{ route('tenant.jobs') }}">Back to jobs</a>
-
           <header class="tenant-single-job__title-row">
             <div class="tenant-single-job__title-content">
               <h1 id="tenant-single-job-title">{{ $job->title }}</h1>
