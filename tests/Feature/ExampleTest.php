@@ -262,7 +262,7 @@ class ExampleTest extends TestCase
         $this->get('http://public-post.test/post-a-job/')
             ->assertOk()
             ->assertSee('tenant-post-job__main', false)
-            ->assertSee('tenant-post-job__aside', false)
+            ->assertDontSee('tenant-post-job__aside', false)
             ->assertSee('tenant-post-job__account-panel', false)
             ->assertSee('tenant-post-job-form__half-grid', false)
             ->assertSee('form="tenant-post-job-form"', false)

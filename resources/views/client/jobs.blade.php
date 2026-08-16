@@ -38,13 +38,14 @@
                 <th>Environment</th>
                 <th>Status</th>
                 <th>Created</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>
               @foreach($jobs as $job)
                 <tr>
                   <td>
-                    <span class="dash-cell-title">{{ $job->title }}</span>
+                    <a class="dash-cell-title dash-cell-title--link" href="{{ route('client.jobs.edit', $job) }}">{{ $job->title }}</a>
                     <span class="dash-cell-meta">{{ $job->location }}</span>
                   </td>
                   <td>{{ $job->company?->name ?? $job->company_name ?? 'No company' }}</td>
@@ -58,6 +59,7 @@
                     </span>
                   </td>
                   <td>{{ $job->created_at?->format('M j, Y') }}</td>
+                  <td><a class="dash-link" href="{{ route('client.jobs.edit', $job) }}">Edit</a></td>
                 </tr>
               @endforeach
             </tbody>

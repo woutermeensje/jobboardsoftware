@@ -359,6 +359,17 @@
   font-weight: 800;
 }
 
+.dash-cell-title--link {
+  color: var(--color-primary-strong);
+  text-decoration: none;
+}
+
+.dash-cell-title--link:hover,
+.dash-cell-title--link:focus {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+
 .dash-cell-meta {
   display: block;
   margin-top: 3px;

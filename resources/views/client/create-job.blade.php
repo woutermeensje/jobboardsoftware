@@ -1,18 +1,28 @@
 @extends('layouts.app')
 
-@section('title', 'Create job | Client dashboard')
-@section('meta_description', 'Create a job for a job board environment.')
+@php
+  $job = $job ?? null;
+  $isEditing = $job instanceof \App\Models\TenantJob;
+  $formTitle = $isEditing ? 'Edit job' : 'Create job';
+  $formIntro = $isEditing ? 'Update the details below and save the job.' : 'Fill in the details below and save the job.';
+  $formAction = $isEditing ? route('client.jobs.update', $job) : route('client.jobs.store');
+  $errorTitle = $isEditing ? 'Job could not be updated.' : 'Job could not be created.';
+  $selectedCompanyId = (string) old('tenant_company_id', $job?->tenant_company_id ?? '');
+  $selectedCompany = $companies->first(fn ($company): bool => (string) $company->id === $selectedCompanyId);
+  $selectedTenantId = (string) old('tenant_id', $selectedCompany?->tenant_id ?? $job?->tenant_id ?? $tenants->first()?->id);
+  $selectedJobType = (string) old('employment_type', $job?->employment_type ?? '');
+  $contactNameParts = preg_split('/\s+/', trim((string) $job?->contact_name), 2) ?: [];
+  $defaultContactFirstName = $contactNameParts[0] ?? '';
+  $defaultContactLastName = $contactNameParts[1] ?? '';
+  $showCompanyNameField = $isEditing && $selectedCompanyId === '';
+@endphp
+
+@section('title', $formTitle.' | Client dashboard')
+@section('meta_description', $isEditing ? 'Edit a job for a job board environment.' : 'Create a job for a job board environment.')
 @section('layout', 'dashboard')
 @section('dashboard_sidebar')
   @include('client.partials.navigation')
 @endsection
-
-@php
-  $selectedCompanyId = (string) old('tenant_company_id', '');
-  $selectedCompany = $companies->first(fn ($company): bool => (string) $company->id === $selectedCompanyId);
-  $selectedTenantId = (string) old('tenant_id', $selectedCompany?->tenant_id ?? $tenants->first()?->id);
-  $selectedJobType = (string) old('employment_type', '');
-@endphp
 
 @section('content')
       @if(session('status'))
@@ -21,7 +31,7 @@
 
       @if($errors->any())
         <section class="dash-card dash-card--danger">
-          <strong>Job could not be created.</strong>
+          <strong>{{ $errorTitle }}</strong>
           <ul class="dash-message-list">
             @foreach($errors->all() as $error)
               <li>{{ $error }}</li>
@@ -36,7 +46,7 @@
             @if($tenants->isEmpty())
               <div class="dash-panel__head">
                 <div>
-                  <h2>Create job</h2>
+                  <h2>{{ $formTitle }}</h2>
                   <p>Add a vacancy to one of your job board environments.</p>
                 </div>
                 <a class="dash-link" href="{{ route('client.jobs.index') }}">Back to jobs</a>
@@ -47,10 +57,10 @@
                 <p>Create an environment before adding jobs.</p>
                 <a class="dash-link" href="{{ route('client.environments.create') }}">Create environment</a>
               </div>
-            @elseif($companies->isEmpty())
+            @elseif(!$isEditing && $companies->isEmpty())
               <div class="dash-panel__head">
                 <div>
-                  <h2>Create job</h2>
+                  <h2>{{ $formTitle }}</h2>
                   <p>Add a company before creating a job.</p>
                 </div>
                 <a class="dash-link" href="{{ route('client.jobs.index') }}">Back to jobs</a>
@@ -62,14 +72,20 @@
                 <a class="dash-link" href="{{ route('client.companies.create') }}">Create company</a>
               </div>
             @else
-              <form class="tenant-form tenant-dashboard-form" method="POST" action="{{ route('client.jobs.store') }}" enctype="multipart/form-data">
+              <form class="tenant-form tenant-dashboard-form" method="POST" action="{{ $formAction }}" enctype="multipart/form-data">
                 @csrf
+                @if($isEditing)
+                  @method('PATCH')
+                @endif
                 <input type="hidden" name="tenant_id" value="{{ $selectedTenantId }}" data-company-tenant-input>
+                @unless($showCompanyNameField)
+                  <input type="hidden" name="company_name" value="{{ old('company_name', $job?->company_name) }}">
+                @endunless
 
                 <div class="tenant-form-header tenant-dashboard-form__header">
                   <div>
-                    <h2 class="tenant-form-title">Create job</h2>
-                    <p class="tenant-form-intro">Fill in the details below and save the job.</p>
+                    <h2 class="tenant-form-title">{{ $formTitle }}</h2>
+                    <p class="tenant-form-intro">{{ $formIntro }}</p>
                   </div>
                   <a class="dash-link" href="{{ route('client.jobs.index') }}">Back to jobs</a>
                 </div>
@@ -79,52 +95,64 @@
                     <h2 id="job-company-title" class="tenant-form-section-title">Company information</h2>
                   </div>
 
-                  <div class="tenant-form__field tenant-multiselect" data-multiselect data-multiselect-max="1" data-company-select>
-                    <label id="dashboard-company-label">Company</label>
-                    <button
-                      class="tenant-multiselect__button"
-                      type="button"
-                      aria-haspopup="listbox"
-                      aria-expanded="false"
-                      aria-labelledby="dashboard-company-label"
-                      data-multiselect-button
-                      data-multiselect-empty-label="Select company"
-                    >
-                      Select company
-                    </button>
-                    <div class="tenant-multiselect__menu" data-multiselect-menu>
-                      <input
-                        class="tenant-multiselect__search"
-                        type="search"
-                        aria-label="Search company"
-                        autocomplete="off"
-                        data-multiselect-search
+                  @if($companies->isNotEmpty())
+                    <div class="tenant-form__field tenant-multiselect" data-multiselect data-multiselect-max="1" data-company-select>
+                      <label id="dashboard-company-label">Company</label>
+                      <button
+                        class="tenant-multiselect__button"
+                        type="button"
+                        aria-haspopup="listbox"
+                        aria-expanded="false"
+                        aria-labelledby="dashboard-company-label"
+                        data-multiselect-button
+                        data-multiselect-empty-label="Select company"
                       >
-                      <div class="tenant-multiselect__options" role="listbox" aria-multiselectable="false">
-                        @foreach($companies as $company)
-                          <label class="tenant-multiselect__option" data-multiselect-option-row>
-                            <input
-                              type="radio"
-                              name="tenant_company_id"
-                              value="{{ $company->id }}"
-                              @checked($selectedCompanyId === (string) $company->id)
-                              data-multiselect-option
-                              data-multiselect-label="{{ $company->name }}"
-                              data-company-tenant-id="{{ $company->tenant_id }}"
-                            >
-                            <span>{{ $company->name }}</span>
-                          </label>
-                        @endforeach
+                        Select company
+                      </button>
+                      <div class="tenant-multiselect__menu" data-multiselect-menu>
+                        <input
+                          class="tenant-multiselect__search"
+                          type="search"
+                          aria-label="Search company"
+                          autocomplete="off"
+                          data-multiselect-search
+                        >
+                        <div class="tenant-multiselect__options" role="listbox" aria-multiselectable="false">
+                          @foreach($companies as $company)
+                            <label class="tenant-multiselect__option" data-multiselect-option-row>
+                              <input
+                                type="radio"
+                                name="tenant_company_id"
+                                value="{{ $company->id }}"
+                                @checked($selectedCompanyId === (string) $company->id)
+                                data-multiselect-option
+                                data-multiselect-label="{{ $company->name }}"
+                                data-company-tenant-id="{{ $company->tenant_id }}"
+                              >
+                              <span>{{ $company->name }}</span>
+                            </label>
+                          @endforeach
+                        </div>
+                        <p class="tenant-multiselect__empty" hidden data-multiselect-empty>No companies found.</p>
                       </div>
-                      <p class="tenant-multiselect__empty" hidden data-multiselect-empty>No companies found.</p>
+                      @error('tenant_company_id')<span class="tenant-form__error">{{ $message }}</span>@enderror
+                      @error('tenant_id')<span class="tenant-form__error">{{ $message }}</span>@enderror
                     </div>
-                    @error('tenant_company_id')<span class="tenant-form__error">{{ $message }}</span>@enderror
-                    @error('tenant_id')<span class="tenant-form__error">{{ $message }}</span>@enderror
-                  </div>
+                  @endif
+
+                  @if($showCompanyNameField)
+                    <label>
+                      Company name
+                      <input name="company_name" value="{{ old('company_name', $job?->company_name) }}">
+                      @error('company_name')<span class="tenant-form__error">{{ $message }}</span>@enderror
+                    </label>
+                  @else
+                    @error('company_name')<span class="tenant-form__error">{{ $message }}</span>@enderror
+                  @endif
 
                   <label>
                     Company website URL
-                    <input type="url" name="company_url" value="{{ old('company_url') }}">
+                    <input type="url" name="company_url" value="{{ old('company_url', $job?->company_url) }}">
                     <span class="input-description">Add a homepage, about page, or another relevant company page for this company.</span>
                     @error('company_url')<span class="tenant-form__error">{{ $message }}</span>@enderror
                   </label>
@@ -137,14 +165,14 @@
 
                   <label>
                     Job title
-                    <input name="title" value="{{ old('title') }}" required autofocus>
+                    <input name="title" value="{{ old('title', $job?->title) }}" required autofocus>
                     <span class="input-description">Example: "Senior Laravel Developer", "Software Engineer"</span>
                     @error('title')<span class="tenant-form__error">{{ $message }}</span>@enderror
                   </label>
 
                   <label>
                     Vacancy URL
-                    <input type="url" name="job_url" value="{{ old('job_url') }}">
+                    <input type="url" name="job_url" value="{{ old('job_url', $job?->job_url) }}">
                     <span class="input-description">Add the link to this vacancy on the client website.</span>
                     @error('job_url')<span class="tenant-form__error">{{ $message }}</span>@enderror
                   </label>
@@ -152,7 +180,7 @@
                   <div class="tenant-post-job-form__half-grid">
                     <label>
                       Location
-                      <input name="location" value="{{ old('location') }}" required>
+                      <input name="location" value="{{ old('location', $job?->location) }}" required>
                       @error('location')<span class="tenant-form__error">{{ $message }}</span>@enderror
                     </label>
 
@@ -206,7 +234,7 @@
                       rows="8"
                       required
                       data-quill-source
-                    >{{ old('description') }}</textarea>
+                    >{{ old('description', $job?->description) }}</textarea>
                     <div
                       class="richtext-field tenant-rich-text__editor"
                       data-quill-editor
@@ -223,13 +251,13 @@
                   <div class="tenant-form__grid">
                     <label>
                       First name
-                      <input name="contact_first_name" value="{{ old('contact_first_name') }}" required>
+                      <input name="contact_first_name" value="{{ old('contact_first_name', $defaultContactFirstName) }}" required>
                       @error('contact_first_name')<span class="tenant-form__error">{{ $message }}</span>@enderror
                     </label>
 
                     <label>
                       Last name
-                      <input name="contact_last_name" value="{{ old('contact_last_name') }}" required>
+                      <input name="contact_last_name" value="{{ old('contact_last_name', $defaultContactLastName) }}" required>
                       @error('contact_last_name')<span class="tenant-form__error">{{ $message }}</span>@enderror
                     </label>
                   </div>
@@ -237,13 +265,13 @@
                   <div class="tenant-form__grid">
                     <label>
                       Phone number
-                      <input name="contact_phone" value="{{ old('contact_phone') }}">
+                      <input name="contact_phone" value="{{ old('contact_phone', $job?->contact_phone) }}">
                       @error('contact_phone')<span class="tenant-form__error">{{ $message }}</span>@enderror
                     </label>
 
                     <label>
                       Email address
-                      <input name="contact_email" type="email" value="{{ old('contact_email') }}" required>
+                      <input name="contact_email" type="email" value="{{ old('contact_email', $job?->contact_email) }}" required>
                       @error('contact_email')<span class="tenant-form__error">{{ $message }}</span>@enderror
                     </label>
                   </div>

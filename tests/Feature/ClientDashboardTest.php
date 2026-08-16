@@ -55,6 +55,7 @@ class ClientDashboardTest extends TestCase
             '/client/dashboard/environments/create',
             '/client/dashboard/jobs',
             '/client/dashboard/jobs/create',
+            '/client/dashboard/jobs/'.$job->id.'/edit',
             '/client/dashboard/domains',
             '/client/dashboard/domains/create',
             '/client/dashboard/applications',
@@ -264,10 +265,110 @@ class ClientDashboardTest extends TestCase
         $this->actingAs($owner)
             ->get('/client/dashboard/jobs')
             ->assertOk()
+            ->assertSee('/client/dashboard/jobs/'.$job->id.'/edit', false)
             ->assertSee('Community Lead')
             ->assertSee('Community Coordinator')
             ->assertSee('Published')
             ->assertSee('Draft');
+    }
+
+    public function test_tenant_owner_can_edit_job_from_the_client_dashboard(): void
+    {
+        $owner = User::factory()->create(['role' => User::ROLE_TENANT_OWNER]);
+        $tenant = $this->tenantFor($owner, 'Acme Careers', 'acme-careers');
+        $tenant->forceFill([
+            'settings' => [
+                'custom_job_types' => ['Volunteer'],
+            ],
+        ])->save();
+
+        $employer = User::factory()->create([
+            'tenant_id' => $tenant->id,
+            'role' => User::ROLE_EMPLOYER,
+        ]);
+        $originalCompany = TenantCompany::query()->create([
+            'tenant_id' => $tenant->id,
+            'organization_name' => 'Acme Group',
+            'name' => 'Acme Hiring',
+            'slug' => 'acme-hiring',
+            'logo_path' => 'company-logos/acme.svg',
+        ]);
+        $newCompany = TenantCompany::query()->create([
+            'tenant_id' => $tenant->id,
+            'organization_name' => 'Northwind Group',
+            'name' => 'Northwind Hiring',
+            'slug' => 'northwind-hiring',
+            'logo_path' => 'company-logos/northwind.svg',
+        ]);
+        $job = TenantJob::query()->create([
+            'tenant_id' => $tenant->id,
+            'tenant_company_id' => $originalCompany->id,
+            'company_name' => 'Acme Hiring',
+            'company_logo_path' => 'company-logos/acme.svg',
+            'contact_name' => 'Maya Collins',
+            'contact_email' => 'maya@example.com',
+            'contact_phone' => '+31 20 123 4567',
+            'submitted_by_user_id' => $employer->id,
+            'title' => 'Community Lead',
+            'slug' => 'community-lead',
+            'location' => 'Amsterdam',
+            'employment_type' => 'Full time',
+            'description' => '<p>Original description.</p>',
+            'job_url' => 'https://jobs.example.com/community-lead',
+            'company_url' => 'https://acme.example.com/about',
+            'status' => TenantJob::STATUS_PUBLISHED,
+            'published_at' => now()->subDay(),
+        ]);
+
+        $this->actingAs($owner)
+            ->get('/client/dashboard/jobs/'.$job->id.'/edit')
+            ->assertOk()
+            ->assertSee('Edit job')
+            ->assertSee('Community Lead')
+            ->assertSee('Acme Hiring')
+            ->assertSee('Northwind Hiring')
+            ->assertSee('value="Maya"', false)
+            ->assertSee('value="Collins"', false)
+            ->assertDontSee('placeholder=', false);
+
+        $this->actingAs($owner)
+            ->patch('/client/dashboard/jobs/'.$job->id, [
+                'tenant_id' => $tenant->id,
+                'tenant_company_id' => $newCompany->id,
+                'title' => 'Updated Community Lead',
+                'job_url' => 'jobs.example.com/updated-community-lead',
+                'company_url' => '',
+                'location' => 'Remote GMT+1',
+                'employment_type' => 'Volunteer',
+                'description' => '<p>Updated <strong>description</strong>.</p><script>alert("xss")</script>',
+                'contact_first_name' => 'Nina',
+                'contact_last_name' => 'Owner',
+                'contact_email' => 'nina@example.com',
+                'contact_phone' => '+31 20 987 6543',
+                'status' => TenantJob::STATUS_DRAFT,
+            ])
+            ->assertRedirect(route('client.jobs.edit', $job))
+            ->assertSessionHas('status', 'Job updated.');
+
+        $job->refresh();
+
+        $this->assertSame($tenant->id, $job->tenant_id);
+        $this->assertSame($newCompany->id, $job->tenant_company_id);
+        $this->assertSame('Northwind Hiring', $job->company_name);
+        $this->assertSame('company-logos/northwind.svg', $job->company_logo_path);
+        $this->assertSame('Updated Community Lead', $job->title);
+        $this->assertSame('updated-community-lead', $job->slug);
+        $this->assertSame('Remote GMT+1', $job->location);
+        $this->assertSame('Volunteer', $job->employment_type);
+        $this->assertSame('<p>Updated <strong>description</strong>.</p>', $job->description);
+        $this->assertSame('https://jobs.example.com/updated-community-lead', $job->job_url);
+        $this->assertNull($job->company_url);
+        $this->assertSame('Nina Owner', $job->contact_name);
+        $this->assertSame('nina@example.com', $job->contact_email);
+        $this->assertSame('+31 20 987 6543', $job->contact_phone);
+        $this->assertSame(TenantJob::STATUS_DRAFT, $job->status);
+        $this->assertNull($job->published_at);
+        $this->assertSame($employer->id, $job->submitted_by_user_id);
     }
 
     public function test_public_post_job_submission_appears_as_draft_in_client_jobs_overview(): void
@@ -307,9 +408,88 @@ class ClientDashboardTest extends TestCase
         $this->actingAs($owner)
             ->get('https://jobboardsoftware.co/client/dashboard/jobs')
             ->assertOk()
+            ->assertSee('/client/dashboard/jobs/'.$job->id.'/edit', false)
             ->assertSee('Public Draft Role')
             ->assertSee('Public Board')
             ->assertSee('Draft');
+
+        $this->actingAs($owner)
+            ->get('https://jobboardsoftware.co/client/dashboard/jobs/'.$job->id.'/edit')
+            ->assertOk()
+            ->assertSee('Edit job')
+            ->assertSee('Company name')
+            ->assertSee('Public Board')
+            ->assertSee('Public Draft Role');
+
+        $this->actingAs($owner)
+            ->patch('https://jobboardsoftware.co/client/dashboard/jobs/'.$job->id, [
+                'tenant_id' => $tenant->id,
+                'company_name' => 'Public Board',
+                'title' => 'Published Public Role',
+                'location' => 'Remote',
+                'employment_type' => 'Full time',
+                'description' => '<p>Ready to publish.</p>',
+                'contact_first_name' => 'Casey',
+                'contact_last_name' => 'Contact',
+                'contact_email' => 'casey@example.com',
+                'contact_phone' => '+1 555 444 5555',
+                'status' => TenantJob::STATUS_PUBLISHED,
+            ])
+            ->assertRedirect(route('client.jobs.edit', $job))
+            ->assertSessionHas('status', 'Job updated.');
+
+        $job->refresh();
+
+        $this->assertSame('Published Public Role', $job->title);
+        $this->assertSame(TenantJob::STATUS_PUBLISHED, $job->status);
+        $this->assertNotNull($job->published_at);
+    }
+
+    public function test_tenant_owner_cannot_edit_another_owners_job(): void
+    {
+        $owner = User::factory()->create(['role' => User::ROLE_TENANT_OWNER]);
+        $otherOwner = User::factory()->create(['role' => User::ROLE_TENANT_OWNER]);
+        $otherTenant = $this->tenantFor($otherOwner, 'Other Careers', 'other-careers');
+        $otherCompany = TenantCompany::query()->create([
+            'tenant_id' => $otherTenant->id,
+            'organization_name' => 'Other Group',
+            'name' => 'Other Hiring',
+            'slug' => 'other-hiring',
+        ]);
+        $job = TenantJob::query()->create([
+            'tenant_id' => $otherTenant->id,
+            'tenant_company_id' => $otherCompany->id,
+            'company_name' => 'Other Hiring',
+            'contact_name' => 'Other Contact',
+            'contact_email' => 'other@example.com',
+            'title' => 'Blocked Role',
+            'slug' => 'blocked-role',
+            'location' => 'Remote',
+            'employment_type' => 'Full time',
+            'description' => '<p>Not owned by this user.</p>',
+            'status' => TenantJob::STATUS_DRAFT,
+        ]);
+
+        $this->actingAs($owner)
+            ->get('/client/dashboard/jobs/'.$job->id.'/edit')
+            ->assertNotFound();
+
+        $this->actingAs($owner)
+            ->patch('/client/dashboard/jobs/'.$job->id, [
+                'tenant_id' => $otherTenant->id,
+                'tenant_company_id' => $otherCompany->id,
+                'title' => 'Should Not Update',
+                'location' => 'Remote',
+                'employment_type' => 'Full time',
+                'description' => '<p>Blocked.</p>',
+                'contact_first_name' => 'Other',
+                'contact_last_name' => 'Contact',
+                'contact_email' => 'other@example.com',
+                'status' => TenantJob::STATUS_PUBLISHED,
+            ])
+            ->assertNotFound();
+
+        $this->assertSame('Blocked Role', $job->fresh()->title);
     }
 
     public function test_tenant_owner_can_create_company_with_logo(): void

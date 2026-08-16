@@ -65,7 +65,8 @@
 
 .tenant-post-job {
   display: grid;
-  grid-template-columns: minmax(0, 65fr) minmax(280px, 35fr);
+  grid-template-columns: minmax(0, 1040px);
+  justify-content: center;
   gap: 22px;
   align-items: start;
   margin: 56px 0;
@@ -74,6 +75,7 @@
 .tenant-post-job__content {
   display: grid;
   gap: 22px;
+  width: 100%;
   min-width: 0;
 }
 
@@ -647,11 +649,6 @@
   border-top: 1px solid var(--color-border);
 }
 
-.tenant-post-job__aside {
-  position: sticky;
-  top: 96px;
-}
-
 .tenant-post-job__summary {
   margin-top: 16px;
   padding-top: 16px;
@@ -707,8 +704,7 @@
     display: grid;
   }
 
-  .tenant-apply,
-  .tenant-post-job__aside {
+  .tenant-apply {
     position: static;
   }
 }

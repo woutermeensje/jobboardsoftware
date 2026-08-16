@@ -106,6 +106,8 @@ $centralRoutes = function (): void {
             Route::get('/jobs', [ClientDashboardController::class, 'jobs'])->name('jobs.index');
             Route::post('/jobs', [ClientDashboardController::class, 'storeJob'])->name('jobs.store');
             Route::get('/jobs/create', [ClientDashboardController::class, 'createJob'])->name('jobs.create');
+            Route::get('/jobs/{job}/edit', [ClientDashboardController::class, 'editJob'])->name('jobs.edit');
+            Route::patch('/jobs/{job}', [ClientDashboardController::class, 'updateJob'])->name('jobs.update');
             Route::get('/domains', [ClientDashboardController::class, 'domains'])->name('domains.index');
             Route::post('/domains', [ClientDashboardController::class, 'storeDomain'])->name('domains.store');
             Route::get('/domains/create', [ClientDashboardController::class, 'domains'])->name('domains.create');

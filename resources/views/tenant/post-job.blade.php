@@ -250,7 +250,6 @@
         </button>
       </div>
 
-      <aside class="tenant-panel tenant-post-job__aside"></aside>
     </section>
   </main>
 @endsection
