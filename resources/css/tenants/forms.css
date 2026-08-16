@@ -541,11 +541,52 @@
   gap: 10px;
 }
 
+.checkbox-text {
+  color: #333;
+  font-family: 'Poppins', var(--font-text), sans-serif;
+  font-size: 14px;
+  font-weight: 300;
+}
+
 .tenant-post-job-form__check input {
-  width: 18px;
-  min-height: 18px;
-  margin-top: 2px;
-  accent-color: var(--tenant-accent);
+  appearance: none;
+  display: grid;
+  place-content: center;
+  width: 20px;
+  height: 20px;
+  min-height: 20px;
+  margin-top: 0;
+  padding: 0;
+  border: 1px solid #9ca3af;
+  border-radius: 5px;
+  background: #ffffff;
+  cursor: pointer;
+  transition: background-color .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+
+.tenant-post-job-form__check input::after {
+  width: 6px;
+  height: 10px;
+  border-right: 2px solid #ffffff;
+  border-bottom: 2px solid #ffffff;
+  content: "";
+  transform: rotate(45deg) scale(0);
+  transition: transform .14s ease;
+}
+
+.tenant-post-job-form__check input:hover,
+.tenant-post-job-form__check input:focus-visible {
+  border-color: var(--tenant-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--tenant-accent) 14%, transparent);
+}
+
+.tenant-post-job-form__check input:checked {
+  border-color: var(--tenant-accent);
+  background: var(--tenant-accent);
+}
+
+.tenant-post-job-form__check input:checked::after {
+  transform: rotate(45deg) scale(1);
 }
 
 .tenant-post-job-form__check small {

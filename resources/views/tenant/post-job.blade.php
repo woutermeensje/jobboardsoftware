@@ -173,14 +173,14 @@
         <article class="tenant-panel tenant-post-job__account-panel">
           <div class="tenant-post-job-account">
             <div class="tenant-form-section-head">
-              <h2 class="tenant-form-section-title">Create account</h2>
+              <h2 class="tenant-form-section-title">Create account (optional)</h2>
             </div>
 
             <label class="tenant-post-job-form__check">
               <input form="tenant-post-job-form" type="checkbox" name="create_account" value="1" @checked(old('create_account'))>
-              <span>
-                Create an employer account with this submission
-                <small>Use the password fields below if you want an account for managing this job later.</small>
+              <span class="checkbox-text">
+                Do you want to create an employer account?
+                <small>Optional. Create one if you want to manage this job later.</small>
               </span>
             </label>
 
