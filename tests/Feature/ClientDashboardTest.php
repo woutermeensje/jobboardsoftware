@@ -9,6 +9,7 @@ use App\Models\TenantCompany;
 use App\Models\TenantJob;
 use App\Models\TenantPackage;
 use App\Models\User;
+use App\Support\PublicUploadStorage;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -167,7 +168,7 @@ class ClientDashboardTest extends TestCase
 
     public function test_tenant_owner_can_create_job_from_the_client_dashboard(): void
     {
-        Storage::fake('public');
+        Storage::fake(PublicUploadStorage::diskName());
 
         $owner = User::factory()->create([
             'name' => 'Olivia Owner',
@@ -501,7 +502,7 @@ class ClientDashboardTest extends TestCase
 
     public function test_tenant_owner_can_create_company_with_logo(): void
     {
-        Storage::fake('public');
+        Storage::fake(PublicUploadStorage::diskName());
 
         $owner = User::factory()->create(['role' => User::ROLE_TENANT_OWNER]);
         $tenant = $this->tenantFor($owner, 'Acme Careers', 'acme-careers');
@@ -554,7 +555,7 @@ class ClientDashboardTest extends TestCase
         $this->assertSame('Maya Collins', $company->contact_name);
         $this->assertSame('<p>Hiring team for <strong>seasonal</strong> roles.</p>', $company->description);
         $this->assertNotNull($company->logo_path);
-        Storage::disk('public')->assertExists($company->logo_path);
+        Storage::disk(PublicUploadStorage::diskName())->assertExists($company->logo_path);
 
         $this->actingAs($owner)
             ->get('/client/dashboard/companies')
@@ -563,12 +564,12 @@ class ClientDashboardTest extends TestCase
             ->assertSee('/client/dashboard/companies/'.$company->id.'/edit', false)
             ->assertSee('Northwind Group')
             ->assertSee('Maya Collins')
-            ->assertSee('storage/company-logos', false);
+            ->assertSee('storage/tenants/'.$tenant->id.'/company-logos', false);
     }
 
     public function test_tenant_owner_can_edit_company_from_the_client_dashboard(): void
     {
-        Storage::fake('public');
+        Storage::fake(PublicUploadStorage::diskName());
 
         $owner = User::factory()->create(['role' => User::ROLE_TENANT_OWNER]);
         $tenant = $this->tenantFor($owner, 'Acme Careers', 'acme-careers');
@@ -639,14 +640,14 @@ class ClientDashboardTest extends TestCase
         $this->assertSame('<p>Updated <strong>company</strong> profile.</p>', $company->description);
         $this->assertNotNull($company->logo_path);
         $this->assertNotSame('company-logos/original.svg', $company->logo_path);
-        Storage::disk('public')->assertExists($company->logo_path);
+        Storage::disk(PublicUploadStorage::diskName())->assertExists($company->logo_path);
         $this->assertSame('Northwind Talent', $job->company_name);
         $this->assertSame($company->logo_path, $job->company_logo_path);
     }
 
     public function test_tenant_owner_cannot_create_company_for_unowned_environment(): void
     {
-        Storage::fake('public');
+        Storage::fake(PublicUploadStorage::diskName());
 
         $owner = User::factory()->create(['role' => User::ROLE_TENANT_OWNER]);
         $otherOwner = User::factory()->create(['role' => User::ROLE_TENANT_OWNER]);
@@ -665,7 +666,7 @@ class ClientDashboardTest extends TestCase
             'tenant_id' => $otherTenant->id,
             'name' => 'Blocked Company',
         ]);
-        Storage::disk('public')->assertMissing('company-logos/blocked-logo.png');
+        Storage::disk(PublicUploadStorage::diskName())->assertMissing('tenants/'.$otherTenant->id.'/company-logos/blocked-logo.png');
     }
 
     public function test_tenant_owner_cannot_edit_another_owners_company(): void

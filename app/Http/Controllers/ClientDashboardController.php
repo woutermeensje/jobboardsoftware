@@ -10,6 +10,7 @@ use App\Models\TenantJob;
 use App\Models\TenantPackage;
 use App\Support\AdminActionNotifier;
 use App\Support\JobTypeOptions;
+use App\Support\PublicUploadStorage;
 use App\Support\RichTextSanitizer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -445,7 +446,7 @@ class ClientDashboardController extends Controller
             ->where('owner_user_id', $request->user()->id)
             ->findOrFail($validated['tenant_id']);
         $logoPath = $request->hasFile('logo')
-            ? $request->file('logo')->store('company-logos', 'public')
+            ? PublicUploadStorage::store($request->file('logo'), 'company-logos', $tenant->id)
             : $company?->logo_path;
         $description = RichTextSanitizer::sanitize($validated['description'] ?? null);
         $contactName = trim(collect([
@@ -644,7 +645,7 @@ class ClientDashboardController extends Controller
         $tenantJobsHasJobUrl = Schema::hasColumn('tenant_jobs', 'job_url');
         $tenantJobsHasCompanyUrl = Schema::hasColumn('tenant_jobs', 'company_url');
         $companyLogoPath = $tenantJobsHasCompanyLogoPath && $request->hasFile('company_logo')
-            ? $request->file('company_logo')->store('company-logos', 'public')
+            ? PublicUploadStorage::store($request->file('company_logo'), 'company-logos', $tenant->id)
             : ($company?->logo_path ?? $job?->company_logo_path);
         $shouldRefreshSlug = ! $job
             || $job->tenant_id !== $tenant->id

@@ -9,8 +9,10 @@ use App\Models\TenantPackage;
 use App\Models\User;
 use App\Support\AdminActionNotifier;
 use App\Support\JobTypeOptions;
+use App\Support\PublicUploadStorage;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
@@ -140,7 +142,7 @@ class TenantFrontendController extends Controller
         $tenantJobsHasCompanyLogoPath = Schema::hasColumn('tenant_jobs', 'company_logo_path');
         $tenantJobsHasTenantCompanyId = Schema::hasColumn('tenant_jobs', 'tenant_company_id');
         $companyLogoPath = $tenantJobsHasCompanyLogoPath && $request->hasFile('company_logo')
-            ? $request->file('company_logo')->store('company-logos', 'public')
+            ? PublicUploadStorage::store($request->file('company_logo'), 'company-logos', $tenant->id)
             : ($tenantJobsHasCompanyLogoPath ? $company?->logo_path : null);
 
         if ($description === null) {
@@ -254,7 +256,7 @@ class TenantFrontendController extends Controller
         $cvPath = null;
 
         if ($request->hasFile('cv')) {
-            $cvPath = $request->file('cv')->store('applications/'.tenant('id'), 'public');
+            $cvPath = PublicUploadStorage::store($request->file('cv'), 'applications', tenant('id'));
         }
 
         $application = JobApplication::create([
@@ -364,7 +366,7 @@ class TenantFrontendController extends Controller
     }
 
     /**
-     * @return array{departments: \Illuminate\Support\Collection<int, string>, locations: \Illuminate\Support\Collection<int, string>, employmentTypes: \Illuminate\Support\Collection<int, string>, departmentCounts: array<string, int>, employmentTypeCounts: array<string, int>}
+     * @return array{departments: Collection<int, string>, locations: Collection<int, string>, employmentTypes: Collection<int, string>, departmentCounts: array<string, int>, employmentTypeCounts: array<string, int>}
      */
     private function filterOptions(string $tenantId): array
     {

@@ -37,12 +37,13 @@
             @forelse($companies as $company)
               @php
                 $contactName = $company->contact_name ?: trim(collect([$company->contact_first_name, $company->contact_last_name])->filter()->implode(' '));
+                $logoUrl = \App\Support\PublicUploadStorage::url($company->logo_path);
               @endphp
               <tr>
                 <td>
                   <div class="company-cell">
-                    @if($company->logo_path)
-                      <img class="company-logo-thumb" src="{{ asset('storage/'.ltrim($company->logo_path, '/')) }}" alt="{{ $company->name }} logo">
+                    @if($logoUrl)
+                      <img class="company-logo-thumb" src="{{ $logoUrl }}" alt="{{ $company->name }} logo">
                     @else
                       <span class="company-logo-thumb company-logo-thumb--empty" aria-hidden="true">{{ mb_strtoupper(mb_substr($company->name, 0, 1)) }}</span>
                     @endif

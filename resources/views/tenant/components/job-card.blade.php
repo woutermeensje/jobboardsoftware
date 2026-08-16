@@ -2,6 +2,7 @@
   $company = $job->relationLoaded('company') ? $job->company : null;
   $companyName = $job->company_name ?: ($company?->name ?? null);
   $companyLogoPath = $job->company_logo_path ?: ($company?->logo_path ?? null);
+  $companyLogoUrl = \App\Support\PublicUploadStorage::url($companyLogoPath);
   $publishedAt = $job->published_at ?? $job->created_at;
   $daysAgo = $publishedAt ? max(1, (int) $publishedAt->diffInDays(now())) : null;
   $postedLabel = $daysAgo ? ($daysAgo === 1 ? '1 day ago' : $daysAgo.' days ago') : null;
@@ -19,11 +20,11 @@
 
 <article class="tenant-job-card">
   <a class="tenant-job-card__body" href="{{ route('tenant.jobs.show', $job) }}">
-    <span class="tenant-job-card__logo @unless($companyLogoPath) tenant-job-card__logo--empty @endunless" aria-hidden="true">
+    <span class="tenant-job-card__logo @unless($companyLogoUrl) tenant-job-card__logo--empty @endunless" aria-hidden="true">
       <span class="tenant-job-card__logo-text">{{ $logoInitial }}</span>
-      @if($companyLogoPath)
+      @if($companyLogoUrl)
         <img
-          src="{{ asset('storage/'.ltrim($companyLogoPath, '/')) }}"
+          src="{{ $companyLogoUrl }}"
           alt=""
           onerror="this.hidden = true; this.parentElement.classList.add('tenant-job-card__logo--empty');"
         >

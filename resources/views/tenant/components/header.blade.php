@@ -4,7 +4,7 @@
   $logoUrl = $settings['logo_url'] ?? null;
 
   if (! $logoUrl && ! empty($settings['logo_path'])) {
-    $logoUrl = asset('storage/'.ltrim((string) $settings['logo_path'], '/'));
+    $logoUrl = \App\Support\PublicUploadStorage::url((string) $settings['logo_path']);
   }
 
   $primaryNav = [
