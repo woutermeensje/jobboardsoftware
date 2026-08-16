@@ -524,6 +524,10 @@
   align-items: start;
 }
 
+.domain-form__grid--single {
+  grid-template-columns: 1fr;
+}
+
 .domain-form__section-head {
   margin-top: 4px;
   padding-top: 14px;

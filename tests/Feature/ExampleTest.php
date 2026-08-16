@@ -6,6 +6,7 @@ use App\Models\Domain;
 use App\Models\JobApplication;
 use App\Models\Tenant;
 use App\Models\TenantJob;
+use App\Models\TenantPackage;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -250,6 +251,13 @@ class ExampleTest extends TestCase
                 'custom_job_types' => ['Volunteer'],
             ],
         ])->save();
+        $package = TenantPackage::query()->create([
+            'tenant_id' => $tenant->id,
+            'name' => 'Starter job',
+            'price' => 99,
+            'currency' => 'EUR',
+            'online_days' => 30,
+        ]);
 
         $this->get('http://public-post.test/post-a-job/')
             ->assertOk()
@@ -264,7 +272,10 @@ class ExampleTest extends TestCase
             ->assertSee('data-quill-field', false)
             ->assertSee('data-quill-editor', false)
             ->assertSee('cdn.jsdelivr.net/npm/quill@2/dist/quill.js', false)
-            ->assertSee('Submit a vacancy')
+            ->assertSee('Submit a job.')
+            ->assertSee('Fill in the details below and post your job.')
+            ->assertSee('Choose your package')
+            ->assertSee('Starter job - EUR 99.00 - 30 days')
             ->assertSee('Company information')
             ->assertSee('Add logo')
             ->assertSee('company_logo', false)
@@ -285,6 +296,7 @@ class ExampleTest extends TestCase
             ->assertSee('Yes, i want to create an account!');
 
         $this->post('http://public-post.test/post-a-job', [
+            'tenant_package_id' => $package->id,
             'title' => 'Community Manager',
             'contact_first_name' => 'Casey',
             'contact_last_name' => 'Contact',
@@ -300,6 +312,7 @@ class ExampleTest extends TestCase
         $this->assertGuest();
         $this->assertDatabaseHas('tenant_jobs', [
             'tenant_id' => $tenant->id,
+            'tenant_package_id' => $package->id,
             'title' => 'Community Manager',
             'slug' => 'community-manager',
             'department' => null,
@@ -331,8 +344,16 @@ class ExampleTest extends TestCase
     public function test_public_tenant_post_job_form_can_create_an_employer_account(): void
     {
         $tenant = $this->tenantWithDomain('public-post-account', 'public-post-account.test');
+        $package = TenantPackage::query()->create([
+            'tenant_id' => $tenant->id,
+            'name' => 'Featured job',
+            'price' => 149,
+            'currency' => 'EUR',
+            'online_days' => 45,
+        ]);
 
         $this->post('http://public-post-account.test/post-a-job', [
+            'tenant_package_id' => $package->id,
             'title' => 'Sales Lead',
             'contact_first_name' => 'Elliot',
             'contact_last_name' => 'Employer',
@@ -358,6 +379,7 @@ class ExampleTest extends TestCase
 
         $this->assertDatabaseHas('tenant_jobs', [
             'tenant_id' => $tenant->id,
+            'tenant_package_id' => $package->id,
             'title' => 'Sales Lead',
             'department' => null,
             'employment_type' => 'Freelance',

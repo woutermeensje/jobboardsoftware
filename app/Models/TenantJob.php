@@ -22,6 +22,7 @@ class TenantJob extends Model
     protected $fillable = [
         'tenant_id',
         'tenant_company_id',
+        'tenant_package_id',
         'company_name',
         'company_logo_path',
         'contact_name',
@@ -59,6 +60,11 @@ class TenantJob extends Model
     public function company(): BelongsTo
     {
         return $this->belongsTo(TenantCompany::class, 'tenant_company_id');
+    }
+
+    public function package(): BelongsTo
+    {
+        return $this->belongsTo(TenantPackage::class, 'tenant_package_id');
     }
 
     public function applications(): HasMany

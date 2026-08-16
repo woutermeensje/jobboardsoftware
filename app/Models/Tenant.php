@@ -80,6 +80,11 @@ class Tenant extends BaseTenant
         return $this->hasMany(TenantCompany::class);
     }
 
+    public function packages(): HasMany
+    {
+        return $this->hasMany(TenantPackage::class);
+    }
+
     public function applications(): HasMany
     {
         return $this->hasMany(JobApplication::class);

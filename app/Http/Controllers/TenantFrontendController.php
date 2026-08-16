@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\JobApplication;
 use App\Models\TenantCompany;
 use App\Models\TenantJob;
+use App\Models\TenantPackage;
 use App\Models\User;
 use App\Support\AdminActionNotifier;
 use App\Support\JobTypeOptions;
@@ -54,6 +55,10 @@ class TenantFrontendController extends Controller
             'tenant' => $tenant,
             'brandName' => $this->tenantBrandName(),
             'jobTypes' => JobTypeOptions::allForTenant($tenant),
+            'packages' => TenantPackage::query()
+                ->where('tenant_id', $tenant->id)
+                ->orderBy('name')
+                ->get(),
         ]);
     }
 
@@ -70,6 +75,11 @@ class TenantFrontendController extends Controller
 
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
+            'tenant_package_id' => [
+                'required',
+                'integer',
+                Rule::exists('tenant_packages', 'id')->where(fn ($query) => $query->where('tenant_id', $tenant->id)),
+            ],
             'tenant_company_id' => $tenantCompanyIdRules,
             'company_name' => ['nullable', 'string', 'max:255'],
             'company_logo' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,svg', 'max:2048'],
@@ -115,6 +125,7 @@ class TenantFrontendController extends Controller
 
         $tenantJobsHasCompanyLogoPath = Schema::hasColumn('tenant_jobs', 'company_logo_path');
         $tenantJobsHasTenantCompanyId = Schema::hasColumn('tenant_jobs', 'tenant_company_id');
+        $tenantJobsHasTenantPackageId = Schema::hasColumn('tenant_jobs', 'tenant_package_id');
         $companyLogoPath = $tenantJobsHasCompanyLogoPath && $request->hasFile('company_logo')
             ? $request->file('company_logo')->store('company-logos', 'public')
             : ($tenantJobsHasCompanyLogoPath ? $company?->logo_path : null);
@@ -172,6 +183,10 @@ class TenantFrontendController extends Controller
 
         if ($tenantJobsHasTenantCompanyId) {
             $jobAttributes['tenant_company_id'] = $company?->id;
+        }
+
+        if ($tenantJobsHasTenantPackageId) {
+            $jobAttributes['tenant_package_id'] = $validated['tenant_package_id'];
         }
 
         if ($tenantJobsHasCompanyLogoPath) {

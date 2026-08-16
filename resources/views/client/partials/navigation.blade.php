@@ -61,6 +61,7 @@
       ],
     ],
     ['label' => 'Billing', 'icon' => 'ph-credit-card', 'url' => route('client.billing'), 'active' => request()->routeIs('client.billing')],
+    ['label' => 'My packages', 'icon' => 'ph-package', 'url' => route('client.packages.index'), 'active' => request()->routeIs('client.packages.*')],
     ['label' => 'Website', 'icon' => 'ph-house', 'url' => route('welcome'), 'active' => false],
   ];
 @endphp

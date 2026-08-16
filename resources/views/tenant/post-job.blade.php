@@ -5,6 +5,7 @@
 
 @php
   $selectedJobTypes = collect((array) old('employment_type', []));
+  $selectedPackageId = (string) old('tenant_package_id', '');
 @endphp
 
 @section('content')
@@ -31,9 +32,61 @@
             @csrf
 
             <div class="tenant-panel__head tenant-form-header">
-              <h2 class="tenant-form-title">Submit a vacancy</h2>
-              <p>Your job will be saved as a draft first. Publishing and payment can be completed in the next step later.</p>
+              <h2 class="tenant-form-title">Submit a job.</h2>
+              <p class="tenant-form-intro">Fill in the details below and post your job.</p>
             </div>
+
+            <section class="tenant-form-section-block tenant-post-job-form__section" aria-labelledby="tenant-package-title">
+              <div class="tenant-form-section-head">
+                <h2 id="tenant-package-title" class="tenant-form-section-title">Choose your package</h2>
+              </div>
+
+              <div class="tenant-post-job-form__field tenant-multiselect" data-multiselect data-multiselect-max="1">
+                <label id="tenant-package-label">Package</label>
+                <button
+                  class="tenant-multiselect__button"
+                  type="button"
+                  aria-haspopup="listbox"
+                  aria-expanded="false"
+                  aria-labelledby="tenant-package-label"
+                  data-multiselect-button
+                  data-multiselect-placeholder="Select a package"
+                  @disabled($packages->isEmpty())
+                >
+                  Select a package
+                </button>
+                <div class="tenant-multiselect__menu" data-multiselect-menu>
+                  <input
+                    class="tenant-multiselect__search"
+                    type="search"
+                    placeholder="Search packages"
+                    aria-label="Search packages"
+                    autocomplete="off"
+                    data-multiselect-search
+                  >
+                  <div class="tenant-multiselect__options" role="listbox" aria-multiselectable="false">
+                    @foreach($packages as $package)
+                      @php
+                        $packageLabel = $package->displayLabel();
+                      @endphp
+                      <label class="tenant-multiselect__option" data-multiselect-option-row>
+                        <input
+                          type="radio"
+                          name="tenant_package_id"
+                          value="{{ $package->id }}"
+                          @checked($selectedPackageId === (string) $package->id)
+                          data-multiselect-option
+                          data-multiselect-label="{{ $packageLabel }}"
+                        >
+                        <span>{{ $packageLabel }}</span>
+                      </label>
+                    @endforeach
+                  </div>
+                  <p class="tenant-multiselect__empty" @if($packages->isNotEmpty()) hidden @endif data-multiselect-empty>No packages found.</p>
+                </div>
+                @error('tenant_package_id')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
+              </div>
+            </section>
 
             <section class="tenant-form-section-block tenant-post-job-form__section" aria-labelledby="tenant-job-details-title">
               <div class="tenant-form-section-head">
@@ -260,6 +313,8 @@
         const empty = multiselect.querySelector('[data-multiselect-empty]');
         const options = Array.from(multiselect.querySelectorAll('[data-multiselect-option]'));
         const optionRows = Array.from(multiselect.querySelectorAll('[data-multiselect-option-row]'));
+        const maxSelections = Number(multiselect.dataset.multiselectMax || 0);
+        const placeholder = button?.dataset.multiselectPlaceholder || 'Select job types';
 
         if (!button || !options.length) {
           return;
@@ -268,9 +323,9 @@
         const updateButton = () => {
           const selected = options
             .filter((option) => option.checked)
-            .map((option) => option.value);
+            .map((option) => option.dataset.multiselectLabel || option.value);
 
-          button.textContent = selected.length ? selected.join(', ') : 'Select job types';
+          button.textContent = selected.length ? selected.join(', ') : placeholder;
         };
 
         button.addEventListener('click', () => {
@@ -283,7 +338,20 @@
         });
 
         options.forEach((option) => {
-          option.addEventListener('change', updateButton);
+          option.addEventListener('change', () => {
+            if (maxSelections === 1 && option.checked) {
+              options.forEach((otherOption) => {
+                if (otherOption !== option) {
+                  otherOption.checked = false;
+                }
+              });
+
+              multiselect.classList.remove('is-open');
+              button.setAttribute('aria-expanded', 'false');
+            }
+
+            updateButton();
+          });
         });
 
         search?.addEventListener('input', () => {

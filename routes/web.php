@@ -124,6 +124,8 @@ $centralRoutes = function (): void {
             Route::get('/companies', [ClientDashboardController::class, 'companies'])->name('companies.index');
             Route::post('/companies', [ClientDashboardController::class, 'storeCompany'])->name('companies.store');
             Route::get('/companies/create', [ClientDashboardController::class, 'createCompany'])->name('companies.create');
+            Route::get('/packages', [ClientDashboardController::class, 'packages'])->name('packages.index');
+            Route::post('/packages', [ClientDashboardController::class, 'storePackage'])->name('packages.store');
         });
 
     Route::get('/dashboard/billing/success', [BillingController::class, 'success'])

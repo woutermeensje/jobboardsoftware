@@ -7,6 +7,7 @@ use App\Models\JobApplication;
 use App\Models\Tenant;
 use App\Models\TenantCompany;
 use App\Models\TenantJob;
+use App\Models\TenantPackage;
 use App\Support\AdminActionNotifier;
 use App\Support\JobTypeOptions;
 use App\Support\RichTextSanitizer;
@@ -454,6 +455,63 @@ class ClientDashboardController extends Controller
         return redirect()
             ->route('client.jobs-settings.job-type')
             ->with('status', 'Job type added.');
+    }
+
+    public function packages(Request $request): View
+    {
+        $tenants = $request->user()
+            ->ownedTenants()
+            ->latest()
+            ->get();
+
+        return view('client.packages', [
+            'user' => $request->user(),
+            'tenants' => $tenants,
+            'packages' => TenantPackage::query()
+                ->with('tenant')
+                ->whereIn('tenant_id', $tenants->pluck('id'))
+                ->latest()
+                ->get(),
+        ]);
+    }
+
+    public function storePackage(Request $request): RedirectResponse
+    {
+        $request->merge([
+            'currency' => Str::upper(trim((string) $request->input('currency'))),
+        ]);
+
+        $validated = $request->validate([
+            'tenant_id' => [
+                'required',
+                Rule::exists('tenants', 'id')->where(fn ($query) => $query->where('owner_user_id', $request->user()->id)),
+            ],
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('tenant_packages', 'name')->where(fn ($query) => $query->where('tenant_id', $request->input('tenant_id'))),
+            ],
+            'price' => ['required', 'numeric', 'min:0', 'max:999999.99'],
+            'currency' => ['required', 'string', 'size:3'],
+            'online_days' => ['required', 'integer', 'min:1', 'max:3650'],
+        ]);
+
+        $tenant = Tenant::query()
+            ->where('owner_user_id', $request->user()->id)
+            ->findOrFail($validated['tenant_id']);
+
+        TenantPackage::query()->create([
+            'tenant_id' => $tenant->id,
+            'name' => $validated['name'],
+            'price' => $validated['price'],
+            'currency' => $validated['currency'],
+            'online_days' => $validated['online_days'],
+        ]);
+
+        return redirect()
+            ->route('client.packages.index')
+            ->with('status', 'Package added.');
     }
 
     /**

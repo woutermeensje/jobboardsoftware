@@ -7,6 +7,7 @@ use App\Models\JobApplication;
 use App\Models\Tenant;
 use App\Models\TenantCompany;
 use App\Models\TenantJob;
+use App\Models\TenantPackage;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -68,6 +69,7 @@ class ClientDashboardTest extends TestCase
             '/client/dashboard/jobs-settings/organization-type',
             '/client/dashboard/companies',
             '/client/dashboard/companies/create',
+            '/client/dashboard/packages',
         ] as $path) {
             $this->actingAs($owner)
                 ->get($path)
@@ -112,6 +114,7 @@ class ClientDashboardTest extends TestCase
             ->assertSee('Job types')
             ->assertSee('Organization types')
             ->assertSee('Create company')
+            ->assertSee('My packages')
             ->assertSee('/client/dashboard/jobs-settings/job-type', false);
     }
 
@@ -127,6 +130,7 @@ class ClientDashboardTest extends TestCase
             '/client/dashboard/jobs-settings/categorie',
             '/client/dashboard/jobs-settings/job-type',
             '/client/dashboard/companies/create',
+            '/client/dashboard/packages',
         ] as $path) {
             $this->actingAs($owner)
                 ->get($path)
@@ -404,6 +408,70 @@ class ClientDashboardTest extends TestCase
             ->get('/client/dashboard/jobs-settings/job-type')
             ->assertOk()
             ->assertSee('Volunteer');
+    }
+
+    public function test_tenant_owner_can_manage_packages_for_owned_environments(): void
+    {
+        $owner = User::factory()->create(['role' => User::ROLE_TENANT_OWNER]);
+        $tenant = $this->tenantFor($owner, 'Acme Careers', 'acme-careers');
+
+        $this->actingAs($owner)
+            ->get('/client/dashboard/packages')
+            ->assertOk()
+            ->assertSee('My packages')
+            ->assertSee('Package name')
+            ->assertSee('Price')
+            ->assertSee('Currency')
+            ->assertSee('Days online')
+            ->assertSee('No packages yet');
+
+        $this->actingAs($owner)
+            ->post('/client/dashboard/packages', [
+                'tenant_id' => $tenant->id,
+                'name' => 'Featured job',
+                'price' => '149.00',
+                'currency' => 'eur',
+                'online_days' => 45,
+            ])
+            ->assertRedirect(route('client.packages.index'))
+            ->assertSessionHas('status', 'Package added.');
+
+        $package = TenantPackage::query()->firstOrFail();
+
+        $this->assertSame($tenant->id, $package->tenant_id);
+        $this->assertSame('Featured job', $package->name);
+        $this->assertSame('149.00', $package->price);
+        $this->assertSame('EUR', $package->currency);
+        $this->assertSame(45, $package->online_days);
+
+        $this->actingAs($owner)
+            ->get('/client/dashboard/packages')
+            ->assertOk()
+            ->assertSee('Featured job')
+            ->assertSee('EUR 149.00')
+            ->assertSee('45');
+    }
+
+    public function test_tenant_owner_cannot_create_package_for_unowned_environment(): void
+    {
+        $owner = User::factory()->create(['role' => User::ROLE_TENANT_OWNER]);
+        $otherOwner = User::factory()->create(['role' => User::ROLE_TENANT_OWNER]);
+        $otherTenant = $this->tenantFor($otherOwner, 'Other Careers', 'other-careers');
+
+        $this->actingAs($owner)
+            ->post('/client/dashboard/packages', [
+                'tenant_id' => $otherTenant->id,
+                'name' => 'Blocked package',
+                'price' => '49.00',
+                'currency' => 'EUR',
+                'online_days' => 14,
+            ])
+            ->assertSessionHasErrors('tenant_id');
+
+        $this->assertDatabaseMissing('tenant_packages', [
+            'tenant_id' => $otherTenant->id,
+            'name' => 'Blocked package',
+        ]);
     }
 
     public function test_tenant_owner_cannot_add_duplicate_or_unowned_job_types(): void
