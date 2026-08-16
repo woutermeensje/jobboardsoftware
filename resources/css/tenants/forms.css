@@ -65,7 +65,7 @@
 
 .tenant-post-job {
   display: grid;
-  grid-template-columns: minmax(0, 1040px);
+  grid-template-columns: minmax(0, 600px);
   justify-content: center;
   gap: 22px;
   align-items: start;
