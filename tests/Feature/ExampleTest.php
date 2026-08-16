@@ -53,6 +53,7 @@ class ExampleTest extends TestCase
             '/newsletter',
             '/employer',
             '/post-a-job',
+            '/how-to-start-a-job-board',
             '/pricing',
             '/about-us',
             '/contact',

@@ -137,6 +137,54 @@
   font-size: 14px;
 }
 
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.features-card {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  min-height: 180px;
+  padding: 28px;
+  border: 1px solid #dedede;
+  border-radius: 5px;
+  background: #ffffff;
+}
+
+.features-card__icon {
+  width: 42px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  background: var(--color-primary-soft);
+  color: var(--color-primary-strong);
+  font-size: 22px;
+  line-height: 1;
+}
+
+.features-card__title {
+  margin: 0;
+  color: var(--color-text);
+  font-family: 'Work Sans', var(--font-heading), sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.features-card__description {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-family: var(--font-text);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.65;
+}
+
 .content-form {
   display: grid;
   gap: 14px;
@@ -213,10 +261,89 @@
   font-size: 28px;
 }
 
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin: 72px 0;
+}
+
+.pricing-card {
+  display: grid;
+  align-content: start;
+  gap: 24px;
+  padding: 28px;
+  border: 1px solid #dedede;
+  border-radius: 5px;
+  background: #ffffff;
+  box-shadow: none;
+}
+
+.pricing-card__header {
+  display: grid;
+  gap: 10px;
+}
+
+.pricing-card__name {
+  margin: 0;
+  color: var(--color-text);
+  font-family: var(--font-heading);
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.pricing-card__price {
+  margin: 0;
+  color: var(--color-primary-strong);
+  font-family: var(--font-ui);
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1.15;
+}
+
+.pricing-card__description {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.pricing-card__benefits {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pricing-card__benefits li {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  color: var(--color-text);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.pricing-card__benefits i {
+  margin-top: 2px;
+  color: var(--color-accent-strong);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.pricing-card__actions {
+  margin-top: auto;
+}
+
 @media (max-width: 920px) {
   .content-hero,
   .content-grid,
   .content-grid--two,
+  .features-grid,
+  .pricing-grid,
   .content-form__grid {
     grid-template-columns: 1fr;
   }

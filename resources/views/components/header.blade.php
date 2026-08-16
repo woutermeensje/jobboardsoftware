@@ -34,30 +34,6 @@
 @endphp
 
 <header id="rn-header" class="rn-header" role="banner">
-  <div class="rn-topbar" aria-label="Quick links">
-    <div class="rn-topbar__inner">
-      <div class="rn-topbar__group rn-topbar__group--left">
-        @if($authUser)
-          <a class="rn-topbar__link" href="{{ $dashboardUrl }}">My dashboard</a>
-          <span class="rn-topbar__sep" aria-hidden="true">|</span>
-          <form method="POST" action="{{ route('logout') }}" class="rn-topbar__logout-form">
-            @csrf
-            <button class="rn-topbar__link rn-topbar__link--button" type="submit">Log out</button>
-          </form>
-        @else
-          <a class="rn-topbar__link" href="{{ route('register.choice') }}">Sign up</a>
-          <span class="rn-topbar__sep" aria-hidden="true">|</span>
-          <a class="rn-topbar__link" href="{{ route('login.choice') }}">Log in</a>
-        @endif
-      </div>
-      <div class="rn-topbar__group rn-topbar__group--right">
-        <a class="rn-topbar__link" href="{{ route('welcome') }}#domains">Connect a custom domain</a>
-        <span class="rn-topbar__sep" aria-hidden="true">|</span>
-        <a class="rn-topbar__link" href="{{ route('pages.contact') }}">Book a demo</a>
-      </div>
-    </div>
-  </div>
-
   <div class="rn-header__inner">
     <div class="rn-header__brand">
       <a href="{{ route('welcome') }}" aria-label="JobBoardSoftware home">

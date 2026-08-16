@@ -6,7 +6,7 @@
 @section('content')
 <style>
 .faq-block {
-  width: 600px;
+  width: 900px;
   max-width: 100%;
   margin: 48px auto;
   padding: 0 24px;

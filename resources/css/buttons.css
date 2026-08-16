@@ -13,7 +13,8 @@
 .dash-link,
 .rn-btn,
 .content-btn,
-.auth-button {
+.auth-button,
+.tenant-btn {
   appearance: none;
   display: inline-flex;
   align-items: center;
@@ -41,7 +42,8 @@
 .dash-link:hover,
 .rn-btn:hover,
 .content-btn:hover,
-.auth-button:hover {
+.auth-button:hover,
+.tenant-btn:hover {
   text-decoration: none;
 }
 
@@ -50,7 +52,8 @@
 .dash-link:active,
 .rn-btn:active,
 .content-btn:active,
-.auth-button:active {
+.auth-button:active,
+.tenant-btn:active {
   transform: translateY(0);
   box-shadow: none;
 }
@@ -60,7 +63,8 @@
 .dash-link:focus-visible,
 .rn-btn:focus-visible,
 .content-btn:focus-visible,
-.auth-button:focus-visible {
+.auth-button:focus-visible,
+.tenant-btn:focus-visible {
   outline: none;
   box-shadow: 0 0 0 3px var(--color-primary-muted);
 }
@@ -72,7 +76,9 @@
 .dash-link[disabled],
 .rn-btn[disabled],
 .content-btn[disabled],
-.auth-button[disabled] {
+.auth-button[disabled],
+.tenant-btn[disabled],
+.tenant-btn[aria-disabled="true"] {
   opacity: .55;
   cursor: not-allowed;
   pointer-events: none;
@@ -104,7 +110,8 @@
 .dash-btn--primary,
 .rn-btn--accent,
 .content-btn--primary,
-.auth-button--primary {
+.auth-button--primary,
+.tenant-btn--primary {
   border-color: var(--color-primary-strong);
   background: var(--color-primary-strong);
   color: #ffffff;
@@ -116,13 +123,17 @@
 .rn-btn--accent:hover,
 .content-btn--primary:hover,
 .auth-button--primary:hover,
+.tenant-btn--primary:hover,
 .btn-primary:focus-visible,
+.dash-btn--primary:focus-visible,
+.content-btn--primary:focus-visible,
 .rn-btn--accent:focus-visible,
-.auth-button--primary:focus-visible {
-  border-color: #274f6b;
-  background: #274f6b;
+.auth-button--primary:focus-visible,
+.tenant-btn--primary:focus-visible {
+  border-color: color-mix(in srgb, var(--color-primary-strong) 82%, black 18%);
+  background: color-mix(in srgb, var(--color-primary-strong) 82%, black 18%);
   color: #ffffff;
-  box-shadow: 0 8px 20px rgba(47, 95, 128, .25);
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--color-primary-strong) 35%, transparent);
   transform: translateY(-1px);
 }
 
@@ -132,7 +143,8 @@
 .btn-ghost,
 .dash-btn--ghost,
 .rn-btn--outline,
-.content-btn--ghost {
+.content-btn--ghost,
+.tenant-btn--ghost {
   border-color: var(--color-border-strong);
   background: #ffffff;
   color: var(--color-primary-strong);
@@ -142,14 +154,16 @@
 .dash-btn--ghost:hover,
 .rn-btn--outline:hover,
 .content-btn--ghost:hover,
+.tenant-btn--ghost:hover,
 .btn-ghost:focus-visible,
 .dash-btn--ghost:focus-visible,
 .rn-btn--outline:focus-visible,
-.content-btn--ghost:focus-visible {
-  border-color: var(--color-primary);
-  background: var(--color-primary-soft);
+.content-btn--ghost:focus-visible,
+.tenant-btn--ghost:focus-visible {
+  border-color: var(--color-primary-strong);
+  background: color-mix(in srgb, var(--color-primary-strong) 8%, white 92%);
   color: var(--color-primary-strong);
-  box-shadow: 0 4px 12px rgba(47, 95, 128, .1);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--color-primary-strong) 18%, transparent);
   transform: translateY(-1px);
 }
 

@@ -7,63 +7,67 @@
 @include('pages.partials.page-styles')
 
 @php
-  $plans = \App\Models\BillingPlan::query()
-    ->where('is_active', true)
-    ->orderBy('monthly_price_cents')
-    ->get();
+  $fakeBenefits = [
+    'Placeholder benefit one',
+    'Placeholder benefit two',
+    'Placeholder benefit three',
+    'Placeholder benefit four',
+    'Placeholder benefit five',
+    'Placeholder benefit six',
+    'Placeholder benefit seven',
+    'Placeholder benefit eight',
+    'Placeholder benefit nine',
+    'Placeholder benefit ten',
+  ];
+
+  $plans = [
+    [
+      'name' => 'Free plan',
+      'price' => '14-day free trial',
+      'description' => 'Try the platform and explore the core job board tools.',
+      'features' => $fakeBenefits,
+    ],
+    [
+      'name' => 'Standard plan',
+      'price' => '€149 per month',
+      'description' => 'For job boards that are ready to publish and grow.',
+      'features' => $fakeBenefits,
+    ],
+    [
+      'name' => 'Pro plan',
+      'price' => '€249 per month',
+      'description' => 'For professional job boards with advanced growth needs.',
+      'features' => $fakeBenefits,
+    ],
+  ];
 @endphp
 
 <div class="content-page">
   <div class="content-page__shell">
 
-    <section class="content-hero">
-      <div class="content-hero__copy">
-        <p class="content-eyebrow">Pricing</p>
-        <h1>Simple pricing, no surprises</h1>
-        <p class="content-hero__intro">
-          Start free, upgrade when you grow. Every plan includes hosting, SSL and the full management portal &mdash; no setup fees.
-        </p>
-      </div>
-      <div class="content-visual">
-        <i class="ph ph-credit-card"></i>
-        <strong>14 day trial</strong>
-        <span>Try any plan before you commit.</span>
-      </div>
-    </section>
-
-    <section class="content-grid">
-      @forelse ($plans as $plan)
-        <div class="content-card price-card">
-          <p class="content-eyebrow">{{ $plan->name }}</p>
-          <strong>{{ $plan->formattedMonthlyPrice() }}</strong>
-          @if ($plan->description)
-            <p>{{ $plan->description }}</p>
-          @endif
-          @if (! empty($plan->features))
-            <ul class="content-list">
-              @foreach ($plan->features as $feature)
-                <li>{{ $feature }}</li>
-              @endforeach
-            </ul>
-          @endif
-          <div class="content-actions">
-            <a href="{{ route('register.choice') }}" class="content-btn content-btn--primary">Start free</a>
+    <section class="pricing-grid" aria-label="Pricing plans">
+      @foreach ($plans as $plan)
+        <article class="pricing-card">
+          <div class="pricing-card__header">
+            <h2 class="pricing-card__name">{{ $plan['name'] }}</h2>
+            <p class="pricing-card__price">{{ $plan['price'] }}</p>
+            <p class="pricing-card__description">{{ $plan['description'] }}</p>
           </div>
-        </div>
-      @empty
-        <div class="content-card">
-          <h3>Plans coming soon</h3>
-          <p>Our pricing plans are being finalised &mdash; get in touch for early access.</p>
-        </div>
-      @endforelse
-    </section>
 
-    <section class="content-section">
-      <h2>Questions about pricing?</h2>
-      <p>Reach out and we'll help you pick the right plan for your job board.</p>
-      <div class="content-actions">
-        <a href="{{ route('pages.contact') }}" class="content-btn content-btn--ghost">Contact us</a>
-      </div>
+          <ul class="pricing-card__benefits">
+            @foreach ($plan['features'] as $feature)
+              <li>
+                <i class="ph ph-check" aria-hidden="true"></i>
+                <span>{{ $feature }}</span>
+              </li>
+            @endforeach
+          </ul>
+
+          <div class="pricing-card__actions">
+            <a href="{{ route('register.choice') }}" class="btn btn-primary">Start free</a>
+          </div>
+        </article>
+      @endforeach
     </section>
 
   </div>

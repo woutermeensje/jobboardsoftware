@@ -1,0 +1,48 @@
+.tenant-body .auth-choice-card::before {
+  background: var(--tenant-primary);
+}
+
+.tenant-body .auth-choice-card:nth-child(2)::before {
+  background: var(--tenant-accent);
+}
+
+.tenant-body .auth-choice-card:hover {
+  border-color: var(--tenant-primary);
+  color: var(--tenant-primary);
+}
+
+.tenant-body .auth-choice-card i {
+  background: color-mix(in srgb, var(--tenant-primary) 10%, white 90%);
+  color: var(--tenant-primary);
+}
+
+.tenant-body .auth-input:focus {
+  border-color: var(--tenant-primary);
+}
+
+.tenant-body .auth-check input {
+  accent-color: var(--tenant-primary);
+}
+
+.tenant-body .auth-link {
+  color: var(--tenant-primary);
+}
+
+.tenant-body .auth-dashboard-meta span {
+  border-color: color-mix(in srgb, var(--tenant-primary) 24%, transparent);
+  background: color-mix(in srgb, var(--tenant-primary) 9%, white 91%);
+}
+
+.tenant-body .auth-button--primary {
+  border-color: var(--tenant-primary);
+  background: var(--tenant-primary);
+  color: #ffffff;
+}
+
+.tenant-body .auth-button--primary:hover,
+.tenant-body .auth-button--primary:focus-visible {
+  border-color: color-mix(in srgb, var(--tenant-primary) 82%, black 18%);
+  background: color-mix(in srgb, var(--tenant-primary) 82%, black 18%);
+  color: #ffffff;
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--tenant-primary) 35%, transparent);
+}
