@@ -109,7 +109,8 @@
   padding: 24px;
 }
 
-.tenant-company-form {
+.tenant-company-form,
+.tenant-dashboard-form {
   --tenant-accent: var(--color-primary);
   --tenant-primary: var(--color-primary-strong);
   --tenant-danger: var(--color-danger, #9f3412);
@@ -117,7 +118,8 @@
   padding: clamp(32px, 4vw, 48px);
 }
 
-.tenant-company-form__header {
+.tenant-company-form__header,
+.tenant-dashboard-form__header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -156,7 +158,8 @@
   border-top: 1px solid var(--color-border);
 }
 
-.tenant-company-form > .tenant-form-section-block {
+.tenant-company-form > .tenant-form-section-block,
+.tenant-dashboard-form > .tenant-form-section-block {
   padding: 32px 0;
   border-top: 1px solid var(--color-border);
 }
@@ -165,7 +168,8 @@
   padding-bottom: 0;
 }
 
-.tenant-company-form > .tenant-form-section-block:last-of-type {
+.tenant-company-form > .tenant-form-section-block:last-of-type,
+.tenant-dashboard-form > .tenant-form-section-block:last-of-type {
   padding-bottom: 0;
 }
 
@@ -628,7 +632,8 @@
   width: fit-content;
 }
 
-.tenant-company-form__actions {
+.tenant-company-form__actions,
+.tenant-dashboard-form__actions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -678,7 +683,8 @@
 @media (max-width: 900px) {
   .tenant-panel.tenant-post-job__main > form.tenant-post-job-form,
   .tenant-panel.tenant-post-job__account-panel,
-  .tenant-company-form {
+  .tenant-company-form,
+  .tenant-dashboard-form {
     padding: 24px;
   }
 
@@ -691,7 +697,8 @@
     grid-template-columns: 1fr;
   }
 
-  .tenant-company-form__header {
+  .tenant-company-form__header,
+  .tenant-dashboard-form__header {
     display: grid;
   }
 

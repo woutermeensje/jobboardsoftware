@@ -195,7 +195,8 @@ class ClientDashboardTest extends TestCase
             ->assertSee('Acme Hiring')
             ->assertSee('Volunteer')
             ->assertSee('data-quill-field', false)
-            ->assertSee('cdn.jsdelivr.net/npm/quill@2/dist/quill.js', false);
+            ->assertSee('cdn.jsdelivr.net/npm/quill@2/dist/quill.js', false)
+            ->assertDontSee('placeholder=', false);
 
         $this->actingAs($owner)
             ->post('/client/dashboard/jobs', [
