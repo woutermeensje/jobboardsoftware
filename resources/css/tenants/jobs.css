@@ -80,7 +80,7 @@
   justify-content: center;
   width: 73px;
   height: 73px;
-  padding: 12px;
+  padding: 0;
   border: 1px solid #dedede;
   border-radius: 8px;
   background: color-mix(in srgb, var(--tenant-accent) 8%, #ffffff);

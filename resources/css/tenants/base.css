@@ -17,6 +17,10 @@
   color: inherit;
 }
 
+.tenant-body.is-tenant-menu-open {
+  overflow: hidden;
+}
+
 .tenant-page {
   min-height: 100vh;
   background: var(--color-bg);

@@ -107,11 +107,11 @@
       <ul class="tenant-mobile-nav__list">
         @foreach($primaryNav as $item)
           <li>
-            <a href="{{ $item['url'] }}">{{ $item['label'] }}</a>
+            <a class="{{ ! empty($item['active']) ? 'is-active' : '' }}" href="{{ $item['url'] }}">{{ $item['label'] }}</a>
             @if(! empty($item['children']))
               <ul>
                 @foreach($item['children'] as $child)
-                  <li><a href="{{ $child['url'] }}">{{ $child['label'] }}</a></li>
+                  <li><a class="{{ ! empty($child['active']) ? 'is-active' : '' }}" href="{{ $child['url'] }}">{{ $child['label'] }}</a></li>
                 @endforeach
               </ul>
             @endif

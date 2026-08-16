@@ -27,7 +27,7 @@ if (tenantMenuToggle && tenantMobileNav) {
     tenantMenuToggle.classList.remove('is-open');
     tenantMenuToggle.setAttribute('aria-expanded', 'false');
     tenantMobileNav.setAttribute('aria-hidden', 'true');
-    document.body.style.overflow = '';
+    document.body.classList.remove('is-tenant-menu-open');
   };
 
   const openTenantMenu = () => {
@@ -35,7 +35,7 @@ if (tenantMenuToggle && tenantMobileNav) {
     tenantMenuToggle.classList.add('is-open');
     tenantMenuToggle.setAttribute('aria-expanded', 'true');
     tenantMobileNav.setAttribute('aria-hidden', 'false');
-    document.body.style.overflow = 'hidden';
+    document.body.classList.add('is-tenant-menu-open');
   };
 
   tenantMenuToggle.addEventListener('click', () => {
