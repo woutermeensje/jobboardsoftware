@@ -157,13 +157,11 @@
 
 .tenant-post-job-form > .tenant-form-section-block {
   padding: 32px 0;
-  border-top: 1px solid var(--color-border);
 }
 
 .tenant-company-form > .tenant-form-section-block,
 .tenant-dashboard-form > .tenant-form-section-block {
   padding: 32px 0;
-  border-top: 1px solid var(--color-border);
 }
 
 .tenant-post-job-form > .tenant-form-section-block:last-of-type {
@@ -178,11 +176,6 @@
 .tenant-form-section-head {
   padding-bottom: 14px;
   border-bottom: 1px solid var(--color-border);
-}
-
-.tenant-dashboard-form__contact-section .tenant-form-section-head {
-  padding-bottom: 0;
-  border-bottom: 0;
 }
 
 .tenant-form__grid,
@@ -460,6 +453,13 @@
 
 .tenant-post-job-form__logo-field {
   min-width: 0;
+}
+
+.tenant-post-job-form__logo-field .tenant-logo-upload {
+  width: 100%;
+  min-height: 72px;
+  padding: 14px;
+  align-items: center;
 }
 
 .tenant-logo-upload {

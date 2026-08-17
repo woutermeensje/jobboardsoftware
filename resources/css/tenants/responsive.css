@@ -10,6 +10,11 @@
     grid-template-columns: 1fr;
   }
 
+  .tenant-job-filters__field--location {
+    border-top: 1px solid #dedede;
+    border-left: 0;
+  }
+
   .tenant-jobs-sidebar {
     position: static;
   }
@@ -20,8 +25,7 @@
     padding-inline: 18px;
   }
 
-  .tenant-job,
-  .tenant-footer {
+  .tenant-job {
     display: grid;
   }
 
@@ -30,8 +34,24 @@
     justify-items: start;
   }
 
-  .tenant-navigation,
-  .tenant-footer__links {
+  .tenant-navigation {
+    justify-content: start;
+  }
+
+  .tenant-footer {
+    width: calc(100% + 36px);
+    margin-inline: -18px;
+    padding-inline: 18px;
+  }
+
+  .tenant-footer__inner {
+    display: grid;
+    align-content: center;
+    gap: 6px;
+    height: 72px;
+  }
+
+  .tenant-footer__brand {
     justify-content: start;
   }
 

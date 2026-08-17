@@ -66,8 +66,13 @@ class ExampleTest extends TestCase
 
     public function test_tenant_domain_renders_tenant_frontend(): void
     {
+        $owner = User::factory()->create([
+            'email' => 'owner@acme.test',
+        ]);
+
         $tenant = Tenant::create([
             'id' => 'acme',
+            'owner_user_id' => $owner->id,
             'name' => 'Acme Careers',
             'slug' => 'acme-careers',
             'plan' => Tenant::PLAN_STARTER,
@@ -114,6 +119,11 @@ class ExampleTest extends TestCase
             ->assertSee('Acme Careers')
             ->assertSee('tenant-header', false)
             ->assertSee('tenant-mobile-nav', false)
+            ->assertSee('tenant-footer', false)
+            ->assertSee('owner@acme.test')
+            ->assertSee('mailto:owner@acme.test', false)
+            ->assertSee('tenant-footer__updated', false)
+            ->assertSee((string) now()->year)
             ->assertSee('Post a job')
             ->assertSee('/post-a-job', false)
             ->assertSee('Login')
@@ -128,7 +138,9 @@ class ExampleTest extends TestCase
             ->assertSee('Laravel Developer')
             ->assertSee('Growth Marketer')
             ->assertSee('Amsterdam')
-            ->assertSee('Rotterdam');
+            ->assertSee('Rotterdam')
+            ->assertDontSee('Jobs and applications')
+            ->assertDontSee('tenant-footer__links', false);
 
         $this->get('http://acme.test/?department%5B%5D=Development')
             ->assertStatus(200)

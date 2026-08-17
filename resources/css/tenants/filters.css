@@ -23,15 +23,25 @@
 }
 
 .tenant-job-filters {
-  width: min(900px, 100%);
+  width: min(600px, 100%);
 }
 
 .tenant-job-filters__grid {
   display: grid;
-  grid-template-columns: minmax(320px, 1fr) minmax(220px, .62fr);
-  gap: 12px;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 1fr);
+  gap: 0;
   width: 100%;
   min-width: 0;
+  overflow: hidden;
+  border: 1px solid #dedede;
+  border-radius: 5px;
+  background: #ffffff;
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+
+.tenant-job-filters__grid:focus-within {
+  border-color: var(--tenant-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--tenant-accent) 14%, transparent);
 }
 
 .tenant-job-filters__field {
@@ -40,23 +50,25 @@
   min-width: 0;
 }
 
+.tenant-job-filters__field--location {
+  border-left: 1px solid #dedede;
+}
+
 .tenant-job-filters__field input {
   width: 100%;
   height: 44px;
   padding: 0 12px 0 38px;
-  border: 1px solid #dedede;
-  border-radius: 5px;
-  background-color: #ffffff;
+  border: 0;
+  border-radius: 0;
+  background-color: transparent;
   color: var(--color-text);
   box-sizing: border-box;
   font-size: 15px;
-  transition: border-color .2s ease, box-shadow .2s ease;
 }
 
 .tenant-job-filters__field input:focus {
   outline: none;
-  border-color: var(--tenant-accent);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--tenant-accent) 14%, transparent);
+  box-shadow: none;
 }
 
 .tenant-job-filters__field input::placeholder {
