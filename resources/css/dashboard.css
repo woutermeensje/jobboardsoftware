@@ -217,6 +217,98 @@
   color: var(--color-primary-strong);
 }
 
+.tenant-settings-list {
+  display: grid;
+  gap: 12px;
+}
+
+.tenant-settings-card {
+  display: grid;
+  grid-template-columns: minmax(180px, .75fr) minmax(320px, 1.35fr) auto;
+  align-items: end;
+  gap: 18px;
+  padding: 18px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-default);
+  background: var(--color-card);
+}
+
+.tenant-settings-card__copy h3 {
+  margin: 0;
+  color: var(--color-text);
+  font-family: var(--font-ui);
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.tenant-settings-card__copy p {
+  margin: 4px 0 0;
+  color: var(--color-text-muted);
+  font-size: 13px;
+}
+
+.tenant-settings-card__fields {
+  display: grid;
+  gap: 12px;
+}
+
+.tenant-settings-field {
+  display: grid;
+  gap: 7px;
+  color: var(--color-text);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.tenant-color-field {
+  display: grid;
+  gap: 7px;
+  color: var(--color-text);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.tenant-color-field__control {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: 8px;
+}
+
+.tenant-color-field input[type="color"] {
+  width: 44px;
+  height: 42px;
+  padding: 3px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-default);
+  background: var(--color-bg-white);
+  cursor: pointer;
+}
+
+.tenant-color-field input[type="text"],
+.tenant-color-field input[name="primary_color"],
+.tenant-settings-field input {
+  width: 100%;
+  min-height: 42px;
+  padding: 0 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-default);
+  background: var(--color-bg-white);
+  color: var(--color-text);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.tenant-color-field input:focus,
+.tenant-settings-field input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-soft);
+}
+
 .dash-nav__links i,
 .dash-nav__logout i {
   width: 18px;
@@ -1014,6 +1106,11 @@
 
   .dash-form-layout__aside {
     position: static;
+  }
+
+  .tenant-settings-card {
+    grid-template-columns: 1fr;
+    align-items: stretch;
   }
 
   .admin-form-grid,

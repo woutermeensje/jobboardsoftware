@@ -4,7 +4,7 @@
   margin: 32px -24px -40px;
   padding: 0 24px;
   border-top: 1px solid var(--color-border);
-  background: #fff;
+  background: var(--color-bg-white);
   color: var(--color-text-muted);
 }
 
@@ -36,7 +36,7 @@
 }
 
 .tenant-footer__email a:hover {
-  color: var(--tenant-accent);
+  color: var(--color-primary);
 }
 
 .tenant-footer__brand {

@@ -1,11 +1,12 @@
 @import url("https://cdn.jsdelivr.net/npm/quill@2/dist/quill.snow.css");
-@import './forms.css';
-@import './text.css';
-@import './buttons.css';
+@import '../forms.css';
+@import '../text.css';
+@import '../buttons.css';
 @import 'tailwindcss';
+@import './index.css';
 
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
+@source '../../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../../storage/framework/views/*.php';
 
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
@@ -52,6 +53,17 @@
     --field-border: #DEDEDE;
     --field-border-hover: #DEDEDE;
     --field-focus: #DEDEDE;
+}
+
+.tenant-body {
+    --color-primary: var(--tenant-primary, #3f7296);
+    --color-primary-strong: color-mix(in srgb, var(--color-primary) 82%, var(--color-black) 18%);
+    --color-primary-soft: color-mix(in srgb, var(--color-primary) 8%, transparent);
+    --color-primary-muted: color-mix(in srgb, var(--color-primary) 24%, transparent);
+    --color-accent: var(--color-primary);
+    --color-accent-strong: var(--color-primary-strong);
+    --color-accent-soft: var(--color-primary-soft);
+    --tenant-danger: var(--color-danger);
 }
 
 html,

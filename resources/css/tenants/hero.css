@@ -8,7 +8,7 @@
 
 .tenant-eyebrow {
   margin: 0 0 8px;
-  color: var(--tenant-accent);
+  color: var(--color-primary);
   font-family: var(--font-ui);
   font-size: 12px;
   font-weight: 800;

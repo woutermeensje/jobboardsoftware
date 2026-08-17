@@ -11,12 +11,12 @@
   }
 
   .tenant-job-filters__field--location {
-    border-top: 1px solid #dedede;
+    border-top: 1px solid var(--color-border);
     border-left: 0;
   }
 
   .tenant-job-filters__submit {
-    border-top: 1px solid color-mix(in srgb, var(--tenant-accent) 82%, black 18%);
+    border-top: 1px solid color-mix(in srgb, var(--color-primary) 82%, var(--color-black) 18%);
     border-left: 0;
   }
 

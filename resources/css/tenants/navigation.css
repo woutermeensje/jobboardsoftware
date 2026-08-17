@@ -47,20 +47,20 @@
   bottom: 14px;
   height: 2px;
   border-radius: 999px;
-  background: var(--tenant-primary);
+  background: var(--color-primary);
   opacity: 0;
   transform: scaleX(.7);
   transition: opacity .15s ease, transform .15s ease;
 }
 
 .tenant-nav__link:hover {
-  background: color-mix(in srgb, var(--tenant-primary) 6%, #ffffff);
-  color: var(--tenant-primary);
+  background: color-mix(in srgb, var(--color-primary) 6%, var(--color-bg-white));
+  color: var(--color-primary);
   text-decoration: none;
 }
 
 .tenant-nav__link.is-active {
-  color: var(--tenant-primary);
+  color: var(--color-primary);
 }
 
 .tenant-nav__chev {
@@ -87,10 +87,10 @@
   display: block;
   margin: 0;
   padding: 8px;
-  border: 1px solid #e3ebf2;
+  border: 1px solid var(--color-border);
   border-radius: 8px;
-  background: #ffffff;
-  box-shadow: 0 14px 32px rgba(17, 24, 39, .12);
+  background: var(--color-bg-white);
+  box-shadow: var(--shadow-menu);
   list-style: none;
   opacity: 0;
   pointer-events: none;
@@ -124,8 +124,8 @@
 }
 
 .tenant-nav__dropdown .tenant-nav__link:hover {
-  background: color-mix(in srgb, var(--tenant-primary) 6%, #ffffff);
-  color: var(--tenant-primary);
+  background: color-mix(in srgb, var(--color-primary) 6%, var(--color-bg-white));
+  color: var(--color-primary);
 }
 
 .tenant-mobile-nav__list,
@@ -164,16 +164,16 @@
 .tenant-mobile-nav__list a:hover,
 .tenant-mobile-nav__list a:focus-visible {
   outline: none;
-  border-color: color-mix(in srgb, var(--tenant-primary) 18%, #ffffff);
-  background: color-mix(in srgb, var(--tenant-primary) 7%, #ffffff);
-  color: var(--tenant-primary);
+  border-color: color-mix(in srgb, var(--color-primary) 18%, var(--color-bg-white));
+  background: color-mix(in srgb, var(--color-primary) 7%, var(--color-bg-white));
+  color: var(--color-primary);
   text-decoration: none;
 }
 
 .tenant-mobile-nav__list a.is-active {
-  border-color: color-mix(in srgb, var(--tenant-primary) 24%, #ffffff);
-  background: color-mix(in srgb, var(--tenant-primary) 10%, #ffffff);
-  color: var(--tenant-primary);
+  border-color: color-mix(in srgb, var(--color-primary) 24%, var(--color-bg-white));
+  background: color-mix(in srgb, var(--color-primary) 10%, var(--color-bg-white));
+  color: var(--color-primary);
 }
 
 .tenant-mobile-nav__list ul {
@@ -181,7 +181,7 @@
   gap: 4px;
   margin: 4px 0 4px 14px;
   padding: 0 0 0 12px;
-  border-left: 2px solid #edf2f7;
+  border-left: 2px solid var(--color-border);
 }
 
 .tenant-mobile-nav__list ul li {

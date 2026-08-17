@@ -180,6 +180,45 @@ class ClientDashboardController extends Controller
         ]);
     }
 
+    public function settings(Request $request): View
+    {
+        return view('client.settings', [
+            'user' => $request->user(),
+            'tenants' => $request->user()
+                ->ownedTenants()
+                ->with('primaryDomain')
+                ->latest()
+                ->get(),
+        ]);
+    }
+
+    public function updateSettings(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'tenant_id' => [
+                'required',
+                Rule::exists('tenants', 'id')->where(fn ($query) => $query->where('owner_user_id', $request->user()->id)),
+            ],
+            'primary_color' => ['required', 'string', 'regex:/^#[0-9a-fA-F]{6}$/'],
+            'homepage_title' => ['nullable', 'string', 'max:255'],
+            'homepage_subtitle' => ['nullable', 'string', 'max:500'],
+        ]);
+
+        $tenant = Tenant::query()
+            ->where('owner_user_id', $request->user()->id)
+            ->findOrFail($validated['tenant_id']);
+        $settings = $tenant->settings ?? [];
+        $settings['primary_color'] = Str::upper($validated['primary_color']);
+        $settings['homepage_title'] = Str::of($validated['homepage_title'] ?? '')->squish()->toString() ?: null;
+        $settings['homepage_subtitle'] = Str::of($validated['homepage_subtitle'] ?? '')->squish()->toString() ?: null;
+
+        $tenant->forceFill(['settings' => $settings])->save();
+
+        return redirect()
+            ->route('client.settings')
+            ->with('status', 'Settings saved.');
+    }
+
     public function createCompany(Request $request): View
     {
         return view('client.create-company', [

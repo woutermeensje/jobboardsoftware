@@ -44,7 +44,7 @@
 }
 
 .tenant-single-job__breadcrumbs a {
-  color: var(--tenant-accent);
+  color: var(--color-primary);
   font-weight: 600;
   text-decoration: none;
 }
@@ -65,8 +65,8 @@
 .tenant-single-job__content,
 .tenant-single-job__question,
 .tenant-single-job__sidebar-card {
-  background: #ffffff;
-  border: 1px solid #dedede;
+  background: var(--color-bg-white);
+  border: 1px solid var(--color-border);
   border-radius: 5px;
   box-shadow: none;
 }
@@ -79,7 +79,7 @@
   display: inline-flex;
   align-items: center;
   margin-bottom: 18px;
-  color: var(--tenant-accent);
+  color: var(--color-primary);
   font-family: 'Inter', var(--font-ui), sans-serif;
   font-size: 14px;
   font-weight: 700;
@@ -105,7 +105,7 @@
 .tenant-single-job__title-content h1 {
   margin: 0;
   padding: 20px 0 10px;
-  border-bottom: 1px solid #dedede;
+  border-bottom: 1px solid var(--color-border);
   color: var(--color-text);
   font-family: 'Inter', var(--font-heading), sans-serif;
   font-size: 20px;
@@ -126,9 +126,9 @@
 .tenant-single-job__intro {
   margin: 0 0 24px;
   padding: 16px 18px;
-  border: 1px solid color-mix(in srgb, var(--tenant-accent) 18%, #dedede);
+  border: 1px solid color-mix(in srgb, var(--color-primary) 18%, var(--color-border));
   border-radius: 5px;
-  background: color-mix(in srgb, var(--tenant-accent) 4%, #ffffff);
+  background: color-mix(in srgb, var(--color-primary) 4%, var(--color-bg-white));
   color: var(--color-text);
   font-family: 'Poppins', var(--font-text), sans-serif;
   font-size: 14px;
@@ -170,7 +170,7 @@
 .tenant-single-job__question h2 {
   margin: 0 0 20px;
   padding-bottom: 16px;
-  border-bottom: 1px solid #dedede;
+  border-bottom: 1px solid var(--color-border);
   color: var(--color-text);
   font-family: 'Inter', var(--font-heading), sans-serif;
   font-size: 20px;
@@ -192,7 +192,7 @@
 .tenant-single-job__question label {
   display: grid;
   gap: 6px;
-  color: #333333;
+  color: var(--color-text);
   font-family: 'Poppins', var(--font-text), sans-serif;
   font-size: 14px;
   font-weight: 300;
@@ -204,10 +204,10 @@
   width: 100%;
   min-height: 40px;
   padding: 8px 12px;
-  border: 1px solid #dedede;
+  border: 1px solid var(--color-border);
   border-radius: 5px;
   outline: none;
-  background: #ffffff;
+  background: var(--color-bg-white);
   color: var(--color-text);
   font-family: 'Poppins', var(--font-text), sans-serif;
   font-size: 14px;
@@ -223,8 +223,8 @@
 
 .tenant-single-job__question input:focus,
 .tenant-single-job__question textarea:focus {
-  border-color: var(--tenant-accent);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--tenant-accent) 16%, transparent);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 16%, transparent);
 }
 
 .tenant-single-job__question input[type="file"] {
@@ -259,8 +259,8 @@
 .tenant-single-job__sidebar-title {
   margin: 0 0 14px;
   padding-bottom: 10px;
-  border-bottom: 1px solid #dedede;
-  color: #111827;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text);
   font-family: 'Inter', var(--font-ui), sans-serif;
   font-size: 16px;
   font-weight: 700;
@@ -281,10 +281,10 @@
   justify-content: center;
   width: 64px;
   height: 64px;
-  border: 1px solid #dedede;
+  border: 1px solid var(--color-border);
   border-radius: 5px;
-  background: color-mix(in srgb, var(--tenant-accent) 8%, #ffffff);
-  color: var(--tenant-accent);
+  background: color-mix(in srgb, var(--color-primary) 8%, var(--color-bg-white));
+  color: var(--color-primary);
   font-family: 'Inter', var(--font-ui), sans-serif;
   font-size: 18px;
   font-weight: 800;
@@ -327,12 +327,12 @@
 }
 
 a.tenant-single-job__company-name:hover {
-  color: var(--tenant-accent);
+  color: var(--color-primary);
   text-decoration: underline;
 }
 
 .tenant-single-job__company-count {
-  color: var(--tenant-accent);
+  color: var(--color-primary);
   font-family: 'Poppins', var(--font-text), sans-serif;
   font-size: 13px;
   font-weight: 400;
@@ -361,7 +361,7 @@ a.tenant-single-job__company-name:hover {
 }
 
 .tenant-single-job__detail-value {
-  color: #111827;
+  color: var(--color-text);
   font-family: 'Poppins', var(--font-text), sans-serif;
   font-size: 14px;
   font-weight: 600;
@@ -379,10 +379,10 @@ a.tenant-single-job__company-name:hover {
   align-items: center;
   min-height: 25px;
   padding: 3px 10px;
-  border: 1px solid color-mix(in srgb, var(--tenant-accent) 24%, #dedede);
+  border: 1px solid color-mix(in srgb, var(--color-primary) 24%, var(--color-border));
   border-radius: 999px;
-  background: color-mix(in srgb, var(--tenant-accent) 9%, #ffffff);
-  color: var(--tenant-accent);
+  background: color-mix(in srgb, var(--color-primary) 9%, var(--color-bg-white));
+  color: var(--color-primary);
   font-family: 'Poppins', var(--font-text), sans-serif;
   font-size: 12px;
   font-weight: 700;
@@ -405,7 +405,7 @@ a.tenant-single-job__company-name:hover {
 
 .tenant-single-job__contact-name {
   margin: 0;
-  color: #111827;
+  color: var(--color-text);
   font-family: 'Poppins', var(--font-text), sans-serif;
   font-size: 15px;
   font-weight: 700;
@@ -413,7 +413,7 @@ a.tenant-single-job__company-name:hover {
 }
 
 .tenant-single-job__contact-link {
-  color: var(--tenant-accent);
+  color: var(--color-primary);
   font-family: 'Poppins', var(--font-text), sans-serif;
   font-size: 13px;
   font-weight: 400;

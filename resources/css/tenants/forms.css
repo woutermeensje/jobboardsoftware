@@ -6,7 +6,7 @@
 .tenant-panel .tenant-form-title,
 .tenant-form-title {
   margin: 0;
-  color: #333;
+  color: var(--color-text);
   font-family: 'Inter', var(--font-ui), sans-serif;
   font-size: 24px;
   font-weight: 700;
@@ -16,7 +16,7 @@
 .tenant-panel .tenant-form-section-title,
 .tenant-form-section-title {
   margin: 0;
-  color: #333;
+  color: var(--color-text);
   font-family: 'Inter', var(--font-ui), sans-serif;
   font-size: 18px;
   font-weight: 700;
@@ -27,7 +27,7 @@
 .tenant-apply label,
 .tenant-post-job-form label,
 .tenant-post-job-account label {
-  color: #333;
+  color: var(--color-text);
   font-family: 'Poppins', var(--font-text), sans-serif;
   font-size: 14px;
   font-weight: 300;
@@ -50,9 +50,9 @@
   width: 100%;
   min-height: 40px;
   padding: 8px 12px;
-  border: 1px solid #dedede;
+  border: 1px solid var(--color-border);
   border-radius: 5px;
-  background: #ffffff;
+  background: var(--color-bg-white);
   color: var(--color-text);
   font-family: var(--font-text);
   font-weight: 400;
@@ -113,9 +113,7 @@
 
 .tenant-company-form,
 .tenant-dashboard-form {
-  --tenant-accent: var(--color-primary);
-  --tenant-primary: var(--color-primary-strong);
-  --tenant-danger: var(--color-danger, #9f3412);
+  --tenant-danger: var(--color-danger);
   gap: 0;
   padding: clamp(32px, 4vw, 48px);
 }
@@ -225,7 +223,7 @@
 
 .input-description {
   display: block;
-  color: #6b7280;
+  color: var(--color-text-muted);
   font-family: 'Poppins', var(--font-text), sans-serif;
   font-size: 13px;
   font-weight: 300;
@@ -244,9 +242,9 @@
   width: 100%;
   min-height: 40px;
   padding: 8px 12px;
-  border: 1px solid #dedede;
+  border: 1px solid var(--color-border);
   border-radius: 5px;
-  background: #ffffff;
+  background: var(--color-bg-white);
   color: var(--color-text);
   font-family: var(--font-text);
   font-size: 14px;
@@ -257,8 +255,8 @@
 }
 
 .tenant-multiselect.is-open .tenant-multiselect__button {
-  border-color: var(--tenant-accent);
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--tenant-accent) 18%, transparent);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-primary) 18%, transparent);
 }
 
 .tenant-multiselect__button::after {
@@ -283,10 +281,10 @@
   right: 0;
   display: none;
   padding: 12px;
-  border: 1px solid color-mix(in srgb, var(--tenant-accent) 36%, #dedede);
+  border: 1px solid color-mix(in srgb, var(--color-primary) 36%, var(--color-border));
   border-radius: 8px;
-  background: #ffffff;
-  box-shadow: 0 18px 40px rgba(17, 24, 39, .14);
+  background: var(--color-bg-white);
+  box-shadow: var(--shadow-popover);
 }
 
 .tenant-multiselect.is-open .tenant-multiselect__menu {
@@ -299,15 +297,15 @@
   width: 100%;
   min-height: 40px;
   padding: 8px 12px;
-  border: 1px solid var(--tenant-accent);
+  border: 1px solid var(--color-primary);
   border-radius: 6px;
-  background: #ffffff;
+  background: var(--color-bg-white);
   color: var(--color-text);
   font-family: var(--font-text);
   font-size: 14px;
   font-weight: 400;
   outline: none;
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--tenant-accent) 16%, transparent);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-primary) 16%, transparent);
 }
 
 .tenant-post-job-form .tenant-multiselect__search::placeholder,
@@ -342,11 +340,11 @@
 
 .tenant-multiselect__option:hover,
 .tenant-multiselect__option:focus-within {
-  background: color-mix(in srgb, var(--tenant-accent) 22%, #ffffff);
+  background: color-mix(in srgb, var(--color-primary) 22%, var(--color-bg-white));
 }
 
 .tenant-multiselect__option:has(input:checked) {
-  background: color-mix(in srgb, var(--tenant-accent) 14%, #ffffff);
+  background: color-mix(in srgb, var(--color-primary) 14%, var(--color-bg-white));
 }
 
 .tenant-multiselect__option span {
@@ -355,7 +353,7 @@
 }
 
 .tenant-multiselect__option input:checked + span {
-  color: var(--tenant-accent);
+  color: var(--color-primary);
 }
 
 .tenant-dashboard-form .tenant-company-option {
@@ -375,7 +373,7 @@
   overflow: hidden;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-default);
-  background: #ffffff;
+  background: var(--color-bg-white);
 }
 
 .tenant-dashboard-form .tenant-company-option__logo-image {
@@ -390,7 +388,7 @@
   justify-content: center;
   width: 100%;
   height: 100%;
-  color: var(--tenant-accent);
+  color: var(--color-primary);
   font-family: var(--font-ui);
   font-size: 13px;
   font-weight: 800;
@@ -468,7 +466,7 @@
   justify-self: start;
   min-height: 0;
   padding: 0;
-  border: 1px dashed var(--tenant-accent);
+  border: 1px dashed var(--color-primary);
   border-radius: 5px;
   background: transparent;
   color: var(--color-text);
@@ -483,8 +481,8 @@
   max-width: 100%;
   padding: 0 12px;
   border-radius: 5px;
-  background: var(--tenant-primary);
-  color: #ffffff;
+  background: var(--color-primary);
+  color: var(--color-bg-white);
   font-family: var(--font-ui);
   font-size: 13px;
   font-weight: 700;
@@ -534,32 +532,32 @@
 }
 
 .tenant-rich-text .ql-toolbar.ql-snow {
-  border: 1px solid #dedede;
+  border: 1px solid var(--color-border);
   border-bottom: 0;
   border-radius: 5px 5px 0 0;
-  background: #f1f3f5;
+  background: var(--tenant-subtle-surface);
   padding: 8px 10px;
 }
 
 .tenant-rich-text .ql-toolbar button,
 .tenant-rich-text .ql-toolbar .ql-picker {
-  color: #444;
+  color: var(--color-text);
 }
 
 .tenant-rich-text .ql-toolbar button .ql-stroke,
 .tenant-rich-text .ql-toolbar .ql-picker .ql-stroke {
-  stroke: #444;
+  stroke: var(--color-text);
 }
 
 .tenant-rich-text .ql-toolbar button .ql-fill,
 .tenant-rich-text .ql-toolbar .ql-picker .ql-fill {
-  fill: #444;
+  fill: var(--color-text);
 }
 
 .tenant-rich-text .ql-container.ql-snow {
-  border: 1px solid #dedede;
+  border: 1px solid var(--color-border);
   border-radius: 0 0 5px 5px;
-  background: #ffffff;
+  background: var(--color-bg-white);
   font-family: var(--font-text);
 }
 
@@ -593,9 +591,9 @@
   width: 100%;
   min-height: 40px;
   padding: 8px 12px;
-  border: 1px solid #dedede;
+  border: 1px solid var(--color-border);
   border-radius: 5px;
-  background: #ffffff;
+  background: var(--color-bg-white);
   color: var(--color-text);
   font-family: var(--font-text);
   font-size: 14px;
@@ -617,7 +615,7 @@
 .tenant-post-job-account input:not([type="checkbox"]):focus,
 .tenant-post-job-account select:focus,
 .tenant-post-job-account textarea:focus {
-  border-color: var(--tenant-accent);
+  border-color: var(--color-primary);
 }
 
 .tenant-post-job-form .tenant-multiselect__option input,
@@ -655,7 +653,7 @@
 }
 
 .checkbox-text {
-  color: #333;
+  color: var(--color-text);
   font-family: 'Poppins', var(--font-text), sans-serif;
   font-size: 14px;
   font-weight: 300;
@@ -670,9 +668,9 @@
   min-height: 20px;
   margin-top: 0;
   padding: 0;
-  border: 1px solid #9ca3af;
+  border: 1px solid var(--color-text-subtle);
   border-radius: 5px;
-  background: #ffffff;
+  background: var(--color-bg-white);
   cursor: pointer;
   transition: background-color .18s ease, border-color .18s ease, box-shadow .18s ease;
 }
@@ -680,8 +678,8 @@
 .tenant-post-job-form__check input::after {
   width: 6px;
   height: 10px;
-  border-right: 2px solid #ffffff;
-  border-bottom: 2px solid #ffffff;
+  border-right: 2px solid var(--color-bg-white);
+  border-bottom: 2px solid var(--color-bg-white);
   content: "";
   transform: rotate(45deg) scale(0);
   transition: transform .14s ease;
@@ -689,13 +687,13 @@
 
 .tenant-post-job-form__check input:hover,
 .tenant-post-job-form__check input:focus-visible {
-  border-color: var(--tenant-accent);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--tenant-accent) 14%, transparent);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 14%, transparent);
 }
 
 .tenant-post-job-form__check input:checked {
-  border-color: var(--tenant-accent);
-  background: var(--tenant-accent);
+  border-color: var(--color-primary);
+  background: var(--color-primary);
 }
 
 .tenant-post-job-form__check input:checked::after {

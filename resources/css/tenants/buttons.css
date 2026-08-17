@@ -46,38 +46,38 @@
 
 .tenant-btn--primary,
 .tenant-body .tenant-btn--primary {
-  border-color: var(--tenant-accent);
-  background: var(--tenant-accent);
-  color: #ffffff;
-  box-shadow: var(--shadow-sm, 0 1px 2px rgba(17, 24, 39, .05));
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: var(--color-bg-white);
+  box-shadow: var(--shadow-sm);
 }
 
 .tenant-btn--primary:hover,
 .tenant-btn--primary:focus-visible,
 .tenant-body .tenant-btn--primary:hover,
 .tenant-body .tenant-btn--primary:focus-visible {
-  border-color: color-mix(in srgb, var(--tenant-accent) 82%, black 18%);
-  background: color-mix(in srgb, var(--tenant-accent) 82%, black 18%);
-  color: #ffffff;
-  box-shadow: 0 8px 20px color-mix(in srgb, var(--tenant-accent) 35%, transparent);
+  border-color: color-mix(in srgb, var(--color-primary) 82%, var(--color-black) 18%);
+  background: color-mix(in srgb, var(--color-primary) 82%, var(--color-black) 18%);
+  color: var(--color-bg-white);
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--color-primary) 35%, transparent);
   transform: translateY(-1px);
 }
 
 .tenant-btn--ghost,
 .tenant-body .tenant-btn--ghost {
   border-color: var(--color-border-strong);
-  background: #ffffff;
-  color: var(--tenant-accent);
+  background: var(--color-bg-white);
+  color: var(--color-primary);
 }
 
 .tenant-btn--ghost:hover,
 .tenant-btn--ghost:focus-visible,
 .tenant-body .tenant-btn--ghost:hover,
 .tenant-body .tenant-btn--ghost:focus-visible {
-  border-color: var(--tenant-accent);
-  background: color-mix(in srgb, var(--tenant-accent) 8%, white 92%);
-  color: var(--tenant-accent);
-  box-shadow: 0 4px 12px color-mix(in srgb, var(--tenant-accent) 18%, transparent);
+  border-color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 8%, var(--color-bg-white) 92%);
+  color: var(--color-primary);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--color-primary) 18%, transparent);
   transform: translateY(-1px);
 }
 

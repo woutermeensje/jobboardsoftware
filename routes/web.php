@@ -115,6 +115,8 @@ $centralRoutes = function (): void {
             Route::get('/domains/create', [ClientDashboardController::class, 'domains'])->name('domains.create');
             Route::post('/domains/{domain}/verify', [ClientDashboardController::class, 'verifyDomain'])->name('domains.verify');
             Route::get('/applications', [ClientDashboardController::class, 'section'])->defaults('section', 'applications')->name('applications.index');
+            Route::get('/settings', [ClientDashboardController::class, 'settings'])->name('settings');
+            Route::patch('/settings', [ClientDashboardController::class, 'updateSettings'])->name('settings.update');
             Route::get('/billing', [ClientDashboardController::class, 'section'])->defaults('section', 'billing')->name('billing');
             Route::get('/marketing', [ClientDashboardController::class, 'section'])->defaults('section', 'marketing')->name('marketing.index');
             Route::get('/marketing/landingpagina', [ClientDashboardController::class, 'section'])->defaults('section', 'landingpagina')->name('marketing.landingpagina');

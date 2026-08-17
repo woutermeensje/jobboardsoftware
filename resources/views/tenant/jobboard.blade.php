@@ -6,6 +6,10 @@
 @php
   $settings = $tenant->settings ?? [];
   $brandName = $settings['brand_name'] ?? $tenant->name ?? 'Jobboard';
+  $homepageTitle = trim((string) ($settings['homepage_title'] ?? ''));
+  $homepageSubtitle = trim((string) ($settings['homepage_subtitle'] ?? ''));
+  $homepageTitle = $homepageTitle !== '' ? $homepageTitle : 'Search all jobs';
+  $homepageSubtitle = $homepageSubtitle !== '' ? $homepageSubtitle : 'Jobs, internships and roles at '.$brandName.'.';
   $selectedDepartments = collect((array) request('department'))->filter()->values();
   $selectedEmploymentTypes = collect((array) request('employment_type'))->filter()->values();
   $selectedSectors = collect((array) request('sector'))->filter()->values();
@@ -23,8 +27,8 @@
     <section class="tenant-jobs-index" id="jobs" aria-labelledby="tenant-jobs-title">
       <header class="tenant-jobs-filter-wrap" aria-label="Job filters">
         <div class="tenant-jobs-filter-header">
-          <h2 id="tenant-jobs-title">Search all jobs</h2>
-          <p>Jobs, internships and roles at {{ $brandName }}.</p>
+          <h2 id="tenant-jobs-title">{{ $homepageTitle }}</h2>
+          <p>{{ $homepageSubtitle }}</p>
         </div>
 
         @include('tenant.components.job-filters', [

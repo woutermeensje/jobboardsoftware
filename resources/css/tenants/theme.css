@@ -1,11 +1,6 @@
-:root {
-  --shadow-sm: 0 1px 2px rgba(17, 24, 39, 0.05);
-  --shadow-md: 0 14px 32px rgba(17, 24, 39, 0.08);
-}
-
 .tenant-body {
-  --tenant-surface: #ffffff;
-  --tenant-subtle-surface: #fbfdff;
-  --tenant-danger: #a33a2c;
+  --tenant-surface: var(--color-bg-white);
+  --tenant-subtle-surface: var(--color-surface-subtle);
+  --tenant-danger: var(--color-danger);
   --tenant-page-width: 1180px;
 }

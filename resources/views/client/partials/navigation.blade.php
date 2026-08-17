@@ -60,6 +60,7 @@
         ['label' => 'Create company', 'url' => route('client.companies.create'), 'active' => request()->routeIs('client.companies.create')],
       ],
     ],
+    ['label' => 'Settings', 'icon' => 'ph-sliders-horizontal', 'url' => route('client.settings'), 'active' => request()->routeIs('client.settings*')],
     ['label' => 'Billing', 'icon' => 'ph-credit-card', 'url' => route('client.billing'), 'active' => request()->routeIs('client.billing')],
     [
       'label' => 'My packages',

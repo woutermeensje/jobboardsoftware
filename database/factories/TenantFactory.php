@@ -34,7 +34,10 @@ class TenantFactory extends Factory
             'trial_ends_at' => now()->addDays(14),
             'settings' => [
                 'brand_name' => $name,
+                'primary_color' => '#2f5f80',
                 'accent_color' => '#2f5f80',
+                'homepage_title' => 'Search all jobs',
+                'homepage_subtitle' => 'Jobs, internships and roles at '.$name.'.',
                 'intro' => 'View current jobs and apply directly.',
             ],
         ];

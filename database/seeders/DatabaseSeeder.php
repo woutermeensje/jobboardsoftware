@@ -97,7 +97,10 @@ class DatabaseSeeder extends Seeder
                 'trial_ends_at' => now()->addDays(14),
                 'settings' => [
                     'brand_name' => 'Acme Careers',
+                    'primary_color' => '#2f5f80',
                     'accent_color' => '#2f5f80',
+                    'homepage_title' => 'Search all jobs',
+                    'homepage_subtitle' => 'Jobs, internships and roles at Acme Careers.',
                     'intro' => 'Find your next role at Acme Careers.',
                 ],
             ],
