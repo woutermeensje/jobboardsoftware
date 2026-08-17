@@ -60,6 +60,18 @@
       <p>
         Jobboardsoftware sets itself apart with a strong focus on SEO/GEO traffic, easy creation and optimisation of category pages, a professional login environment for both employers and job seekers, and the ability to add extra revenue models to your job board &mdash; such as selling sponsored marketing blocks, access to the CV database, and backlinks in blog posts and articles.
       </p>
+
+      <h2>Why use job board software?</h2>
+
+      <p>
+        There are several use cases for companies and organizations using job board software. Think of organizations in specific industries that work with members or communities and want to create an extra source of revenue by selling job posts on a subdomain. It can also be a solo entrepreneur who wants to build a side project to make some extra money, an addition to an existing blog or website with lots of traffic, or a solution for recruitment agencies that do not want to build a job board from scratch.
+      </p>
+
+      <h2>Your next step?</h2>
+
+      <p>
+        Curious about our software? Or would you like advice on how to start and run a job board? Set up an introduction call with one of our team members to discover the benefits of working with <a href="{{ route('welcome') }}">Jobboardsoftware.co</a>.
+      </p>
     </div>
   </section>
 </div>

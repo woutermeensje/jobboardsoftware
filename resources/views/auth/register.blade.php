@@ -27,7 +27,7 @@
         <div class="auth-grid auth-grid--two">
           <div class="auth-field">
             <label class="auth-label" for="first_name">First name</label>
-            <input id="first_name" class="auth-input" name="first_name" type="text" value="{{ old('first_name') }}" autocomplete="given-name" placeholder="Jane" required autofocus>
+            <input id="first_name" class="auth-input" name="first_name" type="text" value="{{ old('first_name') }}" autocomplete="given-name" required autofocus>
             @error('first_name')
               <p class="auth-error">{{ $message }}</p>
             @enderror
@@ -35,7 +35,7 @@
 
           <div class="auth-field">
             <label class="auth-label" for="last_name">Last name</label>
-            <input id="last_name" class="auth-input" name="last_name" type="text" value="{{ old('last_name') }}" autocomplete="family-name" placeholder="Doe" required>
+            <input id="last_name" class="auth-input" name="last_name" type="text" value="{{ old('last_name') }}" autocomplete="family-name" required>
             @error('last_name')
               <p class="auth-error">{{ $message }}</p>
             @enderror
@@ -45,7 +45,7 @@
         <div class="auth-grid auth-grid--two">
           <div class="auth-field">
             <label class="auth-label" for="email">Email address</label>
-            <input id="email" class="auth-input" name="email" type="email" value="{{ old('email') }}" autocomplete="email" placeholder="you@example.com" required>
+            <input id="email" class="auth-input" name="email" type="email" value="{{ old('email') }}" autocomplete="email" required>
             @error('email')
               <p class="auth-error">{{ $message }}</p>
             @enderror
@@ -53,7 +53,7 @@
 
           <div class="auth-field">
             <label class="auth-label" for="phone_number">Phone number</label>
-            <input id="phone_number" class="auth-input" name="phone_number" type="tel" value="{{ old('phone_number') }}" autocomplete="tel" placeholder="+1 555 123 4567" required>
+            <input id="phone_number" class="auth-input" name="phone_number" type="tel" value="{{ old('phone_number') }}" autocomplete="tel" required>
             @error('phone_number')
               <p class="auth-error">{{ $message }}</p>
             @enderror
@@ -63,7 +63,7 @@
         @if($requiresCompanyName)
           <div class="auth-field">
             <label class="auth-label" for="company_name">Company name</label>
-            <input id="company_name" class="auth-input" name="company_name" type="text" value="{{ old('company_name') }}" autocomplete="organization" placeholder="Company Inc." required>
+            <input id="company_name" class="auth-input" name="company_name" type="text" value="{{ old('company_name') }}" autocomplete="organization" required>
             @error('company_name')
               <p class="auth-error">{{ $message }}</p>
             @enderror
@@ -72,7 +72,7 @@
 
         <div class="auth-field">
           <label class="auth-label" for="heard_about_us">Where did you hear about us?</label>
-          <input id="heard_about_us" class="auth-input" name="heard_about_us" type="text" value="{{ old('heard_about_us') }}" placeholder="For example: Google, LinkedIn, a friend, or a podcast" required>
+          <input id="heard_about_us" class="auth-input" name="heard_about_us" type="text" value="{{ old('heard_about_us') }}" required>
           @error('heard_about_us')
             <p class="auth-error">{{ $message }}</p>
           @enderror
