@@ -70,7 +70,6 @@
         ['label' => 'Add packages', 'url' => route('client.packages.create'), 'active' => request()->routeIs('client.packages.create')],
       ],
     ],
-    ['label' => 'Website', 'icon' => 'ph-house', 'url' => route('welcome'), 'active' => false],
   ];
 @endphp
 
