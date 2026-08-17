@@ -238,6 +238,70 @@
   line-height: 1.5;
 }
 
+.tenant-remote-toggle {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.tenant-remote-toggle legend {
+  margin: 0;
+  padding: 0;
+  color: #333;
+  font-family: 'Poppins', var(--font-text), sans-serif;
+  font-size: 14px;
+  font-weight: 300;
+}
+
+.tenant-remote-toggle__choices {
+  display: inline-flex;
+  width: max-content;
+  max-width: 100%;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid #dedede;
+  border-radius: 6px;
+  background: #f8fafc;
+}
+
+.tenant-remote-toggle__option {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  min-width: 72px;
+  min-height: 36px;
+  padding: 8px 14px;
+  border-radius: 5px;
+  color: var(--color-text);
+  font-family: 'Inter', var(--font-ui), sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color .18s ease, color .18s ease, box-shadow .18s ease;
+}
+
+.tenant-remote-toggle__option:has(input:checked) {
+  background: var(--tenant-accent);
+  color: #ffffff;
+  box-shadow: 0 8px 18px color-mix(in srgb, var(--tenant-accent) 22%, transparent);
+}
+
+.tenant-remote-toggle__option input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  min-height: 1px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
 .tenant-multiselect {
   position: relative;
 }

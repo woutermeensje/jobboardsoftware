@@ -7,6 +7,7 @@
   $selectedJobTypes = collect((array) old('employment_type', []));
   $selectedPackageId = (string) old('tenant_package_id', '');
   $selectedCountry = (string) old('country', '');
+  $selectedIsRemote = in_array((string) old('is_remote', '1'), ['1', 'true', 'on'], true);
 @endphp
 
 @section('content')
@@ -164,10 +165,32 @@
                 <h2 id="tenant-location-title" class="tenant-form-section-title">Location</h2>
               </div>
 
-              <div class="tenant-post-job-form__grid">
+              <fieldset class="tenant-remote-toggle" data-remote-position-toggle>
+                <legend>Is this a remote position?</legend>
+                <div class="tenant-remote-toggle__choices">
+                  <label class="tenant-remote-toggle__option">
+                    <input type="radio" name="is_remote" value="1" @checked($selectedIsRemote) data-remote-position-input>
+                    <span>Yes</span>
+                  </label>
+                  <label class="tenant-remote-toggle__option">
+                    <input type="radio" name="is_remote" value="0" @checked(! $selectedIsRemote) data-remote-position-input>
+                    <span>No</span>
+                  </label>
+                </div>
+                @error('is_remote')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
+              </fieldset>
+
+              <div class="tenant-post-job-form__grid" data-remote-location-fields @if($selectedIsRemote) hidden @endif>
                 <label>
                   Location
-                  <input name="location" value="{{ old('location') }}" required>
+                  <input
+                    name="location"
+                    value="{{ old('location') }}"
+                    @if(! $selectedIsRemote) required @endif
+                    @disabled($selectedIsRemote)
+                    data-remote-controlled
+                    data-remote-required="true"
+                  >
                   <span class="input-description">Enter the city or place where this job is based.</span>
                   @error('location')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
                 </label>
@@ -202,8 +225,12 @@
                             name="country"
                             value="{{ $country['code'] }}"
                             @checked($selectedCountry === $country['code'])
+                            @if(! $selectedIsRemote) required @endif
+                            @disabled($selectedIsRemote)
                             data-multiselect-option
                             data-multiselect-label="{{ $country['label'] }}"
+                            data-remote-controlled
+                            data-remote-required="true"
                           >
                           <span class="tenant-country-option">
                             <span class="tenant-country-option__flag" aria-hidden="true">{{ $country['flag'] }}</span>
@@ -355,6 +382,39 @@
         field.classList.add('is-enhanced');
         editor.dataset.quillReady = 'true';
         syncSource();
+      });
+    })();
+
+    (() => {
+      document.querySelectorAll('[data-remote-position-toggle]').forEach((toggle) => {
+        const section = toggle.closest('[data-remote-position-section]') || toggle.closest('.tenant-form-section-block');
+        const fields = section?.querySelector('[data-remote-location-fields]');
+        const remoteInputs = Array.from(toggle.querySelectorAll('[data-remote-position-input]'));
+        const controlledInputs = fields ? Array.from(fields.querySelectorAll('[data-remote-controlled]')) : [];
+
+        const updateRemoteFields = () => {
+          const selected = remoteInputs.find((input) => input.checked);
+          const isRemote = selected ? selected.value !== '0' : true;
+
+          if (fields) {
+            fields.hidden = isRemote;
+          }
+
+          controlledInputs.forEach((input) => {
+            input.disabled = isRemote;
+            input.required = !isRemote && input.dataset.remoteRequired === 'true';
+          });
+
+          if (isRemote && fields) {
+            fields.querySelectorAll('[data-multiselect]').forEach((multiselect) => {
+              multiselect.classList.remove('is-open');
+              multiselect.querySelector('[data-multiselect-button]')?.setAttribute('aria-expanded', 'false');
+            });
+          }
+        };
+
+        remoteInputs.forEach((input) => input.addEventListener('change', updateRemoteFields));
+        updateRemoteFields();
       });
     })();
 

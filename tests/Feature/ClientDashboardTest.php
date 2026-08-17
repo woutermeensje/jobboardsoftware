@@ -212,6 +212,9 @@ class ClientDashboardTest extends TestCase
             ->assertSee('Vacancy URL')
             ->assertSee('Add the link to this vacancy on the client website.')
             ->assertSee('Location')
+            ->assertSee('Is this a remote position?')
+            ->assertSee('name="is_remote"', false)
+            ->assertSee('data-remote-location-fields', false)
             ->assertSee('Enter the city or place where this job is based.')
             ->assertSee('Country')
             ->assertSee('Netherlands')
@@ -244,6 +247,7 @@ class ClientDashboardTest extends TestCase
                 'tenant_company_id' => $company->id,
                 'title' => 'Community Lead',
                 'job_url' => 'jobs.example.com/community-lead',
+                'is_remote' => '0',
                 'location' => 'Amsterdam',
                 'country' => 'NL',
                 'employment_type' => 'Volunteer',
@@ -265,6 +269,7 @@ class ClientDashboardTest extends TestCase
         $this->assertSame($company->id, $job->tenant_company_id);
         $this->assertSame('Acme Hiring', $job->company_name);
         $this->assertSame('Volunteer', $job->employment_type);
+        $this->assertFalse($job->is_remote);
         $this->assertSame('NL', $job->country);
         $this->assertSame(TenantJob::STATUS_PUBLISHED, $job->status);
         $this->assertNotNull($job->published_at);
@@ -280,8 +285,7 @@ class ClientDashboardTest extends TestCase
                 'tenant_id' => $tenant->id,
                 'tenant_company_id' => $company->id,
                 'title' => 'Community Coordinator',
-                'location' => 'Remote',
-                'country' => 'US',
+                'is_remote' => '1',
                 'employment_type' => 'Volunteer',
                 'description' => '<p>Coordinate the community calendar.</p>',
                 'contact_first_name' => 'Maya',
@@ -291,6 +295,15 @@ class ClientDashboardTest extends TestCase
             ])
             ->assertRedirect(route('client.jobs.index'))
             ->assertSessionHas('status', 'Job created.');
+
+        $remoteJob = TenantJob::query()
+            ->where('tenant_id', $tenant->id)
+            ->where('slug', 'community-coordinator')
+            ->firstOrFail();
+
+        $this->assertTrue($remoteJob->is_remote);
+        $this->assertSame('Remote', $remoteJob->location);
+        $this->assertNull($remoteJob->country);
 
         $this->actingAs($owner)
             ->get('/client/dashboard/jobs')
@@ -345,6 +358,7 @@ class ClientDashboardTest extends TestCase
             'slug' => 'community-lead',
             'location' => 'Amsterdam',
             'country' => 'NL',
+            'is_remote' => false,
             'employment_type' => 'Full time',
             'description' => '<p>Original description.</p>',
             'job_url' => 'https://jobs.example.com/community-lead',
@@ -371,6 +385,7 @@ class ClientDashboardTest extends TestCase
                 'tenant_company_id' => $newCompany->id,
                 'title' => 'Updated Community Lead',
                 'job_url' => 'jobs.example.com/updated-community-lead',
+                'is_remote' => '0',
                 'location' => 'Remote GMT+1',
                 'country' => 'US',
                 'employment_type' => 'Volunteer',
@@ -392,6 +407,7 @@ class ClientDashboardTest extends TestCase
         $this->assertSame('company-logos/northwind.svg', $job->company_logo_path);
         $this->assertSame('Updated Community Lead', $job->title);
         $this->assertSame('updated-community-lead', $job->slug);
+        $this->assertFalse($job->is_remote);
         $this->assertSame('Remote GMT+1', $job->location);
         $this->assertSame('US', $job->country);
         $this->assertSame('Volunteer', $job->employment_type);
@@ -425,6 +441,7 @@ class ClientDashboardTest extends TestCase
             'contact_last_name' => 'Contact',
             'contact_email' => 'casey@example.com',
             'contact_phone' => '+1 555 444 5555',
+            'is_remote' => '0',
             'location' => 'Remote',
             'country' => 'US',
             'employment_type' => ['Full time'],
@@ -439,6 +456,7 @@ class ClientDashboardTest extends TestCase
             ->firstOrFail();
 
         $this->assertSame(TenantJob::STATUS_DRAFT, $job->status);
+        $this->assertFalse($job->is_remote);
         $this->assertSame('US', $job->country);
         $this->assertNull($job->published_at);
 
@@ -463,6 +481,7 @@ class ClientDashboardTest extends TestCase
                 'tenant_id' => $tenant->id,
                 'company_name' => 'Public Board',
                 'title' => 'Published Public Role',
+                'is_remote' => '0',
                 'location' => 'Remote',
                 'country' => 'NL',
                 'employment_type' => 'Full time',
@@ -479,6 +498,7 @@ class ClientDashboardTest extends TestCase
         $job->refresh();
 
         $this->assertSame('Published Public Role', $job->title);
+        $this->assertFalse($job->is_remote);
         $this->assertSame('NL', $job->country);
         $this->assertSame(TenantJob::STATUS_PUBLISHED, $job->status);
         $this->assertNotNull($job->published_at);
@@ -505,6 +525,7 @@ class ClientDashboardTest extends TestCase
             'slug' => 'blocked-role',
             'location' => 'Remote',
             'country' => 'NL',
+            'is_remote' => false,
             'employment_type' => 'Full time',
             'description' => '<p>Not owned by this user.</p>',
             'status' => TenantJob::STATUS_DRAFT,
@@ -519,6 +540,7 @@ class ClientDashboardTest extends TestCase
                 'tenant_id' => $otherTenant->id,
                 'tenant_company_id' => $otherCompany->id,
                 'title' => 'Should Not Update',
+                'is_remote' => '0',
                 'location' => 'Remote',
                 'country' => 'NL',
                 'employment_type' => 'Full time',

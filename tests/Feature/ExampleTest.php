@@ -375,6 +375,9 @@ class ExampleTest extends TestCase
             ->assertSee('Internship')
             ->assertSee('Volunteer')
             ->assertSee('Location')
+            ->assertSee('Is this a remote position?')
+            ->assertSee('name="is_remote"', false)
+            ->assertSee('data-remote-location-fields', false)
             ->assertSee('Enter the city or place where this job is based.')
             ->assertSee('Country')
             ->assertSee('Search countries')
@@ -390,6 +393,7 @@ class ExampleTest extends TestCase
             'contact_last_name' => 'Contact',
             'contact_email' => 'casey@example.com',
             'contact_phone' => '+1 555 444 5555',
+            'is_remote' => '0',
             'location' => 'Remote',
             'country' => 'US',
             'employment_type' => ['Full time', 'Volunteer'],
@@ -405,6 +409,7 @@ class ExampleTest extends TestCase
             'title' => 'Community Manager',
             'slug' => 'community-manager',
             'department' => null,
+            'is_remote' => false,
             'country' => 'US',
             'employment_type' => 'Full time, Volunteer',
             'company_name' => 'Public Post Careers',
@@ -449,8 +454,7 @@ class ExampleTest extends TestCase
             'contact_last_name' => 'Employer',
             'contact_email' => 'elliot@example.com',
             'contact_phone' => '+1 555 777 8888',
-            'location' => 'Amsterdam',
-            'country' => 'NL',
+            'is_remote' => '1',
             'employment_type' => ['Freelance'],
             'description' => 'Lead sales conversations for a growing team.',
             'create_account' => '1',
@@ -473,7 +477,9 @@ class ExampleTest extends TestCase
             'tenant_package_id' => $package->id,
             'title' => 'Sales Lead',
             'department' => null,
-            'country' => 'NL',
+            'location' => 'Remote',
+            'country' => null,
+            'is_remote' => true,
             'employment_type' => 'Freelance',
             'company_name' => 'Public Post Account Careers',
             'contact_email' => 'elliot@example.com',
@@ -485,7 +491,8 @@ class ExampleTest extends TestCase
             'title' => 'Unowned Public Draft',
             'slug' => 'unowned-public-draft',
             'location' => 'Remote',
-            'country' => 'US',
+            'country' => null,
+            'is_remote' => true,
             'employment_type' => 'Full time',
             'description' => 'This draft was not submitted by this employer account.',
             'status' => TenantJob::STATUS_DRAFT,
