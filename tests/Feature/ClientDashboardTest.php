@@ -12,6 +12,7 @@ use App\Models\User;
 use App\Support\PublicUploadStorage;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -210,6 +211,11 @@ class ClientDashboardTest extends TestCase
             ->assertDontSee('Add a homepage, about page, or another relevant company page for this company.')
             ->assertSee('Vacancy URL')
             ->assertSee('Add the link to this vacancy on the client website.')
+            ->assertSee('Location')
+            ->assertSee('Enter the city or place where this job is based.')
+            ->assertSee('Country')
+            ->assertSee('Netherlands')
+            ->assertSee('United States')
             ->assertSee('Select company')
             ->assertSee('Search company')
             ->assertSee('Acme Hiring')
@@ -239,6 +245,7 @@ class ClientDashboardTest extends TestCase
                 'title' => 'Community Lead',
                 'job_url' => 'jobs.example.com/community-lead',
                 'location' => 'Amsterdam',
+                'country' => 'NL',
                 'employment_type' => 'Volunteer',
                 'description' => '<p>Own events and candidate engagement.</p><script>alert("xss")</script>',
                 'contact_first_name' => 'Maya',
@@ -258,6 +265,7 @@ class ClientDashboardTest extends TestCase
         $this->assertSame($company->id, $job->tenant_company_id);
         $this->assertSame('Acme Hiring', $job->company_name);
         $this->assertSame('Volunteer', $job->employment_type);
+        $this->assertSame('NL', $job->country);
         $this->assertSame(TenantJob::STATUS_PUBLISHED, $job->status);
         $this->assertNotNull($job->published_at);
         $this->assertSame('Maya Collins', $job->contact_name);
@@ -273,6 +281,7 @@ class ClientDashboardTest extends TestCase
                 'tenant_company_id' => $company->id,
                 'title' => 'Community Coordinator',
                 'location' => 'Remote',
+                'country' => 'US',
                 'employment_type' => 'Volunteer',
                 'description' => '<p>Coordinate the community calendar.</p>',
                 'contact_first_name' => 'Maya',
@@ -335,6 +344,7 @@ class ClientDashboardTest extends TestCase
             'title' => 'Community Lead',
             'slug' => 'community-lead',
             'location' => 'Amsterdam',
+            'country' => 'NL',
             'employment_type' => 'Full time',
             'description' => '<p>Original description.</p>',
             'job_url' => 'https://jobs.example.com/community-lead',
@@ -350,6 +360,7 @@ class ClientDashboardTest extends TestCase
             ->assertSee('Community Lead')
             ->assertSee('Acme Hiring')
             ->assertSee('Northwind Hiring')
+            ->assertSee('Netherlands')
             ->assertSee('value="Maya"', false)
             ->assertSee('value="Collins"', false)
             ->assertDontSee('placeholder=', false);
@@ -361,6 +372,7 @@ class ClientDashboardTest extends TestCase
                 'title' => 'Updated Community Lead',
                 'job_url' => 'jobs.example.com/updated-community-lead',
                 'location' => 'Remote GMT+1',
+                'country' => 'US',
                 'employment_type' => 'Volunteer',
                 'description' => '<p>Updated <strong>description</strong>.</p><script>alert("xss")</script>',
                 'contact_first_name' => 'Nina',
@@ -381,6 +393,7 @@ class ClientDashboardTest extends TestCase
         $this->assertSame('Updated Community Lead', $job->title);
         $this->assertSame('updated-community-lead', $job->slug);
         $this->assertSame('Remote GMT+1', $job->location);
+        $this->assertSame('US', $job->country);
         $this->assertSame('Volunteer', $job->employment_type);
         $this->assertSame('<p>Updated <strong>description</strong>.</p>', $job->description);
         $this->assertSame('https://jobs.example.com/updated-community-lead', $job->job_url);
@@ -413,6 +426,7 @@ class ClientDashboardTest extends TestCase
             'contact_email' => 'casey@example.com',
             'contact_phone' => '+1 555 444 5555',
             'location' => 'Remote',
+            'country' => 'US',
             'employment_type' => ['Full time'],
             'description' => '<p>Submitted from the public post-a-job form.</p>',
         ])
@@ -425,6 +439,7 @@ class ClientDashboardTest extends TestCase
             ->firstOrFail();
 
         $this->assertSame(TenantJob::STATUS_DRAFT, $job->status);
+        $this->assertSame('US', $job->country);
         $this->assertNull($job->published_at);
 
         $this->actingAs($owner)
@@ -449,6 +464,7 @@ class ClientDashboardTest extends TestCase
                 'company_name' => 'Public Board',
                 'title' => 'Published Public Role',
                 'location' => 'Remote',
+                'country' => 'NL',
                 'employment_type' => 'Full time',
                 'description' => '<p>Ready to publish.</p>',
                 'contact_first_name' => 'Casey',
@@ -463,6 +479,7 @@ class ClientDashboardTest extends TestCase
         $job->refresh();
 
         $this->assertSame('Published Public Role', $job->title);
+        $this->assertSame('NL', $job->country);
         $this->assertSame(TenantJob::STATUS_PUBLISHED, $job->status);
         $this->assertNotNull($job->published_at);
     }
@@ -487,6 +504,7 @@ class ClientDashboardTest extends TestCase
             'title' => 'Blocked Role',
             'slug' => 'blocked-role',
             'location' => 'Remote',
+            'country' => 'NL',
             'employment_type' => 'Full time',
             'description' => '<p>Not owned by this user.</p>',
             'status' => TenantJob::STATUS_DRAFT,
@@ -502,6 +520,7 @@ class ClientDashboardTest extends TestCase
                 'tenant_company_id' => $otherCompany->id,
                 'title' => 'Should Not Update',
                 'location' => 'Remote',
+                'country' => 'NL',
                 'employment_type' => 'Full time',
                 'description' => '<p>Blocked.</p>',
                 'contact_first_name' => 'Other',
@@ -667,6 +686,43 @@ class ClientDashboardTest extends TestCase
         $this->assertSame('Northwind Talent', $job->company_name);
         $this->assertSame($company->logo_path, $job->company_logo_path);
         $this->assertSame('https://northwind.example.com/team', $job->company_url);
+    }
+
+    public function test_tenant_owner_can_update_company_logo_when_company_url_column_is_missing(): void
+    {
+        Storage::fake(PublicUploadStorage::diskName());
+        Schema::table('tenant_companies', fn ($table) => $table->dropColumn('company_url'));
+
+        $owner = User::factory()->create(['role' => User::ROLE_TENANT_OWNER]);
+        $tenant = $this->tenantFor($owner, 'Acme Careers', 'acme-careers');
+        $company = TenantCompany::query()->create([
+            'tenant_id' => $tenant->id,
+            'organization_name' => 'Northwind Group',
+            'name' => 'Northwind Hiring',
+            'slug' => 'northwind-hiring',
+            'logo_path' => 'company-logos/original.svg',
+        ]);
+
+        $this->actingAs($owner)
+            ->get('/client/dashboard/companies/'.$company->id.'/edit')
+            ->assertOk()
+            ->assertDontSee('Company website URL');
+
+        $this->actingAs($owner)
+            ->patch('/client/dashboard/companies/'.$company->id, [
+                'tenant_id' => $tenant->id,
+                'organization_name' => 'Northwind Group',
+                'name' => 'Northwind Hiring',
+                'logo' => UploadedFile::fake()->create('northwind-updated.png', 32, 'image/png'),
+            ])
+            ->assertRedirect(route('client.companies.edit', $company))
+            ->assertSessionHas('status', 'Company updated.');
+
+        $company->refresh();
+
+        $this->assertNotNull($company->logo_path);
+        $this->assertNotSame('company-logos/original.svg', $company->logo_path);
+        Storage::disk(PublicUploadStorage::diskName())->assertExists($company->logo_path);
     }
 
     public function test_tenant_owner_cannot_create_company_for_unowned_environment(): void

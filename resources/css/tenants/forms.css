@@ -409,6 +409,32 @@
   white-space: nowrap;
 }
 
+.tenant-post-job-form .tenant-country-option,
+.tenant-dashboard-form .tenant-country-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.tenant-post-job-form .tenant-country-option__flag,
+.tenant-dashboard-form .tenant-country-option__flag {
+  width: 28px;
+  flex: 0 0 auto;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.tenant-post-job-form .tenant-country-option__name,
+.tenant-dashboard-form .tenant-country-option__name {
+  width: auto;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .tenant-post-job-form .tenant-multiselect__empty,
 .tenant-dashboard-form .tenant-multiselect__empty {
   margin: 0;

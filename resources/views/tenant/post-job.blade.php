@@ -6,6 +6,7 @@
 @php
   $selectedJobTypes = collect((array) old('employment_type', []));
   $selectedPackageId = (string) old('tenant_package_id', '');
+  $selectedCountry = (string) old('country', '');
 @endphp
 
 @section('content')
@@ -100,53 +101,45 @@
                 @error('title')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
               </label>
 
-              <div class="tenant-post-job-form__half-grid">
-                <label>
-                  Location
-                  <input name="location" value="{{ old('location') }}" required>
-                  @error('location')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
-                </label>
-
-                <div class="tenant-post-job-form__field tenant-multiselect" data-multiselect>
-                  <label id="tenant-job-type-label">Job type</label>
-                  <button
-                    class="tenant-multiselect__button"
-                    type="button"
-                    aria-haspopup="listbox"
-                    aria-expanded="false"
-                    aria-labelledby="tenant-job-type-label"
-                    data-multiselect-button
+              <div class="tenant-post-job-form__field tenant-multiselect" data-multiselect>
+                <label id="tenant-job-type-label">Job type</label>
+                <button
+                  class="tenant-multiselect__button"
+                  type="button"
+                  aria-haspopup="listbox"
+                  aria-expanded="false"
+                  aria-labelledby="tenant-job-type-label"
+                  data-multiselect-button
+                >
+                  Select job types
+                </button>
+                <div class="tenant-multiselect__menu" data-multiselect-menu>
+                  <input
+                    class="tenant-multiselect__search"
+                    type="search"
+                    placeholder="Search job types"
+                    aria-label="Search job types"
+                    autocomplete="off"
+                    data-multiselect-search
                   >
-                    Select job types
-                  </button>
-                  <div class="tenant-multiselect__menu" data-multiselect-menu>
-                    <input
-                      class="tenant-multiselect__search"
-                      type="search"
-                      placeholder="Search job types"
-                      aria-label="Search job types"
-                      autocomplete="off"
-                      data-multiselect-search
-                    >
-                    <div class="tenant-multiselect__options" role="listbox" aria-multiselectable="true">
-                      @foreach($jobTypes as $jobType)
-                        <label class="tenant-multiselect__option" data-multiselect-option-row>
-                          <input
-                            type="checkbox"
-                            name="employment_type[]"
-                            value="{{ $jobType }}"
-                            @checked($selectedJobTypes->contains($jobType))
-                            data-multiselect-option
-                          >
-                          <span>{{ $jobType }}</span>
-                        </label>
-                      @endforeach
-                    </div>
-                    <p class="tenant-multiselect__empty" hidden data-multiselect-empty>No job types found.</p>
+                  <div class="tenant-multiselect__options" role="listbox" aria-multiselectable="true">
+                    @foreach($jobTypes as $jobType)
+                      <label class="tenant-multiselect__option" data-multiselect-option-row>
+                        <input
+                          type="checkbox"
+                          name="employment_type[]"
+                          value="{{ $jobType }}"
+                          @checked($selectedJobTypes->contains($jobType))
+                          data-multiselect-option
+                        >
+                        <span>{{ $jobType }}</span>
+                      </label>
+                    @endforeach
                   </div>
-                  @error('employment_type')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
-                  @error('employment_type.*')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
+                  <p class="tenant-multiselect__empty" hidden data-multiselect-empty>No job types found.</p>
                 </div>
+                @error('employment_type')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
+                @error('employment_type.*')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
               </div>
 
               <div class="tenant-post-job-form__field tenant-rich-text" data-quill-field>
@@ -163,6 +156,66 @@
                   data-quill-editor
                 ></div>
                 @error('description')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
+              </div>
+            </section>
+
+            <section class="tenant-form-section-block tenant-post-job-form__section" aria-labelledby="tenant-location-title">
+              <div class="tenant-form-section-head">
+                <h2 id="tenant-location-title" class="tenant-form-section-title">Location</h2>
+              </div>
+
+              <div class="tenant-post-job-form__grid">
+                <label>
+                  Location
+                  <input name="location" value="{{ old('location') }}" required>
+                  <span class="input-description">Enter the city or place where this job is based.</span>
+                  @error('location')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
+                </label>
+
+                <div class="tenant-post-job-form__field tenant-multiselect" data-multiselect data-multiselect-max="1">
+                  <label id="tenant-country-label">Country</label>
+                  <button
+                    class="tenant-multiselect__button"
+                    type="button"
+                    aria-haspopup="listbox"
+                    aria-expanded="false"
+                    aria-labelledby="tenant-country-label"
+                    data-multiselect-button
+                    data-multiselect-placeholder="Select country"
+                  >
+                    Select country
+                  </button>
+                  <div class="tenant-multiselect__menu" data-multiselect-menu>
+                    <input
+                      class="tenant-multiselect__search"
+                      type="search"
+                      placeholder="Search countries"
+                      aria-label="Search countries"
+                      autocomplete="off"
+                      data-multiselect-search
+                    >
+                    <div class="tenant-multiselect__options" role="listbox" aria-multiselectable="false">
+                      @foreach($countries as $country)
+                        <label class="tenant-multiselect__option" data-multiselect-option-row>
+                          <input
+                            type="radio"
+                            name="country"
+                            value="{{ $country['code'] }}"
+                            @checked($selectedCountry === $country['code'])
+                            data-multiselect-option
+                            data-multiselect-label="{{ $country['label'] }}"
+                          >
+                          <span class="tenant-country-option">
+                            <span class="tenant-country-option__flag" aria-hidden="true">{{ $country['flag'] }}</span>
+                            <span class="tenant-country-option__name">{{ $country['name'] }}</span>
+                          </span>
+                        </label>
+                      @endforeach
+                    </div>
+                    <p class="tenant-multiselect__empty" hidden data-multiselect-empty>No countries found.</p>
+                  </div>
+                  @error('country')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
+                </div>
               </div>
             </section>
 

@@ -33,6 +33,7 @@ class TenantJob extends Model
         'slug',
         'department',
         'location',
+        'country',
         'employment_type',
         'salary_range',
         'intro',

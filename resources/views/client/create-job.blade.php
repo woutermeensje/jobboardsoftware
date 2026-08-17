@@ -11,6 +11,7 @@
   $selectedCompany = $companies->first(fn ($company): bool => (string) $company->id === $selectedCompanyId);
   $selectedTenantId = (string) old('tenant_id', $selectedCompany?->tenant_id ?? $job?->tenant_id ?? $tenants->first()?->id);
   $selectedJobType = (string) old('employment_type', $job?->employment_type ?? '');
+  $selectedCountry = (string) old('country', $job?->country ?? '');
   $contactNameParts = preg_split('/\s+/', trim((string) $job?->contact_name), 2) ?: [];
   $selectedCompanyContactNameParts = preg_split('/\s+/', trim((string) $selectedCompany?->contact_name), 2) ?: [];
   $defaultContactFirstName = collect([$contactNameParts[0] ?? null, $selectedCompany?->contact_first_name, $selectedCompanyContactNameParts[0] ?? null])
@@ -204,53 +205,45 @@
                     @error('job_url')<span class="tenant-form__error">{{ $message }}</span>@enderror
                   </label>
 
-                  <div class="tenant-post-job-form__half-grid">
-                    <label>
-                      Location
-                      <input name="location" value="{{ old('location', $job?->location) }}" required>
-                      @error('location')<span class="tenant-form__error">{{ $message }}</span>@enderror
-                    </label>
-
-                    <div class="tenant-form__field tenant-multiselect" data-multiselect data-multiselect-max="1">
-                      <label id="dashboard-job-type-label">Job type</label>
-                      <button
-                        class="tenant-multiselect__button"
-                        type="button"
-                        aria-haspopup="listbox"
-                        aria-expanded="false"
-                        aria-labelledby="dashboard-job-type-label"
-                        data-multiselect-button
-                        data-multiselect-empty-label="Select job types"
+                  <div class="tenant-form__field tenant-multiselect" data-multiselect data-multiselect-max="1">
+                    <label id="dashboard-job-type-label">Job type</label>
+                    <button
+                      class="tenant-multiselect__button"
+                      type="button"
+                      aria-haspopup="listbox"
+                      aria-expanded="false"
+                      aria-labelledby="dashboard-job-type-label"
+                      data-multiselect-button
+                      data-multiselect-empty-label="Select job types"
+                    >
+                      Select job types
+                    </button>
+                    <div class="tenant-multiselect__menu" data-multiselect-menu>
+                      <input
+                        class="tenant-multiselect__search"
+                        type="search"
+                        aria-label="Search job types"
+                        autocomplete="off"
+                        data-multiselect-search
                       >
-                        Select job types
-                      </button>
-                      <div class="tenant-multiselect__menu" data-multiselect-menu>
-                        <input
-                          class="tenant-multiselect__search"
-                          type="search"
-                          aria-label="Search job types"
-                          autocomplete="off"
-                          data-multiselect-search
-                        >
-                        <div class="tenant-multiselect__options" role="listbox" aria-multiselectable="false">
-                          @foreach($jobTypes as $jobType)
-                            <label class="tenant-multiselect__option" data-multiselect-option-row>
-                              <input
-                                type="radio"
-                                name="employment_type"
-                                value="{{ $jobType }}"
-                                @checked($selectedJobType === $jobType)
-                                data-multiselect-option
-                                data-multiselect-label="{{ $jobType }}"
-                              >
-                              <span>{{ $jobType }}</span>
-                            </label>
-                          @endforeach
-                        </div>
-                        <p class="tenant-multiselect__empty" hidden data-multiselect-empty>No job types found.</p>
+                      <div class="tenant-multiselect__options" role="listbox" aria-multiselectable="false">
+                        @foreach($jobTypes as $jobType)
+                          <label class="tenant-multiselect__option" data-multiselect-option-row>
+                            <input
+                              type="radio"
+                              name="employment_type"
+                              value="{{ $jobType }}"
+                              @checked($selectedJobType === $jobType)
+                              data-multiselect-option
+                              data-multiselect-label="{{ $jobType }}"
+                            >
+                            <span>{{ $jobType }}</span>
+                          </label>
+                        @endforeach
                       </div>
-                      @error('employment_type')<span class="tenant-form__error">{{ $message }}</span>@enderror
+                      <p class="tenant-multiselect__empty" hidden data-multiselect-empty>No job types found.</p>
                     </div>
+                    @error('employment_type')<span class="tenant-form__error">{{ $message }}</span>@enderror
                   </div>
 
                   <div class="tenant-form__field tenant-rich-text" data-quill-field>
@@ -267,6 +260,65 @@
                       data-quill-editor
                     ></div>
                     @error('description')<span class="tenant-form__error">{{ $message }}</span>@enderror
+                  </div>
+                </section>
+
+                <section class="tenant-form-section-block tenant-form__section" aria-labelledby="job-location-title">
+                  <div class="tenant-form-section-head">
+                    <h2 id="job-location-title" class="tenant-form-section-title">Location</h2>
+                  </div>
+
+                  <div class="tenant-form__grid">
+                    <label>
+                      Location
+                      <input name="location" value="{{ old('location', $job?->location) }}" required>
+                      <span class="input-description">Enter the city or place where this job is based.</span>
+                      @error('location')<span class="tenant-form__error">{{ $message }}</span>@enderror
+                    </label>
+
+                    <div class="tenant-form__field tenant-multiselect" data-multiselect data-multiselect-max="1">
+                      <label id="dashboard-country-label">Country</label>
+                      <button
+                        class="tenant-multiselect__button"
+                        type="button"
+                        aria-haspopup="listbox"
+                        aria-expanded="false"
+                        aria-labelledby="dashboard-country-label"
+                        data-multiselect-button
+                        data-multiselect-empty-label="Select country"
+                      >
+                        Select country
+                      </button>
+                      <div class="tenant-multiselect__menu" data-multiselect-menu>
+                        <input
+                          class="tenant-multiselect__search"
+                          type="search"
+                          aria-label="Search countries"
+                          autocomplete="off"
+                          data-multiselect-search
+                        >
+                        <div class="tenant-multiselect__options" role="listbox" aria-multiselectable="false">
+                          @foreach($countries as $country)
+                            <label class="tenant-multiselect__option" data-multiselect-option-row>
+                              <input
+                                type="radio"
+                                name="country"
+                                value="{{ $country['code'] }}"
+                                @checked($selectedCountry === $country['code'])
+                                data-multiselect-option
+                                data-multiselect-label="{{ $country['label'] }}"
+                              >
+                              <span class="tenant-country-option">
+                                <span class="tenant-country-option__flag" aria-hidden="true">{{ $country['flag'] }}</span>
+                                <span class="tenant-country-option__name">{{ $country['name'] }}</span>
+                              </span>
+                            </label>
+                          @endforeach
+                        </div>
+                        <p class="tenant-multiselect__empty" hidden data-multiselect-empty>No countries found.</p>
+                      </div>
+                      @error('country')<span class="tenant-form__error">{{ $message }}</span>@enderror
+                    </div>
                   </div>
                 </section>
 

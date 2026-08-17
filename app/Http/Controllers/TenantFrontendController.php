@@ -8,6 +8,7 @@ use App\Models\TenantJob;
 use App\Models\TenantPackage;
 use App\Models\User;
 use App\Support\AdminActionNotifier;
+use App\Support\CountryOptions;
 use App\Support\JobTypeOptions;
 use App\Support\PublicUploadStorage;
 use Illuminate\Http\RedirectResponse;
@@ -57,6 +58,7 @@ class TenantFrontendController extends Controller
             'tenant' => $tenant,
             'brandName' => $this->tenantBrandName(),
             'jobTypes' => JobTypeOptions::allForTenant($tenant),
+            'countries' => CountryOptions::all(),
             'packages' => $this->postJobPackages($tenant->id),
         ]);
     }
@@ -105,6 +107,7 @@ class TenantFrontendController extends Controller
             'contact_phone' => ['nullable', 'string', 'max:40'],
             'category' => ['nullable', 'string', 'max:255'],
             'location' => ['required', 'string', 'max:255'],
+            'country' => ['required', 'string', Rule::in(CountryOptions::codes())],
             'employment_type' => ['required', 'array', 'min:1'],
             'employment_type.*' => ['required', 'string', 'max:80', Rule::in(JobTypeOptions::allForTenant($tenant))],
             'salary_range' => ['nullable', 'string', 'max:255'],
@@ -189,6 +192,7 @@ class TenantFrontendController extends Controller
             'slug' => $this->uniqueJobSlug($validated['title']),
             'department' => $validated['category'] ?? null,
             'location' => $validated['location'],
+            'country' => CountryOptions::normalizeCode($validated['country']),
             'employment_type' => $employmentType,
             'salary_range' => $validated['salary_range'] ?? null,
             'intro' => $intro,

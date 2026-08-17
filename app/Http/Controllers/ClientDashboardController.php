@@ -9,6 +9,7 @@ use App\Models\TenantCompany;
 use App\Models\TenantJob;
 use App\Models\TenantPackage;
 use App\Support\AdminActionNotifier;
+use App\Support\CountryOptions;
 use App\Support\JobTypeOptions;
 use App\Support\PublicUploadStorage;
 use App\Support\RichTextSanitizer;
@@ -444,30 +445,40 @@ class ClientDashboardController extends Controller
                 ->ownedTenants()
                 ->latest()
                 ->get(),
+            'companyUrlColumnReady' => Schema::hasColumn('tenant_companies', 'company_url'),
         ];
     }
 
     private function saveClientCompany(Request $request, ?TenantCompany $company = null): TenantCompany
     {
-        $request->merge([
-            'company_url' => $this->normalizeExternalUrl($request->input('company_url')),
-        ]);
+        $tenantCompaniesHasCompanyUrl = Schema::hasColumn('tenant_companies', 'company_url');
 
-        $validated = $request->validate([
+        if ($tenantCompaniesHasCompanyUrl) {
+            $request->merge([
+                'company_url' => $this->normalizeExternalUrl($request->input('company_url')),
+            ]);
+        }
+
+        $rules = [
             'tenant_id' => [
                 'required',
                 Rule::exists('tenants', 'id')->where(fn ($query) => $query->where('owner_user_id', $request->user()->id)),
             ],
             'organization_name' => ['required', 'string', 'max:255'],
             'name' => ['required', 'string', 'max:255'],
-            'company_url' => ['nullable', 'url', 'starts_with:http://,https://', 'max:2048'],
             'contact_first_name' => ['nullable', 'string', 'max:255'],
             'contact_last_name' => ['nullable', 'string', 'max:255'],
             'contact_email' => ['nullable', 'email', 'max:255'],
             'contact_phone' => ['nullable', 'string', 'max:50'],
             'logo' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,svg', 'max:2048'],
             'description' => ['nullable', 'string', 'max:10000'],
-        ]);
+        ];
+
+        if ($tenantCompaniesHasCompanyUrl) {
+            $rules['company_url'] = ['nullable', 'url', 'starts_with:http://,https://', 'max:2048'];
+        }
+
+        $validated = $request->validate($rules);
 
         $tenant = Tenant::query()
             ->where('owner_user_id', $request->user()->id)
@@ -488,7 +499,6 @@ class ClientDashboardController extends Controller
             'organization_name' => $validated['organization_name'],
             'name' => $validated['name'],
             'slug' => $shouldRefreshSlug ? $this->uniqueCompanySlug($tenant, $validated['name'], $company) : $company->slug,
-            'company_url' => $validated['company_url'] ?? null,
             'contact_first_name' => $validated['contact_first_name'] ?? null,
             'contact_last_name' => $validated['contact_last_name'] ?? null,
             'contact_name' => $contactName !== '' ? $contactName : null,
@@ -497,6 +507,10 @@ class ClientDashboardController extends Controller
             'logo_path' => $logoPath,
             'description' => $description,
         ];
+
+        if ($tenantCompaniesHasCompanyUrl) {
+            $companyAttributes['company_url'] = $validated['company_url'] ?? null;
+        }
 
         if ($company) {
             $company->update($companyAttributes);
@@ -578,6 +592,7 @@ class ClientDashboardController extends Controller
                 ->filter()
                 ->unique(fn (string $jobType): string => mb_strtolower($jobType))
                 ->values(),
+            'countries' => CountryOptions::all(),
         ];
     }
 
@@ -601,6 +616,7 @@ class ClientDashboardController extends Controller
             'title' => ['required', 'string', 'max:255'],
             'category' => ['nullable', 'string', 'max:255'],
             'location' => ['required', 'string', 'max:255'],
+            'country' => ['required', 'string', Rule::in(CountryOptions::codes())],
             'employment_type' => ['required', 'string', 'max:255'],
             'salary_range' => ['nullable', 'string', 'max:255'],
             'intro' => ['nullable', 'string', 'max:3000'],
@@ -688,6 +704,7 @@ class ClientDashboardController extends Controller
             'slug' => $shouldRefreshSlug ? $this->uniqueJobSlug($tenant, $validated['title'], $job) : $job->slug,
             'department' => $validated['category'] ?? null,
             'location' => $validated['location'],
+            'country' => CountryOptions::normalizeCode($validated['country']),
             'employment_type' => $validated['employment_type'],
             'salary_range' => $validated['salary_range'] ?? null,
             'intro' => $intro,

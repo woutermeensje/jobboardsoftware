@@ -27,6 +27,7 @@ class TenantJobFactory extends Factory
             'slug' => Str::slug($title).'-'.Str::lower(Str::random(5)),
             'department' => fake()->word(),
             'location' => fake()->city(),
+            'country' => 'NL',
             'employment_type' => 'full-time',
             'salary_range' => null,
             'intro' => fake()->sentence(),
