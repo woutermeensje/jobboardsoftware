@@ -3,7 +3,7 @@
 }
 
 .tenant-pricing {
-  padding: 22px 0 72px;
+  padding: 0;
 }
 
 .tenant-pricing-grid {
@@ -11,6 +11,7 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 24px;
   align-items: stretch;
+  margin: 72px 0;
 }
 
 .tenant-pricing-card {
@@ -129,6 +130,7 @@
 .tenant-pricing-empty {
   display: grid;
   gap: 8px;
+  margin: 72px 0;
   padding: 22px;
   border: 1px solid #dedede;
   border-radius: 5px;

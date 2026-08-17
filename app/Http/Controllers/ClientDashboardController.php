@@ -445,9 +445,58 @@ class ClientDashboardController extends Controller
                 ->withErrors(['packages' => 'Package storage is not ready yet. Run the latest database migrations before adding packages.']);
         }
 
+        $this->saveClientPackage($request);
+
+        return redirect()
+            ->route('client.packages.index')
+            ->with('status', 'Package added.');
+    }
+
+    public function editPackage(Request $request, TenantPackage $package): View
+    {
+        $this->abortUnlessOwnedPackage($request, $package);
+        $packageTableReady = Schema::hasTable('tenant_packages');
+
+        return view('client.create-package', [
+            'user' => $request->user(),
+            'tenants' => $request->user()
+                ->ownedTenants()
+                ->latest()
+                ->get(),
+            'package' => $package,
+            'packageTableReady' => $packageTableReady,
+            'packageDescriptionColumnReady' => $packageTableReady && Schema::hasColumn('tenant_packages', 'description'),
+        ]);
+    }
+
+    public function updatePackage(Request $request, TenantPackage $package): RedirectResponse
+    {
+        if (! Schema::hasTable('tenant_packages')) {
+            return redirect()
+                ->route('client.packages.index')
+                ->withErrors(['packages' => 'Package storage is not ready yet. Run the latest database migrations before editing packages.']);
+        }
+
+        $this->abortUnlessOwnedPackage($request, $package);
+        $request->merge(['tenant_id' => $package->tenant_id]);
+        $this->saveClientPackage($request, $package);
+
+        return redirect()
+            ->route('client.packages.index')
+            ->with('status', 'Package updated.');
+    }
+
+    private function saveClientPackage(Request $request, ?TenantPackage $package = null): TenantPackage
+    {
         $request->merge([
             'currency' => Str::upper(trim((string) $request->input('currency'))),
         ]);
+        $uniquePackageNameRule = Rule::unique('tenant_packages', 'name')
+            ->where(fn ($query) => $query->where('tenant_id', $request->input('tenant_id')));
+
+        if ($package) {
+            $uniquePackageNameRule->ignore($package->id);
+        }
 
         $validated = $request->validate([
             'tenant_id' => [
@@ -458,7 +507,7 @@ class ClientDashboardController extends Controller
                 'required',
                 'string',
                 'max:255',
-                Rule::unique('tenant_packages', 'name')->where(fn ($query) => $query->where('tenant_id', $request->input('tenant_id'))),
+                $uniquePackageNameRule,
             ],
             'price' => ['required', 'numeric', 'min:0', 'max:999999.99'],
             'currency' => ['required', 'string', 'size:3'],
@@ -482,11 +531,13 @@ class ClientDashboardController extends Controller
             $packageAttributes['description'] = RichTextSanitizer::sanitize($validated['description'] ?? null);
         }
 
-        TenantPackage::query()->create($packageAttributes);
+        if ($package) {
+            $package->update($packageAttributes);
 
-        return redirect()
-            ->route('client.packages.index')
-            ->with('status', 'Package added.');
+            return $package->refresh();
+        }
+
+        return TenantPackage::query()->create($packageAttributes);
     }
 
     /**
@@ -930,6 +981,14 @@ class ClientDashboardController extends Controller
     {
         abort_unless(
             $request->user()->ownedTenants()->whereKey($company->tenant_id)->exists(),
+            404,
+        );
+    }
+
+    private function abortUnlessOwnedPackage(Request $request, TenantPackage $package): void
+    {
+        abort_unless(
+            $request->user()->ownedTenants()->whereKey($package->tenant_id)->exists(),
             404,
         );
     }

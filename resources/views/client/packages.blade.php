@@ -48,6 +48,7 @@
                 <th>Package</th>
                 <th>Price</th>
                 <th>Days online</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>
@@ -60,6 +61,7 @@
                   <td>{{ $package->name }}</td>
                   <td>{{ $package->currency }} {{ number_format((float) $package->price, 2) }}</td>
                   <td>{{ $package->online_days }}</td>
+                  <td><a class="dash-link" href="{{ route('client.packages.edit', $package) }}">Edit</a></td>
                 </tr>
               @endforeach
             </tbody>

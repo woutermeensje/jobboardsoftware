@@ -137,6 +137,8 @@ $centralRoutes = function (): void {
             Route::get('/packages', [ClientDashboardController::class, 'packages'])->name('packages.index');
             Route::get('/packages/create', [ClientDashboardController::class, 'createPackage'])->name('packages.create');
             Route::post('/packages', [ClientDashboardController::class, 'storePackage'])->name('packages.store');
+            Route::get('/packages/{package}/edit', [ClientDashboardController::class, 'editPackage'])->name('packages.edit');
+            Route::patch('/packages/{package}', [ClientDashboardController::class, 'updatePackage'])->name('packages.update');
         });
 
     Route::get('/dashboard/billing/success', [BillingController::class, 'success'])
