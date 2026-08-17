@@ -15,6 +15,11 @@
     border-left: 0;
   }
 
+  .tenant-job-filters__submit {
+    border-top: 1px solid color-mix(in srgb, var(--tenant-accent) 82%, black 18%);
+    border-left: 0;
+  }
+
   .tenant-jobs-sidebar {
     position: static;
   }

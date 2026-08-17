@@ -34,6 +34,11 @@
         data-tenant-auto-submit
       >
     </label>
+
+    <button class="tenant-job-filters__submit" type="submit" aria-label="Search jobs">
+      <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
+      <span>Search</span>
+    </button>
   </div>
 
   @foreach($selectedDepartments as $department)
