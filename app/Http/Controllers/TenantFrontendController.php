@@ -11,6 +11,7 @@ use App\Support\AdminActionNotifier;
 use App\Support\CountryOptions;
 use App\Support\JobTypeOptions;
 use App\Support\PublicUploadStorage;
+use App\Support\TenantPublicCache;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -26,8 +27,9 @@ class TenantFrontendController extends Controller
     public function home(Request $request): View
     {
         $tenant = tenant();
+        $tenantId = (string) $tenant->id;
         $jobs = $this->jobsQuery($request)->get();
-        $filterOptions = $this->filterOptions($tenant->id);
+        $filterOptions = $this->cachedFilterOptions($tenantId);
 
         return view('tenant.jobboard', [
             'tenant' => $tenant,
@@ -41,10 +43,7 @@ class TenantFrontendController extends Controller
             'employmentTypeCounts' => $filterOptions['employmentTypeCounts'],
             'sectorCounts' => $filterOptions['sectorCounts'],
             'organizationTypeCounts' => $filterOptions['organizationTypeCounts'],
-            'totalJobs' => TenantJob::query()
-                ->where('tenant_id', $tenant->id)
-                ->where('status', TenantJob::STATUS_PUBLISHED)
-                ->count(),
+            'totalJobs' => $this->cachedTotalJobs($tenantId),
             'focus' => null,
         ]);
     }
@@ -324,7 +323,8 @@ class TenantFrontendController extends Controller
     public function contact(): View
     {
         $tenant = tenant();
-        $filterOptions = $this->filterOptions($tenant->id);
+        $tenantId = (string) $tenant->id;
+        $filterOptions = $this->cachedFilterOptions($tenantId);
 
         return view('tenant.jobboard', [
             'tenant' => $tenant,
@@ -338,10 +338,7 @@ class TenantFrontendController extends Controller
             'employmentTypeCounts' => $filterOptions['employmentTypeCounts'],
             'sectorCounts' => $filterOptions['sectorCounts'],
             'organizationTypeCounts' => $filterOptions['organizationTypeCounts'],
-            'totalJobs' => TenantJob::query()
-                ->where('tenant_id', $tenant->id)
-                ->where('status', TenantJob::STATUS_PUBLISHED)
-                ->count(),
+            'totalJobs' => $this->cachedTotalJobs($tenantId),
             'focus' => 'contact',
         ]);
     }
@@ -389,10 +386,17 @@ class TenantFrontendController extends Controller
             return collect();
         }
 
-        return TenantPackage::query()
-            ->where('tenant_id', $tenantId)
-            ->orderBy('name')
-            ->get();
+        $rows = TenantPublicCache::remember(
+            TenantPublicCache::postJobPackagesKey($tenantId),
+            fn (): array => TenantPackage::query()
+                ->where('tenant_id', $tenantId)
+                ->orderBy('name')
+                ->get()
+                ->map(fn (TenantPackage $package): array => $package->getAttributes())
+                ->all(),
+        );
+
+        return TenantPackage::hydrate($rows);
     }
 
     private function pricingPackages(string $tenantId)
@@ -401,11 +405,18 @@ class TenantFrontendController extends Controller
             return collect();
         }
 
-        return TenantPackage::query()
-            ->where('tenant_id', $tenantId)
-            ->orderBy('price')
-            ->orderBy('name')
-            ->get();
+        $rows = TenantPublicCache::remember(
+            TenantPublicCache::pricingPackagesKey($tenantId),
+            fn (): array => TenantPackage::query()
+                ->where('tenant_id', $tenantId)
+                ->orderBy('price')
+                ->orderBy('name')
+                ->get()
+                ->map(fn (TenantPackage $package): array => $package->getAttributes())
+                ->all(),
+        );
+
+        return TenantPackage::hydrate($rows);
     }
 
     private function packageSelectionReady(): bool
@@ -416,7 +427,29 @@ class TenantFrontendController extends Controller
     }
 
     /**
-     * @return array{departments: Collection<int, string>, locations: Collection<int, string>, employmentTypes: Collection<int, string>, sectors: Collection<int, string>, organizationTypes: Collection<int, string>, departmentCounts: array<string, int>, employmentTypeCounts: array<string, int>, sectorCounts: array<string, int>, organizationTypeCounts: array<string, int>}
+     * @return array{departments: array<int, string>, locations: array<int, string>, employmentTypes: array<int, string>, sectors: array<int, string>, organizationTypes: array<int, string>, departmentCounts: array<string, int>, employmentTypeCounts: array<string, int>, sectorCounts: array<string, int>, organizationTypeCounts: array<string, int>}
+     */
+    private function cachedFilterOptions(string $tenantId): array
+    {
+        return TenantPublicCache::remember(
+            TenantPublicCache::filterOptionsKey($tenantId),
+            fn (): array => $this->filterOptions($tenantId),
+        );
+    }
+
+    private function cachedTotalJobs(string $tenantId): int
+    {
+        return TenantPublicCache::remember(
+            TenantPublicCache::totalJobsKey($tenantId),
+            fn (): int => TenantJob::query()
+                ->where('tenant_id', $tenantId)
+                ->where('status', TenantJob::STATUS_PUBLISHED)
+                ->count(),
+        );
+    }
+
+    /**
+     * @return array{departments: array<int, string>, locations: array<int, string>, employmentTypes: array<int, string>, sectors: array<int, string>, organizationTypes: array<int, string>, departmentCounts: array<string, int>, employmentTypeCounts: array<string, int>, sectorCounts: array<string, int>, organizationTypeCounts: array<string, int>}
      */
     private function filterOptions(string $tenantId): array
     {
@@ -465,21 +498,24 @@ class TenantFrontendController extends Controller
                 ->where('department', '!=', '')
                 ->distinct()
                 ->orderBy('department')
-                ->pluck('department'),
+                ->pluck('department')
+                ->all(),
             'locations' => (clone $baseQuery)
                 ->whereNotNull('location')
                 ->where('location', '!=', '')
                 ->distinct()
                 ->orderBy('location')
-                ->pluck('location'),
+                ->pluck('location')
+                ->all(),
             'employmentTypes' => (clone $baseQuery)
                 ->whereNotNull('employment_type')
                 ->where('employment_type', '!=', '')
                 ->distinct()
                 ->orderBy('employment_type')
-                ->pluck('employment_type'),
-            'sectors' => $companySectorReady ? $companyOptions('sector') : collect(),
-            'organizationTypes' => $companyOrganizationTypeReady ? $companyOptions('organization_type') : collect(),
+                ->pluck('employment_type')
+                ->all(),
+            'sectors' => $companySectorReady ? $companyOptions('sector')->all() : [],
+            'organizationTypes' => $companyOrganizationTypeReady ? $companyOptions('organization_type')->all() : [],
             'departmentCounts' => (clone $baseQuery)
                 ->whereNotNull('department')
                 ->where('department', '!=', '')

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\TenantPublicCache;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -21,6 +22,17 @@ class TenantPackage extends Model
         'price' => 'decimal:2',
         'online_days' => 'integer',
     ];
+
+    protected static function booted(): void
+    {
+        static::saved(function (self $package): void {
+            TenantPublicCache::forgetTenant((string) $package->tenant_id);
+        });
+
+        static::deleted(function (self $package): void {
+            TenantPublicCache::forgetTenant((string) $package->tenant_id);
+        });
+    }
 
     public function tenant(): BelongsTo
     {

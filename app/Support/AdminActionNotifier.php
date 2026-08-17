@@ -22,7 +22,7 @@ class AdminActionNotifier
         }
 
         try {
-            Mail::to($recipient)->send(new AdminActionNotification(
+            Mail::to($recipient)->queue(new AdminActionNotification(
                 title: $title,
                 details: $details,
                 actor: $this->actorPayload($actor),

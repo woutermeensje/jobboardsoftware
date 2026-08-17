@@ -122,6 +122,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Public Tenant Cache TTL
+    |--------------------------------------------------------------------------
+    |
+    | Short-lived cache for public job board metadata such as filters, counts,
+    | and package cards. Model events flush these keys when tenant data changes.
+    |
+    */
+
+    'public_tenant_ttl' => (int) env('PUBLIC_TENANT_CACHE_TTL', 600),
+
+    /*
+    |--------------------------------------------------------------------------
     | Serializable Classes
     |--------------------------------------------------------------------------
     |

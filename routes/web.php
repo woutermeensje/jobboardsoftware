@@ -7,6 +7,7 @@ use App\Http\Controllers\ClientDashboardController;
 use App\Http\Controllers\ContactController;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Str;
 
 $centralRoutes = function (): void {
     Route::get('/', function () {
@@ -146,6 +147,27 @@ $centralRoutes = function (): void {
         ->name('billing.success');
 };
 
-foreach (config('tenancy.central_domains') as $domain) {
-    Route::domain($domain)->group($centralRoutes);
+$centralDomains = config('tenancy.central_domains');
+
+if ($centralDomains === []) {
+    $centralRoutes();
+} else {
+    $defaultCentralDomain = parse_url((string) config('app.url'), PHP_URL_HOST);
+
+    if (is_string($defaultCentralDomain) && in_array($defaultCentralDomain, $centralDomains, true)) {
+        $centralDomains = array_values(array_unique([
+            $defaultCentralDomain,
+            ...array_filter($centralDomains, fn (string $domain): bool => $domain !== $defaultCentralDomain),
+        ]));
+    }
+
+    foreach ($centralDomains as $index => $domain) {
+        $route = Route::domain($domain);
+
+        if ($index > 0) {
+            $route->as('central.'.Str::slug($domain).'.');
+        }
+
+        $route->group($centralRoutes);
+    }
 }

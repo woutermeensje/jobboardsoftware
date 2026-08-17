@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\TenantPublicCache;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -26,6 +27,17 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class TenantCompany extends Model
 {
     use HasFactory;
+
+    protected static function booted(): void
+    {
+        static::saved(function (self $company): void {
+            TenantPublicCache::forgetTenant((string) $company->tenant_id);
+        });
+
+        static::deleted(function (self $company): void {
+            TenantPublicCache::forgetTenant((string) $company->tenant_id);
+        });
+    }
 
     /**
      * @return array<int, string>

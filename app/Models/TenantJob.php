@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\TenantPublicCache;
 use Database\Factories\TenantJobFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -49,6 +50,17 @@ class TenantJob extends Model
         'published_at' => 'datetime',
         'closes_at' => 'datetime',
     ];
+
+    protected static function booted(): void
+    {
+        static::saved(function (self $job): void {
+            TenantPublicCache::forgetTenant((string) $job->tenant_id);
+        });
+
+        static::deleted(function (self $job): void {
+            TenantPublicCache::forgetTenant((string) $job->tenant_id);
+        });
+    }
 
     public function tenant(): BelongsTo
     {
