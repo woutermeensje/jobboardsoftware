@@ -69,7 +69,7 @@
   justify-content: center;
   gap: 22px;
   align-items: start;
-  margin: 56px 0;
+  margin: 72px 0 56px;
 }
 
 .tenant-post-job__content {
