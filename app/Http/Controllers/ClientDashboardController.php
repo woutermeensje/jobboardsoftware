@@ -12,6 +12,7 @@ use App\Support\AdminActionNotifier;
 use App\Support\JobTypeOptions;
 use App\Support\PublicUploadStorage;
 use App\Support\RichTextSanitizer;
+use App\Support\TenantOptionSettings;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
@@ -145,6 +146,10 @@ class ClientDashboardController extends Controller
 
     public function section(Request $request, string $section): View
     {
+        if (TenantOptionSettings::has($section)) {
+            return $this->jobSettingOptions($request, $section);
+        }
+
         $sectionData = $this->sections()[$section] ?? [
             'title' => str($section)->headline()->toString(),
             'description' => 'This custom client dashboard section is ready to be designed.',
@@ -269,23 +274,20 @@ class ClientDashboardController extends Controller
 
     public function jobTypes(Request $request): View
     {
-        $tenants = $request->user()
-            ->ownedTenants()
-            ->latest()
-            ->get();
-
-        return view('client.job-types', [
-            'user' => $request->user(),
-            'tenants' => $tenants,
-            'defaultJobTypes' => JobTypeOptions::defaults(),
-            'jobTypesByTenant' => $tenants->mapWithKeys(fn (Tenant $tenant): array => [
-                $tenant->id => JobTypeOptions::customForTenant($tenant),
-            ]),
-        ]);
+        return $this->jobSettingOptions($request, 'job-type');
     }
 
     public function storeJobType(Request $request): RedirectResponse
     {
+        return $this->storeJobSettingOption($request, 'job-type');
+    }
+
+    public function storeJobSettingOption(Request $request, string $optionType): RedirectResponse
+    {
+        abort_unless(TenantOptionSettings::has($optionType), 404);
+
+        $option = TenantOptionSettings::config($optionType);
+
         $validated = $request->validate([
             'tenant_id' => [
                 'required',
@@ -298,38 +300,58 @@ class ClientDashboardController extends Controller
             ->where('owner_user_id', $request->user()->id)
             ->findOrFail($validated['tenant_id']);
 
-        $name = JobTypeOptions::normalizeName((string) $validated['name']);
+        $name = TenantOptionSettings::normalizeName((string) $validated['name']);
 
         if ($name === '') {
             return back()
-                ->withErrors(['name' => 'Enter a job type name.'])
+                ->withErrors(['name' => $option['required_error']])
                 ->withInput();
         }
 
-        $customJobTypes = JobTypeOptions::customForTenant($tenant);
-        $existingJobTypes = collect(JobTypeOptions::defaults())
-            ->merge($customJobTypes)
-            ->map(fn (string $type): string => mb_strtolower($type))
+        $customOptions = TenantOptionSettings::customForTenant($tenant, $optionType);
+        $existingOptions = collect(TenantOptionSettings::defaults($optionType))
+            ->merge($customOptions)
+            ->map(fn (string $existingOption): string => mb_strtolower($existingOption))
             ->all();
 
-        if (in_array(mb_strtolower($name), $existingJobTypes, true)) {
+        if (in_array(mb_strtolower($name), $existingOptions, true)) {
             return back()
-                ->withErrors(['name' => 'This job type already exists for this environment.'])
+                ->withErrors(['name' => $option['duplicate_error']])
                 ->withInput();
         }
 
         $settings = $tenant->settings ?? [];
-        $settings['custom_job_types'] = collect($customJobTypes)
+        $settings[$option['settings_key']] = collect($customOptions)
             ->push($name)
-            ->sortBy(fn (string $type): string => mb_strtolower($type))
+            ->sortBy(fn (string $storedOption): string => mb_strtolower($storedOption))
             ->values()
             ->all();
 
         $tenant->forceFill(['settings' => $settings])->save();
 
         return redirect()
-            ->route('client.jobs-settings.job-type')
-            ->with('status', 'Job type added.');
+            ->route($option['route_name'])
+            ->with('status', $option['success']);
+    }
+
+    private function jobSettingOptions(Request $request, string $optionType): View
+    {
+        $tenants = $request->user()
+            ->ownedTenants()
+            ->latest()
+            ->get();
+        $option = TenantOptionSettings::config($optionType);
+
+        return view('client.job-setting-options', [
+            'user' => $request->user(),
+            'tenants' => $tenants,
+            'optionType' => $optionType,
+            'option' => $option,
+            'defaultOptions' => TenantOptionSettings::defaults($optionType),
+            'optionsByTenant' => $tenants->mapWithKeys(fn (Tenant $tenant): array => [
+                $tenant->id => TenantOptionSettings::customForTenant($tenant, $optionType),
+            ]),
+        ]);
     }
 
     public function packages(Request $request): View

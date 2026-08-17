@@ -121,10 +121,13 @@ $centralRoutes = function (): void {
             Route::get('/marketing/socials', [ClientDashboardController::class, 'section'])->defaults('section', 'socials')->name('marketing.socials');
             Route::get('/jobs-settings', [ClientDashboardController::class, 'section'])->defaults('section', 'jobs-settings')->name('jobs-settings.index');
             Route::get('/jobs-settings/sector', [ClientDashboardController::class, 'section'])->defaults('section', 'sector')->name('jobs-settings.sector');
+            Route::post('/jobs-settings/sector', [ClientDashboardController::class, 'storeJobSettingOption'])->defaults('optionType', 'sector')->name('jobs-settings.sector.store');
             Route::get('/jobs-settings/categorie', [ClientDashboardController::class, 'section'])->defaults('section', 'categorie')->name('jobs-settings.categorie');
+            Route::post('/jobs-settings/categorie', [ClientDashboardController::class, 'storeJobSettingOption'])->defaults('optionType', 'categorie')->name('jobs-settings.categorie.store');
             Route::get('/jobs-settings/job-type', [ClientDashboardController::class, 'jobTypes'])->name('jobs-settings.job-type');
             Route::post('/jobs-settings/job-type', [ClientDashboardController::class, 'storeJobType'])->name('jobs-settings.job-type.store');
             Route::get('/jobs-settings/organization-type', [ClientDashboardController::class, 'section'])->defaults('section', 'organization-type')->name('jobs-settings.organization-type');
+            Route::post('/jobs-settings/organization-type', [ClientDashboardController::class, 'storeJobSettingOption'])->defaults('optionType', 'organization-type')->name('jobs-settings.organization-type.store');
             Route::get('/companies', [ClientDashboardController::class, 'companies'])->name('companies.index');
             Route::post('/companies', [ClientDashboardController::class, 'storeCompany'])->name('companies.store');
             Route::get('/companies/create', [ClientDashboardController::class, 'createCompany'])->name('companies.create');

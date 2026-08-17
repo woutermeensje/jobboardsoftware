@@ -138,8 +138,10 @@ class ClientDashboardTest extends TestCase
             '/client/dashboard/domains',
             '/client/dashboard/jobs/create',
             '/client/dashboard/marketing/landingpagina',
+            '/client/dashboard/jobs-settings/sector',
             '/client/dashboard/jobs-settings/categorie',
             '/client/dashboard/jobs-settings/job-type',
+            '/client/dashboard/jobs-settings/organization-type',
             '/client/dashboard/companies/create',
             '/client/dashboard/packages/create',
         ] as $path) {
@@ -790,6 +792,59 @@ class ClientDashboardTest extends TestCase
             ->assertSee('Volunteer');
     }
 
+    public function test_tenant_owner_can_manage_job_setting_options_for_owned_environments(): void
+    {
+        $owner = User::factory()->create(['role' => User::ROLE_TENANT_OWNER]);
+        $tenant = $this->tenantFor($owner, 'Acme Careers', 'acme-careers');
+
+        $optionPages = [
+            '/client/dashboard/jobs-settings/sector' => [
+                'title' => 'Sectors',
+                'setting' => 'custom_sectors',
+                'name' => 'Healthcare',
+                'status' => 'Sector added.',
+            ],
+            '/client/dashboard/jobs-settings/categorie' => [
+                'title' => 'Categories',
+                'setting' => 'custom_categories',
+                'name' => 'Marketing',
+                'status' => 'Category added.',
+            ],
+            '/client/dashboard/jobs-settings/organization-type' => [
+                'title' => 'Organization types',
+                'setting' => 'custom_organization_types',
+                'name' => 'Non-profit',
+                'status' => 'Organization type added.',
+            ],
+        ];
+
+        foreach ($optionPages as $path => $optionPage) {
+            $this->actingAs($owner)
+                ->get($path)
+                ->assertOk()
+                ->assertSee($optionPage['title'])
+                ->assertSee('dash-form-layout', false)
+                ->assertSee('dash-form-layout__aside', false);
+
+            $this->actingAs($owner)
+                ->post($path, [
+                    'tenant_id' => $tenant->id,
+                    'name' => $optionPage['name'],
+                ])
+                ->assertRedirect($path)
+                ->assertSessionHas('status', $optionPage['status']);
+
+            $tenant->refresh();
+
+            $this->assertSame([$optionPage['name']], $tenant->settings[$optionPage['setting']] ?? []);
+
+            $this->actingAs($owner)
+                ->get($path)
+                ->assertOk()
+                ->assertSee($optionPage['name']);
+        }
+    }
+
     public function test_tenant_owner_can_manage_packages_for_owned_environments(): void
     {
         $owner = User::factory()->create(['role' => User::ROLE_TENANT_OWNER]);
@@ -887,6 +942,41 @@ class ClientDashboardTest extends TestCase
 
         $this->assertArrayNotHasKey('custom_job_types', $tenant->settings ?? []);
         $this->assertArrayNotHasKey('custom_job_types', $otherTenant->settings ?? []);
+    }
+
+    public function test_tenant_owner_cannot_add_duplicate_or_unowned_job_setting_options(): void
+    {
+        $owner = User::factory()->create(['role' => User::ROLE_TENANT_OWNER]);
+        $otherOwner = User::factory()->create(['role' => User::ROLE_TENANT_OWNER]);
+        $tenant = $this->tenantFor($owner, 'Acme Careers', 'acme-careers');
+        $otherTenant = $this->tenantFor($otherOwner, 'Other Careers', 'other-careers');
+
+        $this->actingAs($owner)
+            ->post('/client/dashboard/jobs-settings/sector', [
+                'tenant_id' => $tenant->id,
+                'name' => 'Healthcare',
+            ])
+            ->assertSessionHasNoErrors();
+
+        $this->actingAs($owner)
+            ->post('/client/dashboard/jobs-settings/sector', [
+                'tenant_id' => $tenant->id,
+                'name' => 'healthcare',
+            ])
+            ->assertSessionHasErrors('name');
+
+        $this->actingAs($owner)
+            ->post('/client/dashboard/jobs-settings/categorie', [
+                'tenant_id' => $otherTenant->id,
+                'name' => 'Marketing',
+            ])
+            ->assertSessionHasErrors('tenant_id');
+
+        $tenant->refresh();
+        $otherTenant->refresh();
+
+        $this->assertSame(['Healthcare'], $tenant->settings['custom_sectors'] ?? []);
+        $this->assertArrayNotHasKey('custom_categories', $otherTenant->settings ?? []);
     }
 
     public function test_old_workspace_paths_redirect_to_client_dashboard(): void
