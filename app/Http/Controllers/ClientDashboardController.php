@@ -449,6 +449,10 @@ class ClientDashboardController extends Controller
 
     private function saveClientCompany(Request $request, ?TenantCompany $company = null): TenantCompany
     {
+        $request->merge([
+            'company_url' => $this->normalizeExternalUrl($request->input('company_url')),
+        ]);
+
         $validated = $request->validate([
             'tenant_id' => [
                 'required',
@@ -456,6 +460,7 @@ class ClientDashboardController extends Controller
             ],
             'organization_name' => ['required', 'string', 'max:255'],
             'name' => ['required', 'string', 'max:255'],
+            'company_url' => ['nullable', 'url', 'starts_with:http://,https://', 'max:2048'],
             'contact_first_name' => ['nullable', 'string', 'max:255'],
             'contact_last_name' => ['nullable', 'string', 'max:255'],
             'contact_email' => ['nullable', 'email', 'max:255'],
@@ -483,6 +488,7 @@ class ClientDashboardController extends Controller
             'organization_name' => $validated['organization_name'],
             'name' => $validated['name'],
             'slug' => $shouldRefreshSlug ? $this->uniqueCompanySlug($tenant, $validated['name'], $company) : $company->slug,
+            'company_url' => $validated['company_url'] ?? null,
             'contact_first_name' => $validated['contact_first_name'] ?? null,
             'contact_last_name' => $validated['contact_last_name'] ?? null,
             'contact_name' => $contactName !== '' ? $contactName : null,
@@ -518,6 +524,10 @@ class ClientDashboardController extends Controller
 
         if (Schema::hasColumn('tenant_jobs', 'company_logo_path')) {
             $updates['company_logo_path'] = $company->logo_path;
+        }
+
+        if (Schema::hasColumn('tenant_jobs', 'company_url')) {
+            $updates['company_url'] = $company->company_url;
         }
 
         if ($updates === []) {
@@ -578,7 +588,6 @@ class ClientDashboardController extends Controller
 
         $request->merge([
             'job_url' => $this->normalizeExternalUrl($request->input('job_url')),
-            'company_url' => $this->normalizeExternalUrl($request->input('company_url')),
         ]);
 
         $validated = $request->validate([
@@ -597,7 +606,6 @@ class ClientDashboardController extends Controller
             'intro' => ['nullable', 'string', 'max:3000'],
             'description' => ['required', 'string', 'max:10000'],
             'job_url' => ['nullable', 'url', 'starts_with:http://,https://', 'max:2048'],
-            'company_url' => ['nullable', 'url', 'starts_with:http://,https://', 'max:2048'],
             'contact_first_name' => ['required', 'string', 'max:255'],
             'contact_last_name' => ['required', 'string', 'max:255'],
             'contact_email' => ['required', 'email', 'max:255'],
@@ -669,6 +677,7 @@ class ClientDashboardController extends Controller
         $companyLogoPath = $tenantJobsHasCompanyLogoPath && $request->hasFile('company_logo')
             ? PublicUploadStorage::store($request->file('company_logo'), 'company-logos', $tenant->id)
             : ($company?->logo_path ?? $job?->company_logo_path);
+        $companyUrl = $company?->company_url ?? $job?->company_url ?? null;
         $shouldRefreshSlug = ! $job
             || $job->tenant_id !== $tenant->id
             || trim($job->title) !== trim($validated['title']);
@@ -693,7 +702,7 @@ class ClientDashboardController extends Controller
         }
 
         if ($tenantJobsHasCompanyUrl) {
-            $jobAttributes['company_url'] = $validated['company_url'] ?? null;
+            $jobAttributes['company_url'] = $companyUrl;
         }
 
         if ($tenantJobsHasTenantCompanyId) {

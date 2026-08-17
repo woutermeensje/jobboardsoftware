@@ -189,6 +189,9 @@ class ClientDashboardTest extends TestCase
             'organization_name' => 'Acme Group',
             'name' => 'Acme Hiring',
             'slug' => 'acme-hiring',
+            'company_url' => 'https://acme.example.com/about',
+            'contact_first_name' => 'Maya',
+            'contact_last_name' => 'Collins',
             'contact_name' => 'Maya Collins',
             'contact_email' => 'maya@example.com',
             'contact_phone' => '+31 20 123 4567',
@@ -203,8 +206,8 @@ class ClientDashboardTest extends TestCase
             ->assertDontSee('Publishing')
             ->assertSee('Job details')
             ->assertSee('Company information')
-            ->assertSee('Company website URL')
-            ->assertSee('Add a homepage, about page, or another relevant company page for this company.')
+            ->assertDontSee('Company website URL')
+            ->assertDontSee('Add a homepage, about page, or another relevant company page for this company.')
             ->assertSee('Vacancy URL')
             ->assertSee('Add the link to this vacancy on the client website.')
             ->assertSee('Select company')
@@ -213,6 +216,15 @@ class ClientDashboardTest extends TestCase
             ->assertSee('Volunteer')
             ->assertSee('First name')
             ->assertSee('Last name')
+            ->assertSee('value="Maya"', false)
+            ->assertSee('value="Collins"', false)
+            ->assertSee('value="maya@example.com"', false)
+            ->assertSee('value="+31 20 123 4567"', false)
+            ->assertSee('data-company-contact-first-name="Maya"', false)
+            ->assertSee('tenant-company-option__logo-image', false)
+            ->assertSee('company-logos/acme.svg', false)
+            ->assertSee('tenant-company-option__logo-fallback', false)
+            ->assertSee('tenant-dashboard-form__contact-section', false)
             ->assertSee('Publish')
             ->assertSee('Save as draft')
             ->assertDontSee('Company logo')
@@ -226,7 +238,6 @@ class ClientDashboardTest extends TestCase
                 'tenant_company_id' => $company->id,
                 'title' => 'Community Lead',
                 'job_url' => 'jobs.example.com/community-lead',
-                'company_url' => 'https://acme.example.com/about',
                 'location' => 'Amsterdam',
                 'employment_type' => 'Volunteer',
                 'description' => '<p>Own events and candidate engagement.</p><script>alert("xss")</script>',
@@ -301,6 +312,7 @@ class ClientDashboardTest extends TestCase
             'organization_name' => 'Acme Group',
             'name' => 'Acme Hiring',
             'slug' => 'acme-hiring',
+            'company_url' => 'https://acme.example.com/about',
             'logo_path' => 'company-logos/acme.svg',
         ]);
         $newCompany = TenantCompany::query()->create([
@@ -308,6 +320,7 @@ class ClientDashboardTest extends TestCase
             'organization_name' => 'Northwind Group',
             'name' => 'Northwind Hiring',
             'slug' => 'northwind-hiring',
+            'company_url' => 'https://northwind.example.com/careers',
             'logo_path' => 'company-logos/northwind.svg',
         ]);
         $job = TenantJob::query()->create([
@@ -347,7 +360,6 @@ class ClientDashboardTest extends TestCase
                 'tenant_company_id' => $newCompany->id,
                 'title' => 'Updated Community Lead',
                 'job_url' => 'jobs.example.com/updated-community-lead',
-                'company_url' => '',
                 'location' => 'Remote GMT+1',
                 'employment_type' => 'Volunteer',
                 'description' => '<p>Updated <strong>description</strong>.</p><script>alert("xss")</script>',
@@ -372,7 +384,7 @@ class ClientDashboardTest extends TestCase
         $this->assertSame('Volunteer', $job->employment_type);
         $this->assertSame('<p>Updated <strong>description</strong>.</p>', $job->description);
         $this->assertSame('https://jobs.example.com/updated-community-lead', $job->job_url);
-        $this->assertNull($job->company_url);
+        $this->assertSame('https://northwind.example.com/careers', $job->company_url);
         $this->assertSame('Nina Owner', $job->contact_name);
         $this->assertSame('nina@example.com', $job->contact_email);
         $this->assertSame('+31 20 987 6543', $job->contact_phone);
@@ -516,6 +528,8 @@ class ClientDashboardTest extends TestCase
             ->assertSee('Create company')
             ->assertSee('Organization name')
             ->assertSee('Company name (for job posts)')
+            ->assertSee('Company website URL')
+            ->assertSee('Add a homepage, about page, or another relevant company page for this company.')
             ->assertDontSee('Select environment')
             ->assertSee('Company logo')
             ->assertSee('Contact details')
@@ -536,6 +550,7 @@ class ClientDashboardTest extends TestCase
                 'tenant_id' => $tenant->id,
                 'organization_name' => 'Northwind Group',
                 'name' => 'Northwind Hiring',
+                'company_url' => 'northwind.example.com/about',
                 'contact_first_name' => 'Maya',
                 'contact_last_name' => 'Collins',
                 'contact_email' => 'maya@example.com',
@@ -552,6 +567,7 @@ class ClientDashboardTest extends TestCase
         $this->assertSame('Northwind Group', $company->organization_name);
         $this->assertSame('Northwind Hiring', $company->name);
         $this->assertSame('northwind-hiring', $company->slug);
+        $this->assertSame('https://northwind.example.com/about', $company->company_url);
         $this->assertSame('Maya', $company->contact_first_name);
         $this->assertSame('Collins', $company->contact_last_name);
         $this->assertSame('Maya Collins', $company->contact_name);
@@ -580,6 +596,7 @@ class ClientDashboardTest extends TestCase
             'organization_name' => 'Northwind Group',
             'name' => 'Northwind Hiring',
             'slug' => 'northwind-hiring',
+            'company_url' => 'https://northwind.example.com/about',
             'contact_first_name' => 'Maya',
             'contact_last_name' => 'Collins',
             'contact_name' => 'Maya Collins',
@@ -600,6 +617,7 @@ class ClientDashboardTest extends TestCase
             'location' => 'Amsterdam',
             'employment_type' => 'Full time',
             'description' => '<p>Lead operations.</p>',
+            'company_url' => 'https://northwind.example.com/about',
             'status' => TenantJob::STATUS_DRAFT,
         ]);
 
@@ -609,6 +627,7 @@ class ClientDashboardTest extends TestCase
             ->assertSee('Edit company')
             ->assertSee('Northwind Group')
             ->assertSee('Northwind Hiring')
+            ->assertSee('value="https://northwind.example.com/about"', false)
             ->assertSee('value="Maya"', false)
             ->assertSee('value="Collins"', false)
             ->assertDontSee('placeholder=', false);
@@ -618,6 +637,7 @@ class ClientDashboardTest extends TestCase
                 'tenant_id' => $tenant->id,
                 'organization_name' => 'Northwind Collective',
                 'name' => 'Northwind Talent',
+                'company_url' => 'northwind.example.com/team',
                 'contact_first_name' => 'Nina',
                 'contact_last_name' => 'Owner',
                 'contact_email' => 'nina@example.com',
@@ -634,6 +654,7 @@ class ClientDashboardTest extends TestCase
         $this->assertSame('Northwind Collective', $company->organization_name);
         $this->assertSame('Northwind Talent', $company->name);
         $this->assertSame('northwind-talent', $company->slug);
+        $this->assertSame('https://northwind.example.com/team', $company->company_url);
         $this->assertSame('Nina', $company->contact_first_name);
         $this->assertSame('Owner', $company->contact_last_name);
         $this->assertSame('Nina Owner', $company->contact_name);
@@ -645,6 +666,7 @@ class ClientDashboardTest extends TestCase
         Storage::disk(PublicUploadStorage::diskName())->assertExists($company->logo_path);
         $this->assertSame('Northwind Talent', $job->company_name);
         $this->assertSame($company->logo_path, $job->company_logo_path);
+        $this->assertSame('https://northwind.example.com/team', $job->company_url);
     }
 
     public function test_tenant_owner_cannot_create_company_for_unowned_environment(): void

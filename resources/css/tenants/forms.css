@@ -180,6 +180,11 @@
   border-bottom: 1px solid var(--color-border);
 }
 
+.tenant-dashboard-form__contact-section .tenant-form-section-head {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
 .tenant-form__grid,
 .tenant-post-job-form__grid {
   display: grid;
@@ -357,6 +362,51 @@
 
 .tenant-multiselect__option input:checked + span {
   color: var(--tenant-accent);
+}
+
+.tenant-dashboard-form .tenant-company-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.tenant-dashboard-form .tenant-company-option__logo {
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-default);
+  background: #ffffff;
+}
+
+.tenant-dashboard-form .tenant-company-option__logo-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.tenant-dashboard-form .tenant-company-option__logo-fallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: var(--tenant-accent);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.tenant-dashboard-form .tenant-company-option__name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .tenant-post-job-form .tenant-multiselect__empty,
@@ -647,6 +697,10 @@
   gap: 10px;
   padding-top: 32px;
   border-top: 1px solid var(--color-border);
+}
+
+.tenant-dashboard-form__contact-section + .tenant-dashboard-form__actions {
+  border-top: 0;
 }
 
 .tenant-post-job__summary {

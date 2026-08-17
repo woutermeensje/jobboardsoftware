@@ -7,13 +7,20 @@
   $formIntro = $isEditing ? 'Update the details below and save the job.' : 'Fill in the details below and save the job.';
   $formAction = $isEditing ? route('client.jobs.update', $job) : route('client.jobs.store');
   $errorTitle = $isEditing ? 'Job could not be updated.' : 'Job could not be created.';
-  $selectedCompanyId = (string) old('tenant_company_id', $job?->tenant_company_id ?? '');
+  $selectedCompanyId = (string) old('tenant_company_id', $job?->tenant_company_id ?? (!$isEditing ? $companies->first()?->id : ''));
   $selectedCompany = $companies->first(fn ($company): bool => (string) $company->id === $selectedCompanyId);
   $selectedTenantId = (string) old('tenant_id', $selectedCompany?->tenant_id ?? $job?->tenant_id ?? $tenants->first()?->id);
   $selectedJobType = (string) old('employment_type', $job?->employment_type ?? '');
   $contactNameParts = preg_split('/\s+/', trim((string) $job?->contact_name), 2) ?: [];
-  $defaultContactFirstName = $contactNameParts[0] ?? '';
-  $defaultContactLastName = $contactNameParts[1] ?? '';
+  $selectedCompanyContactNameParts = preg_split('/\s+/', trim((string) $selectedCompany?->contact_name), 2) ?: [];
+  $defaultContactFirstName = collect([$contactNameParts[0] ?? null, $selectedCompany?->contact_first_name, $selectedCompanyContactNameParts[0] ?? null])
+      ->first(fn ($value): bool => filled($value)) ?? '';
+  $defaultContactLastName = collect([$contactNameParts[1] ?? null, $selectedCompany?->contact_last_name, $selectedCompanyContactNameParts[1] ?? null])
+      ->first(fn ($value): bool => filled($value)) ?? '';
+  $defaultContactEmail = collect([$job?->contact_email, $selectedCompany?->contact_email])
+      ->first(fn ($value): bool => filled($value)) ?? '';
+  $defaultContactPhone = collect([$job?->contact_phone, $selectedCompany?->contact_phone])
+      ->first(fn ($value): bool => filled($value)) ?? '';
   $showCompanyNameField = $isEditing && $selectedCompanyId === '';
 @endphp
 
@@ -119,6 +126,13 @@
                         >
                         <div class="tenant-multiselect__options" role="listbox" aria-multiselectable="false">
                           @foreach($companies as $company)
+                            @php
+                              $companyContactNameParts = preg_split('/\s+/', trim((string) $company->contact_name), 2) ?: [];
+                              $companyContactFirstName = $company->contact_first_name ?: ($companyContactNameParts[0] ?? '');
+                              $companyContactLastName = $company->contact_last_name ?: ($companyContactNameParts[1] ?? '');
+                              $companyLogoUrl = \App\Support\PublicUploadStorage::url($company->logo_path);
+                              $companyInitial = mb_strtoupper(mb_substr($company->name, 0, 1));
+                            @endphp
                             <label class="tenant-multiselect__option" data-multiselect-option-row>
                               <input
                                 type="radio"
@@ -128,8 +142,27 @@
                                 data-multiselect-option
                                 data-multiselect-label="{{ $company->name }}"
                                 data-company-tenant-id="{{ $company->tenant_id }}"
+                                data-company-contact-first-name="{{ $companyContactFirstName }}"
+                                data-company-contact-last-name="{{ $companyContactLastName }}"
+                                data-company-contact-email="{{ $company->contact_email }}"
+                                data-company-contact-phone="{{ $company->contact_phone }}"
                               >
-                              <span>{{ $company->name }}</span>
+                              <span class="tenant-company-option">
+                                <span class="tenant-company-option__logo" aria-hidden="true">
+                                  @if($companyLogoUrl)
+                                    <img
+                                      class="tenant-company-option__logo-image"
+                                      src="{{ $companyLogoUrl }}"
+                                      alt=""
+                                      onerror="this.hidden = true; this.nextElementSibling.hidden = false;"
+                                    >
+                                    <span class="tenant-company-option__logo-fallback" hidden>{{ $companyInitial }}</span>
+                                  @else
+                                    <span class="tenant-company-option__logo-fallback">{{ $companyInitial }}</span>
+                                  @endif
+                                </span>
+                                <span class="tenant-company-option__name">{{ $company->name }}</span>
+                              </span>
                             </label>
                           @endforeach
                         </div>
@@ -150,12 +183,6 @@
                     @error('company_name')<span class="tenant-form__error">{{ $message }}</span>@enderror
                   @endif
 
-                  <label>
-                    Company website URL
-                    <input type="url" name="company_url" value="{{ old('company_url', $job?->company_url) }}">
-                    <span class="input-description">Add a homepage, about page, or another relevant company page for this company.</span>
-                    @error('company_url')<span class="tenant-form__error">{{ $message }}</span>@enderror
-                  </label>
                 </section>
 
                 <section class="tenant-form-section-block tenant-form__section" aria-labelledby="job-details-title">
@@ -243,7 +270,7 @@
                   </div>
                 </section>
 
-                <section class="tenant-form-section-block tenant-form__section" aria-labelledby="job-contact-title">
+                <section class="tenant-form-section-block tenant-form__section tenant-dashboard-form__contact-section" aria-labelledby="job-contact-title">
                   <div class="tenant-form-section-head">
                     <h2 id="job-contact-title" class="tenant-form-section-title">Contact details</h2>
                   </div>
@@ -251,13 +278,13 @@
                   <div class="tenant-form__grid">
                     <label>
                       First name
-                      <input name="contact_first_name" value="{{ old('contact_first_name', $defaultContactFirstName) }}" required>
+                      <input name="contact_first_name" value="{{ old('contact_first_name', $defaultContactFirstName) }}" required data-company-contact-first-name-input>
                       @error('contact_first_name')<span class="tenant-form__error">{{ $message }}</span>@enderror
                     </label>
 
                     <label>
                       Last name
-                      <input name="contact_last_name" value="{{ old('contact_last_name', $defaultContactLastName) }}" required>
+                      <input name="contact_last_name" value="{{ old('contact_last_name', $defaultContactLastName) }}" required data-company-contact-last-name-input>
                       @error('contact_last_name')<span class="tenant-form__error">{{ $message }}</span>@enderror
                     </label>
                   </div>
@@ -265,13 +292,13 @@
                   <div class="tenant-form__grid">
                     <label>
                       Phone number
-                      <input name="contact_phone" value="{{ old('contact_phone', $job?->contact_phone) }}">
+                      <input name="contact_phone" value="{{ old('contact_phone', $defaultContactPhone) }}" data-company-contact-phone-input>
                       @error('contact_phone')<span class="tenant-form__error">{{ $message }}</span>@enderror
                     </label>
 
                     <label>
                       Email address
-                      <input name="contact_email" type="email" value="{{ old('contact_email', $job?->contact_email) }}" required>
+                      <input name="contact_email" type="email" value="{{ old('contact_email', $defaultContactEmail) }}" required data-company-contact-email-input>
                       @error('contact_email')<span class="tenant-form__error">{{ $message }}</span>@enderror
                     </label>
                   </div>
@@ -366,12 +393,42 @@
         const tenantInput = multiselect.hasAttribute('data-company-select')
           ? document.querySelector('[data-company-tenant-input]')
           : null;
+        const contactInputs = multiselect.hasAttribute('data-company-select')
+          ? {
+              firstName: document.querySelector('[data-company-contact-first-name-input]'),
+              lastName: document.querySelector('[data-company-contact-last-name-input]'),
+              email: document.querySelector('[data-company-contact-email-input]'),
+              phone: document.querySelector('[data-company-contact-phone-input]'),
+            }
+          : null;
 
         if (!button || !options.length) {
           return;
         }
 
-        const updateButton = () => {
+        const fillContactDetails = (option) => {
+          if (!contactInputs || !option) {
+            return;
+          }
+
+          if (contactInputs.firstName) {
+            contactInputs.firstName.value = option.dataset.companyContactFirstName || '';
+          }
+
+          if (contactInputs.lastName) {
+            contactInputs.lastName.value = option.dataset.companyContactLastName || '';
+          }
+
+          if (contactInputs.email) {
+            contactInputs.email.value = option.dataset.companyContactEmail || '';
+          }
+
+          if (contactInputs.phone) {
+            contactInputs.phone.value = option.dataset.companyContactPhone || '';
+          }
+        };
+
+        const updateButton = (syncContactDetails = false) => {
           const selected = options.filter((option) => option.checked);
           const labels = selected.map((option) => option.dataset.multiselectLabel || option.value);
 
@@ -379,6 +436,10 @@
 
           if (tenantInput && selected[0]?.dataset.companyTenantId) {
             tenantInput.value = selected[0].dataset.companyTenantId;
+          }
+
+          if (syncContactDetails) {
+            fillContactDetails(selected[0]);
           }
         };
 
@@ -404,7 +465,7 @@
               button.setAttribute('aria-expanded', 'false');
             }
 
-            updateButton();
+            updateButton(true);
           });
         });
 

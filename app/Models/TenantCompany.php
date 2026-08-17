@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'tenant_id',
     'organization_name',
     'name',
+    'company_url',
     'slug',
     'contact_first_name',
     'contact_last_name',

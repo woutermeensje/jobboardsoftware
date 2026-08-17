@@ -86,6 +86,13 @@
                     <input name="name" value="{{ old('name', $company?->name) }}" required>
                     @error('name')<span class="tenant-form__error">{{ $message }}</span>@enderror
                   </label>
+
+                  <label>
+                    Company website URL
+                    <input type="url" name="company_url" value="{{ old('company_url', $company?->company_url) }}">
+                    <span class="input-description">Add a homepage, about page, or another relevant company page for this company.</span>
+                    @error('company_url')<span class="tenant-form__error">{{ $message }}</span>@enderror
+                  </label>
                 </section>
 
                 <section class="tenant-form-section-block tenant-form__section" aria-labelledby="company-logo-title">
