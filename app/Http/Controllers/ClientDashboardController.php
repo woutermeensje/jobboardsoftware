@@ -193,7 +193,7 @@ class ClientDashboardController extends Controller
         $this->abortUnlessOwnedCompany($request, $company);
 
         return view('client.create-company', [
-            ...$this->companyFormData($request),
+            ...$this->companyFormData($request, $company),
             'company' => $company->loadMissing('tenant'),
         ]);
     }
@@ -437,25 +437,61 @@ class ClientDashboardController extends Controller
     /**
      * @return array<string, mixed>
      */
-    private function companyFormData(Request $request): array
+    private function companyFormData(Request $request, ?TenantCompany $company = null): array
     {
+        $tenants = $request->user()
+            ->ownedTenants()
+            ->latest()
+            ->get();
+        $targetTenant = $company?->tenant ?? $tenants->first();
+        $sectors = $targetTenant
+            ? collect(TenantOptionSettings::allForTenant($targetTenant, 'sector'))
+            : collect();
+        $organizationTypes = $targetTenant
+            ? collect(TenantOptionSettings::allForTenant($targetTenant, 'organization-type'))
+            : collect();
+
+        if ($company?->sector) {
+            $sectors->push($company->sector);
+        }
+
+        if ($company?->organization_type) {
+            $organizationTypes->push($company->organization_type);
+        }
+
         return [
             'user' => $request->user(),
-            'tenants' => $request->user()
-                ->ownedTenants()
-                ->latest()
-                ->get(),
+            'tenants' => $tenants,
             'companyUrlColumnReady' => Schema::hasColumn('tenant_companies', 'company_url'),
+            'sectorColumnReady' => Schema::hasColumn('tenant_companies', 'sector'),
+            'organizationTypeColumnReady' => Schema::hasColumn('tenant_companies', 'organization_type'),
+            'sectors' => $sectors
+                ->filter()
+                ->unique(fn (string $sector): string => mb_strtolower($sector))
+                ->values(),
+            'organizationTypes' => $organizationTypes
+                ->filter()
+                ->unique(fn (string $organizationType): string => mb_strtolower($organizationType))
+                ->values(),
         ];
     }
 
     private function saveClientCompany(Request $request, ?TenantCompany $company = null): TenantCompany
     {
         $tenantCompaniesHasCompanyUrl = Schema::hasColumn('tenant_companies', 'company_url');
+        $tenantCompaniesHasSector = Schema::hasColumn('tenant_companies', 'sector');
+        $tenantCompaniesHasOrganizationType = Schema::hasColumn('tenant_companies', 'organization_type');
 
         if ($tenantCompaniesHasCompanyUrl) {
             $request->merge([
                 'company_url' => $this->normalizeExternalUrl($request->input('company_url')),
+            ]);
+        }
+
+        if ($tenantCompaniesHasSector || $tenantCompaniesHasOrganizationType) {
+            $request->merge([
+                'sector' => TenantOptionSettings::normalizeName((string) $request->input('sector')),
+                'organization_type' => TenantOptionSettings::normalizeName((string) $request->input('organization_type')),
             ]);
         }
 
@@ -478,11 +514,50 @@ class ClientDashboardController extends Controller
             $rules['company_url'] = ['nullable', 'url', 'starts_with:http://,https://', 'max:2048'];
         }
 
+        if ($tenantCompaniesHasSector) {
+            $rules['sector'] = ['nullable', 'string', 'max:255'];
+        }
+
+        if ($tenantCompaniesHasOrganizationType) {
+            $rules['organization_type'] = ['nullable', 'string', 'max:255'];
+        }
+
         $validated = $request->validate($rules);
 
         $tenant = Tenant::query()
             ->where('owner_user_id', $request->user()->id)
             ->findOrFail($validated['tenant_id']);
+
+        if ($tenantCompaniesHasSector && filled($validated['sector'] ?? null)) {
+            $allowedSectors = collect(TenantOptionSettings::allForTenant($tenant, 'sector'));
+
+            if ($company?->tenant_id === $tenant->id && $company->sector) {
+                $allowedSectors->push($company->sector);
+            }
+
+            if (! $allowedSectors->containsStrict($validated['sector'])) {
+                return back()
+                    ->withErrors(['sector' => 'Select a sector that belongs to this environment.'])
+                    ->withInput()
+                    ->throwResponse();
+            }
+        }
+
+        if ($tenantCompaniesHasOrganizationType && filled($validated['organization_type'] ?? null)) {
+            $allowedOrganizationTypes = collect(TenantOptionSettings::allForTenant($tenant, 'organization-type'));
+
+            if ($company?->tenant_id === $tenant->id && $company->organization_type) {
+                $allowedOrganizationTypes->push($company->organization_type);
+            }
+
+            if (! $allowedOrganizationTypes->containsStrict($validated['organization_type'])) {
+                return back()
+                    ->withErrors(['organization_type' => 'Select an organization type that belongs to this environment.'])
+                    ->withInput()
+                    ->throwResponse();
+            }
+        }
+
         $logoPath = $request->hasFile('logo')
             ? PublicUploadStorage::store($request->file('logo'), 'company-logos', $tenant->id)
             : $company?->logo_path;
@@ -510,6 +585,14 @@ class ClientDashboardController extends Controller
 
         if ($tenantCompaniesHasCompanyUrl) {
             $companyAttributes['company_url'] = $validated['company_url'] ?? null;
+        }
+
+        if ($tenantCompaniesHasSector) {
+            $companyAttributes['sector'] = $validated['sector'] ?? null;
+        }
+
+        if ($tenantCompaniesHasOrganizationType) {
+            $companyAttributes['organization_type'] = $validated['organization_type'] ?? null;
         }
 
         if ($company) {
@@ -849,7 +932,7 @@ class ClientDashboardController extends Controller
                 'description' => 'Build the custom sector management screen here.',
                 'layout' => 'form',
                 'aside_title' => 'Sector settings',
-                'aside_description' => 'Sectors help group categories and job content across an environment.',
+                'aside_description' => 'Sectors help classify company profiles across an environment.',
             ],
             'categorie' => [
                 'title' => 'Categories',

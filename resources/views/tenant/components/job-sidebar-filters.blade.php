@@ -9,6 +9,60 @@
 
   <details class="tenant-sidebar-filter-group" open>
     <summary class="tenant-sidebar-filter-group__header">
+      <span>Sector</span>
+      <i class="ph ph-caret-down" aria-hidden="true"></i>
+    </summary>
+
+    <div class="tenant-sidebar-filter-group__body">
+      @forelse($sectors as $sector)
+        <label class="tenant-sidebar-filter-option">
+          <input
+            type="checkbox"
+            name="sector[]"
+            value="{{ $sector }}"
+            @checked($selectedSectors->contains($sector))
+            onchange="this.form.submit()"
+          >
+          <span class="tenant-sidebar-filter-option__label">{{ $sector }}</span>
+          @if(($sectorCounts[$sector] ?? 0) > 0)
+            <span class="tenant-sidebar-filter-count">{{ $sectorCounts[$sector] }}</span>
+          @endif
+        </label>
+      @empty
+        <p class="tenant-sidebar-filter-empty">No sectors available.</p>
+      @endforelse
+    </div>
+  </details>
+
+  <details class="tenant-sidebar-filter-group" open>
+    <summary class="tenant-sidebar-filter-group__header">
+      <span>Organization type</span>
+      <i class="ph ph-caret-down" aria-hidden="true"></i>
+    </summary>
+
+    <div class="tenant-sidebar-filter-group__body">
+      @forelse($organizationTypes as $organizationType)
+        <label class="tenant-sidebar-filter-option">
+          <input
+            type="checkbox"
+            name="organization_type[]"
+            value="{{ $organizationType }}"
+            @checked($selectedOrganizationTypes->contains($organizationType))
+            onchange="this.form.submit()"
+          >
+          <span class="tenant-sidebar-filter-option__label">{{ $organizationType }}</span>
+          @if(($organizationTypeCounts[$organizationType] ?? 0) > 0)
+            <span class="tenant-sidebar-filter-count">{{ $organizationTypeCounts[$organizationType] }}</span>
+          @endif
+        </label>
+      @empty
+        <p class="tenant-sidebar-filter-empty">No organization types available.</p>
+      @endforelse
+    </div>
+  </details>
+
+  <details class="tenant-sidebar-filter-group" open>
+    <summary class="tenant-sidebar-filter-group__header">
       <span>Category</span>
       <i class="ph ph-caret-down" aria-hidden="true"></i>
     </summary>

@@ -8,6 +8,8 @@
   $formAction = $isEditing ? route('client.companies.update', $company) : route('client.companies.store');
   $submitLabel = $isEditing ? 'Save company' : 'Create company';
   $selectedTenantId = old('tenant_id', $company?->tenant_id ?? $tenants->first()?->id);
+  $selectedSector = (string) old('sector', $company?->sector ?? '');
+  $selectedOrganizationType = (string) old('organization_type', $company?->organization_type ?? '');
 @endphp
 
 @section('title', $formTitle.' | Client dashboard')
@@ -95,6 +97,34 @@
                       @error('company_url')<span class="tenant-form__error">{{ $message }}</span>@enderror
                     </label>
                   @endif
+
+                  <div class="tenant-form__grid">
+                    @if($sectorColumnReady ?? false)
+                      <label>
+                        Sector
+                        <select name="sector" @disabled($sectors->isEmpty())>
+                          <option value="">{{ $sectors->isEmpty() ? 'Add sectors in Jobs settings first' : 'Select sector' }}</option>
+                          @foreach($sectors as $sector)
+                            <option value="{{ $sector }}" @selected($selectedSector === $sector)>{{ $sector }}</option>
+                          @endforeach
+                        </select>
+                        @error('sector')<span class="tenant-form__error">{{ $message }}</span>@enderror
+                      </label>
+                    @endif
+
+                    @if($organizationTypeColumnReady ?? false)
+                      <label>
+                        Organization type
+                        <select name="organization_type" @disabled($organizationTypes->isEmpty())>
+                          <option value="">{{ $organizationTypes->isEmpty() ? 'Add organization types in Jobs settings first' : 'Select organization type' }}</option>
+                          @foreach($organizationTypes as $organizationType)
+                            <option value="{{ $organizationType }}" @selected($selectedOrganizationType === $organizationType)>{{ $organizationType }}</option>
+                          @endforeach
+                        </select>
+                        @error('organization_type')<span class="tenant-form__error">{{ $message }}</span>@enderror
+                      </label>
+                    @endif
+                  </div>
                 </section>
 
                 <section class="tenant-form-section-block tenant-form__section" aria-labelledby="company-logo-title">
@@ -188,6 +218,7 @@
             <ul>
               <li>The organization name is used for account context.</li>
               <li>The company name is shown on job posts.</li>
+              <li>Sector and organization type are stored on the company profile.</li>
               <li>Logos support PNG, JPG, WebP and SVG files.</li>
               <li>The maximum logo file size is 2 MB.</li>
               <li>Contact details stay linked to this company profile.</li>

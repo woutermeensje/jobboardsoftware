@@ -145,6 +145,40 @@
   font-family: var(--font-ui);
   font-size: 14px;
   font-weight: 700;
+  text-decoration: none;
+  transition: border-color .18s ease, color .18s ease, background-color .18s ease;
+}
+
+.tenant-active-filter:hover,
+.tenant-active-filter:focus-visible {
+  border-color: var(--tenant-accent);
+  background: color-mix(in srgb, var(--tenant-accent) 8%, white 92%);
+  color: var(--tenant-accent);
+  text-decoration: none;
+}
+
+.tenant-active-filter:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--tenant-accent) 14%, transparent);
+}
+
+.tenant-active-filter i {
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-text) 10%, transparent);
+  color: var(--color-text);
+  font-size: 11px;
+  line-height: 1;
+}
+
+.tenant-active-filter:hover i,
+.tenant-active-filter:focus-visible i {
+  background: var(--tenant-accent);
+  color: #ffffff;
 }
 
 .tenant-job-filters__fallback {

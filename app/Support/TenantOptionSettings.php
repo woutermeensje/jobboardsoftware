@@ -11,7 +11,7 @@ class TenantOptionSettings
     private const CONFIG = [
         'sector' => [
             'title' => 'Sectors',
-            'description' => 'Manage the sectors available for jobs in each environment.',
+            'description' => 'Manage the sectors available for companies in each environment.',
             'singular' => 'Sector',
             'field_label' => 'New sector',
             'placeholder' => 'For example: Healthcare',
@@ -20,7 +20,7 @@ class TenantOptionSettings
             'store_route_name' => 'client.jobs-settings.sector.store',
             'button_label' => 'Add sector',
             'available_title' => 'Available sectors',
-            'available_description' => 'These sectors can be used to group job content for each environment.',
+            'available_description' => 'These sectors can be used to classify company profiles for each environment.',
             'empty_label' => 'No custom sectors',
             'aside_title' => 'Sector settings',
             'aside_description' => 'Supporting content for this settings screen will use this reusable right-hand block.',

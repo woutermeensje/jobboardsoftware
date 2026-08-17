@@ -35,8 +35,12 @@ class TenantFrontendController extends Controller
             'departments' => $filterOptions['departments'],
             'locations' => $filterOptions['locations'],
             'employmentTypes' => $filterOptions['employmentTypes'],
+            'sectors' => $filterOptions['sectors'],
+            'organizationTypes' => $filterOptions['organizationTypes'],
             'departmentCounts' => $filterOptions['departmentCounts'],
             'employmentTypeCounts' => $filterOptions['employmentTypeCounts'],
+            'sectorCounts' => $filterOptions['sectorCounts'],
+            'organizationTypeCounts' => $filterOptions['organizationTypeCounts'],
             'totalJobs' => TenantJob::query()
                 ->where('tenant_id', $tenant->id)
                 ->where('status', TenantJob::STATUS_PUBLISHED)
@@ -321,8 +325,12 @@ class TenantFrontendController extends Controller
             'departments' => $filterOptions['departments'],
             'locations' => $filterOptions['locations'],
             'employmentTypes' => $filterOptions['employmentTypes'],
+            'sectors' => $filterOptions['sectors'],
+            'organizationTypes' => $filterOptions['organizationTypes'],
             'departmentCounts' => $filterOptions['departmentCounts'],
             'employmentTypeCounts' => $filterOptions['employmentTypeCounts'],
+            'sectorCounts' => $filterOptions['sectorCounts'],
+            'organizationTypeCounts' => $filterOptions['organizationTypeCounts'],
             'totalJobs' => TenantJob::query()
                 ->where('tenant_id', $tenant->id)
                 ->where('status', TenantJob::STATUS_PUBLISHED)
@@ -334,6 +342,10 @@ class TenantFrontendController extends Controller
     private function jobsQuery(Request $request)
     {
         $query = TenantJob::query();
+        $companyFiltersReady = Schema::hasTable('tenant_companies')
+            && Schema::hasColumn('tenant_jobs', 'tenant_company_id');
+        $companySectorReady = $companyFiltersReady && Schema::hasColumn('tenant_companies', 'sector');
+        $companyOrganizationTypeReady = $companyFiltersReady && Schema::hasColumn('tenant_companies', 'organization_type');
 
         if (Schema::hasTable('tenant_companies')) {
             $query->with('company');
@@ -355,6 +367,12 @@ class TenantFrontendController extends Controller
             ->when($request->filled('department'), fn ($query) => $query->whereIn('department', $this->selectedFilterValues($request, 'department')))
             ->when($request->filled('location'), fn ($query) => $query->where('location', 'like', '%'.$request->string('location')->toString().'%'))
             ->when($request->filled('employment_type'), fn ($query) => $query->whereIn('employment_type', $this->selectedFilterValues($request, 'employment_type')))
+            ->when($request->filled('sector') && $companySectorReady, function ($query) use ($request): void {
+                $query->whereHas('company', fn ($companyQuery) => $companyQuery->whereIn('sector', $this->selectedFilterValues($request, 'sector')));
+            })
+            ->when($request->filled('organization_type') && $companyOrganizationTypeReady, function ($query) use ($request): void {
+                $query->whereHas('company', fn ($companyQuery) => $companyQuery->whereIn('organization_type', $this->selectedFilterValues($request, 'organization_type')));
+            })
             ->latest('published_at');
     }
 
@@ -391,13 +409,37 @@ class TenantFrontendController extends Controller
     }
 
     /**
-     * @return array{departments: Collection<int, string>, locations: Collection<int, string>, employmentTypes: Collection<int, string>, departmentCounts: array<string, int>, employmentTypeCounts: array<string, int>}
+     * @return array{departments: Collection<int, string>, locations: Collection<int, string>, employmentTypes: Collection<int, string>, sectors: Collection<int, string>, organizationTypes: Collection<int, string>, departmentCounts: array<string, int>, employmentTypeCounts: array<string, int>, sectorCounts: array<string, int>, organizationTypeCounts: array<string, int>}
      */
     private function filterOptions(string $tenantId): array
     {
         $baseQuery = TenantJob::query()
-            ->where('tenant_id', $tenantId)
-            ->where('status', TenantJob::STATUS_PUBLISHED);
+            ->where('tenant_jobs.tenant_id', $tenantId)
+            ->where('tenant_jobs.status', TenantJob::STATUS_PUBLISHED);
+        $companyFiltersReady = Schema::hasTable('tenant_companies')
+            && Schema::hasColumn('tenant_jobs', 'tenant_company_id');
+        $companySectorReady = $companyFiltersReady && Schema::hasColumn('tenant_companies', 'sector');
+        $companyOrganizationTypeReady = $companyFiltersReady && Schema::hasColumn('tenant_companies', 'organization_type');
+        $companyOptions = function (string $column) use ($baseQuery): Collection {
+            return (clone $baseQuery)
+                ->join('tenant_companies', 'tenant_jobs.tenant_company_id', '=', 'tenant_companies.id')
+                ->whereNotNull("tenant_companies.{$column}")
+                ->where("tenant_companies.{$column}", '!=', '')
+                ->distinct()
+                ->orderBy("tenant_companies.{$column}")
+                ->pluck("tenant_companies.{$column}");
+        };
+        $companyOptionCounts = function (string $column) use ($baseQuery): array {
+            return (clone $baseQuery)
+                ->join('tenant_companies', 'tenant_jobs.tenant_company_id', '=', 'tenant_companies.id')
+                ->whereNotNull("tenant_companies.{$column}")
+                ->where("tenant_companies.{$column}", '!=', '')
+                ->selectRaw("tenant_companies.{$column} as option_value, count(*) as aggregate")
+                ->groupBy("tenant_companies.{$column}")
+                ->pluck('aggregate', 'option_value')
+                ->map(fn (mixed $count): int => (int) $count)
+                ->all();
+        };
 
         return [
             'departments' => (clone $baseQuery)
@@ -418,6 +460,8 @@ class TenantFrontendController extends Controller
                 ->distinct()
                 ->orderBy('employment_type')
                 ->pluck('employment_type'),
+            'sectors' => $companySectorReady ? $companyOptions('sector') : collect(),
+            'organizationTypes' => $companyOrganizationTypeReady ? $companyOptions('organization_type') : collect(),
             'departmentCounts' => (clone $baseQuery)
                 ->whereNotNull('department')
                 ->where('department', '!=', '')
@@ -434,6 +478,8 @@ class TenantFrontendController extends Controller
                 ->pluck('aggregate', 'employment_type')
                 ->map(fn (mixed $count): int => (int) $count)
                 ->all(),
+            'sectorCounts' => $companySectorReady ? $companyOptionCounts('sector') : [],
+            'organizationTypeCounts' => $companyOrganizationTypeReady ? $companyOptionCounts('organization_type') : [],
         ];
     }
 

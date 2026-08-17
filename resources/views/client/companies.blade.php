@@ -38,6 +38,7 @@
               @php
                 $contactName = $company->contact_name ?: trim(collect([$company->contact_first_name, $company->contact_last_name])->filter()->implode(' '));
                 $logoUrl = \App\Support\PublicUploadStorage::url($company->logo_path);
+                $companyClassification = collect([$company->sector, $company->organization_type])->filter()->implode(' - ');
               @endphp
               <tr>
                 <td>
@@ -50,6 +51,9 @@
                     <div>
                       <a class="dash-cell-title dash-cell-title--link" href="{{ route('client.companies.edit', $company) }}">{{ $company->name }}</a>
                       <span class="dash-cell-meta">{{ $company->organization_name ?: 'No organization name added' }}</span>
+                      @if($companyClassification !== '')
+                        <span class="dash-cell-meta">{{ $companyClassification }}</span>
+                      @endif
                     </div>
                   </div>
                 </td>

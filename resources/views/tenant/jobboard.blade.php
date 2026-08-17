@@ -8,10 +8,14 @@
   $brandName = $settings['brand_name'] ?? $tenant->name ?? 'Jobboard';
   $selectedDepartments = collect((array) request('department'))->filter()->values();
   $selectedEmploymentTypes = collect((array) request('employment_type'))->filter()->values();
+  $selectedSectors = collect((array) request('sector'))->filter()->values();
+  $selectedOrganizationTypes = collect((array) request('organization_type'))->filter()->values();
   $hasActiveJobFilters = request()->filled('search')
     || request()->filled('location')
     || $selectedDepartments->isNotEmpty()
-    || $selectedEmploymentTypes->isNotEmpty();
+    || $selectedEmploymentTypes->isNotEmpty()
+    || $selectedSectors->isNotEmpty()
+    || $selectedOrganizationTypes->isNotEmpty();
 @endphp
 
 @section('content')
@@ -26,6 +30,8 @@
         @include('tenant.components.job-filters', [
           'selectedDepartments' => $selectedDepartments,
           'selectedEmploymentTypes' => $selectedEmploymentTypes,
+          'selectedSectors' => $selectedSectors,
+          'selectedOrganizationTypes' => $selectedOrganizationTypes,
         ])
       </header>
 
@@ -47,6 +53,8 @@
           @include('tenant.components.job-sidebar-filters', [
             'selectedDepartments' => $selectedDepartments,
             'selectedEmploymentTypes' => $selectedEmploymentTypes,
+            'selectedSectors' => $selectedSectors,
+            'selectedOrganizationTypes' => $selectedOrganizationTypes,
             'hasActiveJobFilters' => $hasActiveJobFilters,
           ])
         </aside>

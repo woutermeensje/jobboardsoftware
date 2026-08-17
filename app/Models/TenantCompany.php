@@ -12,6 +12,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'organization_name',
     'name',
     'company_url',
+    'sector',
+    'organization_type',
     'slug',
     'contact_first_name',
     'contact_last_name',
