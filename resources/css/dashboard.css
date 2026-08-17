@@ -309,6 +309,32 @@
   box-shadow: 0 0 0 3px var(--color-primary-soft);
 }
 
+.tenant-settings-field--logo .tenant-logo-upload.tenant-logo-upload--with-filename {
+  width: 100%;
+  min-width: 0;
+}
+
+.tenant-settings-logo-preview {
+  display: inline-flex;
+  width: fit-content;
+  max-width: 240px;
+  min-height: 46px;
+  padding: 8px 10px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-default);
+  background: var(--color-bg-white);
+}
+
+.tenant-settings-logo-preview img {
+  width: auto;
+  max-width: 220px;
+  height: auto;
+  max-height: 42px;
+  object-fit: contain;
+}
+
 .dash-nav__links i,
 .dash-nav__logout i {
   width: 18px;

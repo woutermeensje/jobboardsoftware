@@ -9,6 +9,60 @@
 
   <details class="tenant-sidebar-filter-group" open>
     <summary class="tenant-sidebar-filter-group__header">
+      <span>Job type</span>
+      <i class="ph ph-caret-down" aria-hidden="true"></i>
+    </summary>
+
+    <div class="tenant-sidebar-filter-group__body">
+      @forelse($employmentTypes as $employmentType)
+        <label class="tenant-sidebar-filter-option">
+          <input
+            type="checkbox"
+            name="employment_type[]"
+            value="{{ $employmentType }}"
+            @checked($selectedEmploymentTypes->contains($employmentType))
+            onchange="this.form.submit()"
+          >
+          <span class="tenant-sidebar-filter-option__label">{{ $employmentType }}</span>
+          @if(($employmentTypeCounts[$employmentType] ?? 0) > 0)
+            <span class="tenant-sidebar-filter-count">{{ $employmentTypeCounts[$employmentType] }}</span>
+          @endif
+        </label>
+      @empty
+        <p class="tenant-sidebar-filter-empty">No job types available.</p>
+      @endforelse
+    </div>
+  </details>
+
+  <details class="tenant-sidebar-filter-group" open>
+    <summary class="tenant-sidebar-filter-group__header">
+      <span>Category</span>
+      <i class="ph ph-caret-down" aria-hidden="true"></i>
+    </summary>
+
+    <div class="tenant-sidebar-filter-group__body">
+      @forelse($departments as $department)
+        <label class="tenant-sidebar-filter-option">
+          <input
+            type="checkbox"
+            name="department[]"
+            value="{{ $department }}"
+            @checked($selectedDepartments->contains($department))
+            onchange="this.form.submit()"
+          >
+          <span class="tenant-sidebar-filter-option__label">{{ $department }}</span>
+          @if(($departmentCounts[$department] ?? 0) > 0)
+            <span class="tenant-sidebar-filter-count">{{ $departmentCounts[$department] }}</span>
+          @endif
+        </label>
+      @empty
+        <p class="tenant-sidebar-filter-empty">No categories available.</p>
+      @endforelse
+    </div>
+  </details>
+
+  <details class="tenant-sidebar-filter-group" open>
+    <summary class="tenant-sidebar-filter-group__header">
       <span>Sector</span>
       <i class="ph ph-caret-down" aria-hidden="true"></i>
     </summary>
@@ -57,60 +111,6 @@
         </label>
       @empty
         <p class="tenant-sidebar-filter-empty">No organization types available.</p>
-      @endforelse
-    </div>
-  </details>
-
-  <details class="tenant-sidebar-filter-group" open>
-    <summary class="tenant-sidebar-filter-group__header">
-      <span>Category</span>
-      <i class="ph ph-caret-down" aria-hidden="true"></i>
-    </summary>
-
-    <div class="tenant-sidebar-filter-group__body">
-      @forelse($departments as $department)
-        <label class="tenant-sidebar-filter-option">
-          <input
-            type="checkbox"
-            name="department[]"
-            value="{{ $department }}"
-            @checked($selectedDepartments->contains($department))
-            onchange="this.form.submit()"
-          >
-          <span class="tenant-sidebar-filter-option__label">{{ $department }}</span>
-          @if(($departmentCounts[$department] ?? 0) > 0)
-            <span class="tenant-sidebar-filter-count">{{ $departmentCounts[$department] }}</span>
-          @endif
-        </label>
-      @empty
-        <p class="tenant-sidebar-filter-empty">No categories available.</p>
-      @endforelse
-    </div>
-  </details>
-
-  <details class="tenant-sidebar-filter-group" open>
-    <summary class="tenant-sidebar-filter-group__header">
-      <span>Job type</span>
-      <i class="ph ph-caret-down" aria-hidden="true"></i>
-    </summary>
-
-    <div class="tenant-sidebar-filter-group__body">
-      @forelse($employmentTypes as $employmentType)
-        <label class="tenant-sidebar-filter-option">
-          <input
-            type="checkbox"
-            name="employment_type[]"
-            value="{{ $employmentType }}"
-            @checked($selectedEmploymentTypes->contains($employmentType))
-            onchange="this.form.submit()"
-          >
-          <span class="tenant-sidebar-filter-option__label">{{ $employmentType }}</span>
-          @if(($employmentTypeCounts[$employmentType] ?? 0) > 0)
-            <span class="tenant-sidebar-filter-count">{{ $employmentTypeCounts[$employmentType] }}</span>
-          @endif
-        </label>
-      @empty
-        <p class="tenant-sidebar-filter-empty">No job types available.</p>
       @endforelse
     </div>
   </details>

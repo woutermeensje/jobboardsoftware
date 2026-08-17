@@ -83,6 +83,7 @@
   width: auto;
   height: 36px;
   max-width: 220px;
+  object-fit: contain;
 }
 
 .tenant-brand__logo--mobile {

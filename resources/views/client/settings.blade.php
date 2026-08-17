@@ -48,10 +48,13 @@
                 $primaryColor = is_string($primaryColor) && preg_match('/^#[0-9a-fA-F]{6}$/', $primaryColor) ? $primaryColor : '#2f5f80';
                 $homepageTitle = $settings['homepage_title'] ?? '';
                 $homepageSubtitle = $settings['homepage_subtitle'] ?? '';
+                $logoPath = $settings['logo_path'] ?? null;
+                $logoUrl = $settings['logo_url'] ?? null;
+                $logoUrl = ! $logoUrl && $logoPath ? \App\Support\PublicUploadStorage::url((string) $logoPath) : $logoUrl;
                 $useOldValues = old('tenant_id') === $tenant->id;
               @endphp
 
-              <form class="tenant-settings-card" method="POST" action="{{ route('client.settings.update') }}">
+              <form class="tenant-settings-card" method="POST" action="{{ route('client.settings.update') }}" enctype="multipart/form-data">
                 @csrf
                 @method('PATCH')
                 <input type="hidden" name="tenant_id" value="{{ $tenant->id }}">
@@ -75,6 +78,21 @@
                         data-color-code
                       >
                     </span>
+                  </label>
+
+                  <label class="tenant-settings-field tenant-settings-field--logo">
+                    <span>Bedrijfslogo</span>
+                    <span class="tenant-logo-upload tenant-logo-upload--with-filename" data-file-picker>
+                      <span class="tenant-file-picker__button">Bestand kiezen</span>
+                      <span class="tenant-file-picker__filename" data-file-name data-empty-label="Geen bestand gekozen">Geen bestand gekozen</span>
+                      <input type="file" name="logo" accept=".jpg,.jpeg,.png,.webp,.svg,image/jpeg,image/png,image/webp,image/svg+xml">
+                    </span>
+                    <span class="input-description">Aanbevolen formaat: 440 x 120 px. Gebruik PNG, SVG, JPG of WebP; max. 2 MB.</span>
+                    @if($logoUrl)
+                      <span class="tenant-settings-logo-preview">
+                        <img src="{{ $logoUrl }}" alt="{{ $tenant->name }} logo">
+                      </span>
+                    @endif
                   </label>
 
                   <label class="tenant-settings-field">

@@ -202,6 +202,7 @@ class ClientDashboardController extends Controller
             'primary_color' => ['required', 'string', 'regex:/^#[0-9a-fA-F]{6}$/'],
             'homepage_title' => ['nullable', 'string', 'max:255'],
             'homepage_subtitle' => ['nullable', 'string', 'max:500'],
+            'logo' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,svg', 'max:2048'],
         ]);
 
         $tenant = Tenant::query()
@@ -211,6 +212,11 @@ class ClientDashboardController extends Controller
         $settings['primary_color'] = Str::upper($validated['primary_color']);
         $settings['homepage_title'] = Str::of($validated['homepage_title'] ?? '')->squish()->toString() ?: null;
         $settings['homepage_subtitle'] = Str::of($validated['homepage_subtitle'] ?? '')->squish()->toString() ?: null;
+
+        if ($request->hasFile('logo')) {
+            $settings['logo_path'] = PublicUploadStorage::store($request->file('logo'), 'tenant-logos', $tenant->id);
+            unset($settings['logo_url']);
+        }
 
         $tenant->forceFill(['settings' => $settings])->save();
 
