@@ -28,7 +28,6 @@ class TenantJobFactory extends Factory
             'department' => fake()->word(),
             'location' => fake()->city(),
             'country' => 'NL',
-            'is_remote' => false,
             'employment_type' => 'full-time',
             'salary_range' => null,
             'intro' => fake()->sentence(),

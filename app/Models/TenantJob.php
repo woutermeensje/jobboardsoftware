@@ -34,7 +34,6 @@ class TenantJob extends Model
         'department',
         'location',
         'country',
-        'is_remote',
         'employment_type',
         'salary_range',
         'intro',
@@ -47,7 +46,6 @@ class TenantJob extends Model
     ];
 
     protected $casts = [
-        'is_remote' => 'boolean',
         'published_at' => 'datetime',
         'closes_at' => 'datetime',
     ];

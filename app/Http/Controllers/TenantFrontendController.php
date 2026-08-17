@@ -84,7 +84,6 @@ class TenantFrontendController extends Controller
             && TenantPackage::query()->where('tenant_id', $tenant->id)->exists();
         $tenantCompanyIdRules = ['nullable'];
         $tenantPackageIdRules = ['nullable'];
-        $isRemoteRequest = $request->boolean('is_remote', true);
 
         if ($companyTableReady) {
             $tenantCompanyIdRules[] = Rule::exists('tenant_companies', 'id')->where(fn ($query) => $query->where('tenant_id', $tenant->id));
@@ -107,9 +106,8 @@ class TenantFrontendController extends Controller
             'contact_email' => ['required', 'email', 'max:255'],
             'contact_phone' => ['nullable', 'string', 'max:40'],
             'category' => ['nullable', 'string', 'max:255'],
-            'is_remote' => ['required', 'boolean'],
-            'location' => [Rule::requiredIf(! $isRemoteRequest), 'nullable', 'string', 'max:255'],
-            'country' => [Rule::requiredIf(! $isRemoteRequest), 'nullable', 'string', Rule::in(CountryOptions::codes())],
+            'location' => ['nullable', 'string', 'max:255'],
+            'country' => ['nullable', 'string', Rule::in(CountryOptions::codes())],
             'employment_type' => ['required', 'array', 'min:1'],
             'employment_type.*' => ['required', 'string', 'max:80', Rule::in(JobTypeOptions::allForTenant($tenant))],
             'salary_range' => ['nullable', 'string', 'max:255'],
@@ -128,7 +126,6 @@ class TenantFrontendController extends Controller
             ->unique(fn (string $type): string => mb_strtolower($type))
             ->values()
             ->implode(', ');
-        $isRemote = (bool) $validated['is_remote'];
         $company = null;
 
         if ($companyTableReady && ! empty($validated['tenant_company_id'])) {
@@ -147,7 +144,6 @@ class TenantFrontendController extends Controller
 
         $tenantJobsHasCompanyLogoPath = Schema::hasColumn('tenant_jobs', 'company_logo_path');
         $tenantJobsHasTenantCompanyId = Schema::hasColumn('tenant_jobs', 'tenant_company_id');
-        $tenantJobsHasIsRemote = Schema::hasColumn('tenant_jobs', 'is_remote');
         $companyLogoPath = $tenantJobsHasCompanyLogoPath && $request->hasFile('company_logo')
             ? PublicUploadStorage::store($request->file('company_logo'), 'company-logos', $tenant->id)
             : ($tenantJobsHasCompanyLogoPath ? $company?->logo_path : null);
@@ -195,8 +191,8 @@ class TenantFrontendController extends Controller
             'title' => $validated['title'],
             'slug' => $this->uniqueJobSlug($validated['title']),
             'department' => $validated['category'] ?? null,
-            'location' => $isRemote ? 'Remote' : $validated['location'],
-            'country' => $isRemote ? null : CountryOptions::normalizeCode($validated['country'] ?? ''),
+            'location' => $validated['location'] ?? null,
+            'country' => filled($validated['country'] ?? null) ? CountryOptions::normalizeCode($validated['country']) : null,
             'employment_type' => $employmentType,
             'salary_range' => $validated['salary_range'] ?? null,
             'intro' => $intro,
@@ -206,10 +202,6 @@ class TenantFrontendController extends Controller
 
         if ($tenantJobsHasTenantCompanyId) {
             $jobAttributes['tenant_company_id'] = $company?->id;
-        }
-
-        if ($tenantJobsHasIsRemote) {
-            $jobAttributes['is_remote'] = $isRemote;
         }
 
         if ($packageSelectionReady && ! empty($validated['tenant_package_id'])) {

@@ -604,7 +604,6 @@ class ClientDashboardController extends Controller
         $request->merge([
             'job_url' => $this->normalizeExternalUrl($request->input('job_url')),
         ]);
-        $isRemoteRequest = $request->boolean('is_remote', true);
 
         $validated = $request->validate([
             'tenant_id' => [
@@ -616,9 +615,8 @@ class ClientDashboardController extends Controller
             'company_logo' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,svg', 'max:2048'],
             'title' => ['required', 'string', 'max:255'],
             'category' => ['nullable', 'string', 'max:255'],
-            'is_remote' => ['required', 'boolean'],
-            'location' => [Rule::requiredIf(! $isRemoteRequest), 'nullable', 'string', 'max:255'],
-            'country' => [Rule::requiredIf(! $isRemoteRequest), 'nullable', 'string', Rule::in(CountryOptions::codes())],
+            'location' => ['nullable', 'string', 'max:255'],
+            'country' => ['nullable', 'string', Rule::in(CountryOptions::codes())],
             'employment_type' => ['required', 'string', 'max:255'],
             'salary_range' => ['nullable', 'string', 'max:255'],
             'intro' => ['nullable', 'string', 'max:3000'],
@@ -683,7 +681,6 @@ class ClientDashboardController extends Controller
 
         $intro = RichTextSanitizer::sanitize($validated['intro'] ?? null);
         $contactName = trim($validated['contact_first_name'].' '.$validated['contact_last_name']);
-        $isRemote = (bool) $validated['is_remote'];
         $tenantJobsHasTenantCompanyId = Schema::hasColumn('tenant_jobs', 'tenant_company_id');
         $tenantJobsHasCompanyName = Schema::hasColumn('tenant_jobs', 'company_name');
         $tenantJobsHasCompanyLogoPath = Schema::hasColumn('tenant_jobs', 'company_logo_path');
@@ -693,7 +690,6 @@ class ClientDashboardController extends Controller
         $tenantJobsHasSubmittedByUserId = Schema::hasColumn('tenant_jobs', 'submitted_by_user_id');
         $tenantJobsHasJobUrl = Schema::hasColumn('tenant_jobs', 'job_url');
         $tenantJobsHasCompanyUrl = Schema::hasColumn('tenant_jobs', 'company_url');
-        $tenantJobsHasIsRemote = Schema::hasColumn('tenant_jobs', 'is_remote');
         $companyLogoPath = $tenantJobsHasCompanyLogoPath && $request->hasFile('company_logo')
             ? PublicUploadStorage::store($request->file('company_logo'), 'company-logos', $tenant->id)
             : ($company?->logo_path ?? $job?->company_logo_path);
@@ -707,8 +703,8 @@ class ClientDashboardController extends Controller
             'title' => $validated['title'],
             'slug' => $shouldRefreshSlug ? $this->uniqueJobSlug($tenant, $validated['title'], $job) : $job->slug,
             'department' => $validated['category'] ?? null,
-            'location' => $isRemote ? 'Remote' : $validated['location'],
-            'country' => $isRemote ? null : CountryOptions::normalizeCode($validated['country'] ?? ''),
+            'location' => $validated['location'] ?? null,
+            'country' => filled($validated['country'] ?? null) ? CountryOptions::normalizeCode($validated['country']) : null,
             'employment_type' => $validated['employment_type'],
             'salary_range' => $validated['salary_range'] ?? null,
             'intro' => $intro,
@@ -724,10 +720,6 @@ class ClientDashboardController extends Controller
 
         if ($tenantJobsHasCompanyUrl) {
             $jobAttributes['company_url'] = $companyUrl;
-        }
-
-        if ($tenantJobsHasIsRemote) {
-            $jobAttributes['is_remote'] = $isRemote;
         }
 
         if ($tenantJobsHasTenantCompanyId) {

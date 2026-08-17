@@ -13,6 +13,7 @@ class JobTypeOptions
         'Freelance',
         'Temporary',
         'Internship',
+        'Remote',
     ];
 
     /**
