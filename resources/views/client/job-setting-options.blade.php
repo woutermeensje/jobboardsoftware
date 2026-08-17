@@ -8,7 +8,7 @@
 @endsection
 
 @php
-  $selectedTenantId = old('tenant_id', $tenants->first()?->id);
+  $tenant = $tenants->first();
   $hasDefaultOptions = count($defaultOptions) > 0;
 @endphp
 
@@ -49,19 +49,9 @@
             @else
               <form class="domain-form" method="POST" action="{{ route($option['store_route_name']) }}">
                 @csrf
+                <input type="hidden" name="tenant_id" value="{{ $tenant?->id }}">
 
-                <div class="domain-form__grid">
-                  <label class="domain-field">
-                    <span>Environment</span>
-                    <select name="tenant_id" required>
-                      @foreach($tenants as $tenant)
-                        <option value="{{ $tenant->id }}" @selected($selectedTenantId === $tenant->id)>
-                          {{ $tenant->name }} ({{ $tenant->slug }})
-                        </option>
-                      @endforeach
-                    </select>
-                  </label>
-
+                <div class="domain-form__grid domain-form__grid--single">
                   <label class="domain-field">
                     <span>{{ $option['field_label'] }}</span>
                     <input
@@ -94,7 +84,6 @@
                 <table class="dash-table">
                   <thead>
                     <tr>
-                      <th>Environment</th>
                       @if($hasDefaultOptions)
                         <th>{{ $option['default_title'] ?? 'Default options' }}</th>
                       @endif
@@ -107,10 +96,6 @@
                         $customOptions = collect($optionsByTenant[$tenant->id] ?? []);
                       @endphp
                       <tr>
-                        <td>
-                          <span class="dash-cell-title">{{ $tenant->name }}</span>
-                          <span class="dash-cell-meta">{{ $tenant->slug }}</span>
-                        </td>
                         @if($hasDefaultOptions)
                           <td>
                             <div class="dash-actions">

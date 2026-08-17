@@ -772,7 +772,11 @@ class ClientDashboardTest extends TestCase
             ->assertSee('Freelance')
             ->assertSee('Temporary')
             ->assertSee('Internship')
-            ->assertSee('No custom types');
+            ->assertSee('No custom types')
+            ->assertSee('type="hidden" name="tenant_id"', false)
+            ->assertDontSee('<select name="tenant_id"', false)
+            ->assertDontSee('<span>Environment</span>', false)
+            ->assertDontSee('<th>Environment</th>', false);
 
         $this->actingAs($owner)
             ->post('/client/dashboard/jobs-settings/job-type', [
@@ -824,7 +828,11 @@ class ClientDashboardTest extends TestCase
                 ->assertOk()
                 ->assertSee($optionPage['title'])
                 ->assertSee('dash-form-layout', false)
-                ->assertSee('dash-form-layout__aside', false);
+                ->assertSee('dash-form-layout__aside', false)
+                ->assertSee('type="hidden" name="tenant_id"', false)
+                ->assertDontSee('<select name="tenant_id"', false)
+                ->assertDontSee('<span>Environment</span>', false)
+                ->assertDontSee('<th>Environment</th>', false);
 
             $this->actingAs($owner)
                 ->post($path, [
