@@ -50,7 +50,7 @@
   </section>
 
   <section class="welcome-copy" aria-labelledby="welcome-copy-title">
-    <div class="welcome-copy__inner">
+    <div class="welcome-copy__inner rich-text">
       <h2 id="welcome-copy-title">Job board software</h2>
 
       <p>

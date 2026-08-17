@@ -106,10 +106,20 @@
   padding: 30px;
 }
 
+.content-section h1 {
+  margin: 0 0 18px;
+  color: #333;
+  font-family: 'Work Sans', var(--font-heading), sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+}
+
 .content-section h2 {
   margin: 0 0 10px;
-  font-size: clamp(26px, 3vw, 36px);
-  font-weight: 800;
+  color: #333;
+  font-family: 'Work Sans', var(--font-heading), sans-serif;
+  font-size: 20px;
+  font-weight: 700;
 }
 
 .content-grid {
@@ -152,6 +162,12 @@
   border: 1px solid #dedede;
   border-radius: 5px;
   background: #ffffff;
+  color: inherit;
+  text-decoration: none;
+}
+
+.features-card:hover {
+  text-decoration: none;
 }
 
 .features-card__icon {
@@ -183,6 +199,21 @@
   font-size: 14px;
   font-weight: 400;
   line-height: 1.65;
+}
+
+.guide-page__shell {
+  width: min(1100px, 100%);
+}
+
+.guide-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 65fr) minmax(0, 35fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.guide-sidebar {
+  min-height: 240px;
 }
 
 .content-form {
@@ -343,6 +374,7 @@
   .content-grid,
   .content-grid--two,
   .features-grid,
+  .guide-layout,
   .pricing-grid,
   .content-form__grid {
     grid-template-columns: 1fr;

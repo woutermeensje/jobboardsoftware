@@ -67,8 +67,20 @@
   margin: 1.4em 0 .5em;
 }
 
-.rich-text h1 { font-size: 1.75em; }
-.rich-text h2 { font-size: 1.5em; }
+.rich-text h1 {
+  color: #333;
+  font-family: 'Work Sans', var(--font-heading), sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.rich-text h2 {
+  color: #333;
+  font-family: 'Work Sans', var(--font-heading), sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+}
+
 .rich-text h3 { font-size: 1.3em; }
 .rich-text h4 { font-size: 1.15em; }
 .rich-text h5 { font-size: 1em; }

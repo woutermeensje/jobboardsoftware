@@ -12,6 +12,14 @@
 
   $primaryNav = [
     ['label' => 'Features', 'url' => route('pages.features'), 'active' => request()->routeIs('pages.features')],
+    [
+      'label' => 'Guide',
+      'url' => route('pages.guide'),
+      'active' => request()->routeIs('pages.guide') || request()->routeIs('pages.how-to-start-a-job-board'),
+      'children' => [
+        ['label' => 'How to start', 'url' => route('pages.how-to-start-a-job-board')],
+      ],
+    ],
     ['label' => 'Pricing', 'url' => route('pages.tarieven'), 'active' => request()->routeIs('pages.tarieven')],
     ['label' => 'Customers', 'url' => route('pages.customers'), 'active' => request()->routeIs('pages.customers')],
     ['label' => 'FAQ', 'url' => route('pages.faq'), 'active' => request()->routeIs('pages.faq')],
