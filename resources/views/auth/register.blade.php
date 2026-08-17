@@ -16,9 +16,6 @@
     <div class="auth-form-card">
       <div class="auth-form-head">
         <h1>{{ $formTitle }}</h1>
-        @if(! empty($subtitle))
-          <p>{{ $subtitle }}</p>
-        @endif
       </div>
 
       <form method="POST" action="{{ $action }}" class="auth-form">
