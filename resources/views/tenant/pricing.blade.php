@@ -4,14 +4,8 @@
 @section('meta_description', 'Job posting packages for this job board.')
 
 @section('content')
-  <main class="tenant-shell">
-    <section class="tenant-panel tenant-pricing" aria-labelledby="tenant-pricing-title">
-      <div class="tenant-panel__head tenant-pricing__head">
-        <p class="tenant-eyebrow">Pricing</p>
-        <h1 id="tenant-pricing-title">Choose your package</h1>
-        <p>Pick the package that fits your vacancy and continue to the job submission form.</p>
-      </div>
-
+  <main class="tenant-shell tenant-pricing-shell">
+    <section class="tenant-pricing" aria-label="Job posting packages">
       @if($packages->isEmpty())
         <div class="tenant-pricing-empty">
           <h2>No packages available yet</h2>
@@ -20,17 +14,35 @@
       @else
         <div class="tenant-pricing-grid">
           @foreach($packages as $package)
+            @php
+              $currencySymbol = match ($package->currency) {
+                'EUR' => '&euro;',
+                'USD' => '$',
+                'GBP' => '&pound;',
+                default => e($package->currency),
+              };
+              $durationLabel = $package->online_days.' '.($package->online_days === 1 ? 'day' : 'days').' online';
+            @endphp
             <article class="tenant-pricing-card">
-              <div>
+              <div class="tenant-pricing-card__summary">
                 <h2>{{ $package->name }}</h2>
-                <p>{{ $package->online_days }} {{ $package->online_days === 1 ? 'day' : 'days' }} online</p>
+                <p class="tenant-pricing-card__price">{!! $currencySymbol !!} {{ number_format((float) $package->price, 2) }}</p>
               </div>
 
-              <strong>{{ $package->currency }} {{ number_format((float) $package->price, 2) }}</strong>
-
-              <a class="tenant-btn tenant-btn--primary" href="{{ route('tenant.post-job') }}">
-                Choose package
+              <a class="tenant-btn tenant-btn--primary" href="{{ route('tenant.post-job', ['package' => $package->id]) }}">
+                Post a job
               </a>
+
+              <p class="tenant-pricing-card__duration">
+                <i class="ph ph-check" aria-hidden="true"></i>
+                <span>{{ $durationLabel }}</span>
+              </p>
+
+              @if($package->description)
+                <div class="tenant-pricing-card__description rich-text">
+                  {!! $package->description !!}
+                </div>
+              @endif
             </article>
           @endforeach
         </div>

@@ -424,13 +424,16 @@ class ClientDashboardController extends Controller
 
     public function createPackage(Request $request): View
     {
+        $packageTableReady = Schema::hasTable('tenant_packages');
+
         return view('client.create-package', [
             'user' => $request->user(),
             'tenants' => $request->user()
                 ->ownedTenants()
                 ->latest()
                 ->get(),
-            'packageTableReady' => Schema::hasTable('tenant_packages'),
+            'packageTableReady' => $packageTableReady,
+            'packageDescriptionColumnReady' => $packageTableReady && Schema::hasColumn('tenant_packages', 'description'),
         ]);
     }
 
@@ -460,19 +463,26 @@ class ClientDashboardController extends Controller
             'price' => ['required', 'numeric', 'min:0', 'max:999999.99'],
             'currency' => ['required', 'string', 'size:3'],
             'online_days' => ['required', 'integer', 'min:1', 'max:3650'],
+            'description' => ['nullable', 'string', 'max:10000'],
         ]);
 
         $tenant = Tenant::query()
             ->where('owner_user_id', $request->user()->id)
             ->findOrFail($validated['tenant_id']);
 
-        TenantPackage::query()->create([
+        $packageAttributes = [
             'tenant_id' => $tenant->id,
             'name' => $validated['name'],
             'price' => $validated['price'],
             'currency' => $validated['currency'],
             'online_days' => $validated['online_days'],
-        ]);
+        ];
+
+        if (Schema::hasColumn('tenant_packages', 'description')) {
+            $packageAttributes['description'] = RichTextSanitizer::sanitize($validated['description'] ?? null);
+        }
+
+        TenantPackage::query()->create($packageAttributes);
 
         return redirect()
             ->route('client.packages.index')
@@ -496,12 +506,12 @@ class ClientDashboardController extends Controller
             ? collect(TenantOptionSettings::allForTenant($targetTenant, 'organization-type'))
             : collect();
 
-        if ($company?->sector) {
-            $sectors->push($company->sector);
+        if ($company) {
+            $sectors = $sectors->merge($company->sectorValues());
         }
 
-        if ($company?->organization_type) {
-            $organizationTypes->push($company->organization_type);
+        if ($company) {
+            $organizationTypes = $organizationTypes->merge($company->organizationTypeValues());
         }
 
         return [
@@ -535,8 +545,8 @@ class ClientDashboardController extends Controller
 
         if ($tenantCompaniesHasSector || $tenantCompaniesHasOrganizationType) {
             $request->merge([
-                'sector' => TenantOptionSettings::normalizeName((string) $request->input('sector')),
-                'organization_type' => TenantOptionSettings::normalizeName((string) $request->input('organization_type')),
+                'sector' => $this->normalizedClassificationInput($request, 'sector'),
+                'organization_type' => $this->normalizedClassificationInput($request, 'organization_type'),
             ]);
         }
 
@@ -560,11 +570,13 @@ class ClientDashboardController extends Controller
         }
 
         if ($tenantCompaniesHasSector) {
-            $rules['sector'] = ['nullable', 'string', 'max:255'];
+            $rules['sector'] = ['nullable', 'array'];
+            $rules['sector.*'] = ['string', 'max:255'];
         }
 
         if ($tenantCompaniesHasOrganizationType) {
-            $rules['organization_type'] = ['nullable', 'string', 'max:255'];
+            $rules['organization_type'] = ['nullable', 'array'];
+            $rules['organization_type.*'] = ['string', 'max:255'];
         }
 
         $validated = $request->validate($rules);
@@ -573,14 +585,17 @@ class ClientDashboardController extends Controller
             ->where('owner_user_id', $request->user()->id)
             ->findOrFail($validated['tenant_id']);
 
-        if ($tenantCompaniesHasSector && filled($validated['sector'] ?? null)) {
+        if ($tenantCompaniesHasSector && ! empty($validated['sector'] ?? [])) {
             $allowedSectors = collect(TenantOptionSettings::allForTenant($tenant, 'sector'));
 
-            if ($company?->tenant_id === $tenant->id && $company->sector) {
-                $allowedSectors->push($company->sector);
+            if ($company?->tenant_id === $tenant->id) {
+                $allowedSectors = $allowedSectors->merge($company->sectorValues());
             }
 
-            if (! $allowedSectors->containsStrict($validated['sector'])) {
+            $invalidSectors = collect($validated['sector'])
+                ->reject(fn (string $sector): bool => $allowedSectors->containsStrict($sector));
+
+            if ($invalidSectors->isNotEmpty()) {
                 return back()
                     ->withErrors(['sector' => 'Select a sector that belongs to this environment.'])
                     ->withInput()
@@ -588,14 +603,17 @@ class ClientDashboardController extends Controller
             }
         }
 
-        if ($tenantCompaniesHasOrganizationType && filled($validated['organization_type'] ?? null)) {
+        if ($tenantCompaniesHasOrganizationType && ! empty($validated['organization_type'] ?? [])) {
             $allowedOrganizationTypes = collect(TenantOptionSettings::allForTenant($tenant, 'organization-type'));
 
-            if ($company?->tenant_id === $tenant->id && $company->organization_type) {
-                $allowedOrganizationTypes->push($company->organization_type);
+            if ($company?->tenant_id === $tenant->id) {
+                $allowedOrganizationTypes = $allowedOrganizationTypes->merge($company->organizationTypeValues());
             }
 
-            if (! $allowedOrganizationTypes->containsStrict($validated['organization_type'])) {
+            $invalidOrganizationTypes = collect($validated['organization_type'])
+                ->reject(fn (string $organizationType): bool => $allowedOrganizationTypes->containsStrict($organizationType));
+
+            if ($invalidOrganizationTypes->isNotEmpty()) {
                 return back()
                     ->withErrors(['organization_type' => 'Select an organization type that belongs to this environment.'])
                     ->withInput()
@@ -633,11 +651,11 @@ class ClientDashboardController extends Controller
         }
 
         if ($tenantCompaniesHasSector) {
-            $companyAttributes['sector'] = $validated['sector'] ?? null;
+            $companyAttributes['sector'] = TenantCompany::encodeClassificationValues($validated['sector'] ?? []);
         }
 
         if ($tenantCompaniesHasOrganizationType) {
-            $companyAttributes['organization_type'] = $validated['organization_type'] ?? null;
+            $companyAttributes['organization_type'] = TenantCompany::encodeClassificationValues($validated['organization_type'] ?? []);
         }
 
         if ($company) {
@@ -650,6 +668,19 @@ class ClientDashboardController extends Controller
         $this->syncCompanyJobs($company);
 
         return $company;
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function normalizedClassificationInput(Request $request, string $key): array
+    {
+        return collect((array) $request->input($key, []))
+            ->map(fn (mixed $value): string => TenantOptionSettings::normalizeName((string) $value))
+            ->filter()
+            ->unique(fn (string $value): string => mb_strtolower($value))
+            ->values()
+            ->all();
     }
 
     private function syncCompanyJobs(TenantCompany $company): void
@@ -941,10 +972,6 @@ class ClientDashboardController extends Controller
                 'layout' => 'form',
                 'aside_title' => 'DNS setup',
                 'aside_description' => 'Add the domain first, then verify the generated DNS records before routing traffic to the job board.',
-            ],
-            'applications' => [
-                'title' => 'Applications',
-                'description' => 'Build the custom applicant management screens here.',
             ],
             'billing' => [
                 'title' => 'Billing',

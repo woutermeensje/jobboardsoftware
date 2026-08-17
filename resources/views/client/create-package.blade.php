@@ -50,19 +50,9 @@
             @else
               <form class="domain-form" method="POST" action="{{ route('client.packages.store') }}">
                 @csrf
+                <input type="hidden" name="tenant_id" value="{{ $selectedTenantId }}">
 
-                <div class="domain-form__grid">
-                  <label class="domain-field">
-                    <span>Environment</span>
-                    <select name="tenant_id" required>
-                      @foreach($tenants as $tenant)
-                        <option value="{{ $tenant->id }}" @selected($selectedTenantId === (string) $tenant->id)>
-                          {{ $tenant->name }} ({{ $tenant->slug }})
-                        </option>
-                      @endforeach
-                    </select>
-                  </label>
-
+                <div class="domain-form__grid domain-form__grid--single">
                   <label class="domain-field">
                     <span>Package name</span>
                     <input
@@ -115,6 +105,25 @@
                   </label>
                 </div>
 
+                @if($packageDescriptionColumnReady ?? false)
+                  <div class="domain-form__grid domain-form__grid--single">
+                    <div class="domain-field domain-rich-text" data-quill-field>
+                      <label for="package-description">Package description</label>
+                      <textarea
+                        id="package-description"
+                        name="description"
+                        rows="8"
+                        data-quill-source
+                      >{{ old('description') }}</textarea>
+                      <div
+                        class="richtext-field"
+                        data-quill-editor
+                      ></div>
+                      @error('description')<span class="domain-field__error">{{ $message }}</span>@enderror
+                    </div>
+                  </div>
+                @endif
+
                 <div class="dash-actions dash-actions--spaced">
                   <button class="dash-btn dash-btn--primary" type="submit">
                     <i class="ph ph-plus" aria-hidden="true"></i>
@@ -135,3 +144,54 @@
         </aside>
       </div>
 @endsection
+
+@push('scripts')
+  <script src="https://cdn.jsdelivr.net/npm/quill@2/dist/quill.js"></script>
+  <script>
+    (() => {
+      const fields = document.querySelectorAll('[data-quill-field]');
+
+      if (!fields.length || !window.Quill) {
+        return;
+      }
+
+      const toolbar = [
+        ['bold', 'italic', 'underline'],
+        [{ list: 'ordered' }, { list: 'bullet' }],
+        ['link'],
+        ['clean'],
+      ];
+      const emptyValue = '<p><br></p>';
+
+      fields.forEach((field) => {
+        const source = field.querySelector('[data-quill-source]');
+        const editor = field.querySelector('[data-quill-editor]');
+
+        if (!source || !editor || editor.dataset.quillReady) {
+          return;
+        }
+
+        const quill = new Quill(editor, {
+          theme: 'snow',
+          modules: { toolbar },
+        });
+
+        if (source.value.trim()) {
+          quill.clipboard.dangerouslyPasteHTML(source.value);
+        }
+
+        const syncSource = () => {
+          const html = quill.root.innerHTML;
+          source.value = html === emptyValue ? '' : html;
+        };
+
+        quill.on('text-change', syncSource);
+        source.form?.addEventListener('submit', syncSource);
+
+        field.classList.add('is-enhanced');
+        editor.dataset.quillReady = 'true';
+        syncSource();
+      });
+    })();
+  </script>
+@endpush

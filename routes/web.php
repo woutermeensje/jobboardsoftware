@@ -114,7 +114,6 @@ $centralRoutes = function (): void {
             Route::post('/domains', [ClientDashboardController::class, 'storeDomain'])->name('domains.store');
             Route::get('/domains/create', [ClientDashboardController::class, 'domains'])->name('domains.create');
             Route::post('/domains/{domain}/verify', [ClientDashboardController::class, 'verifyDomain'])->name('domains.verify');
-            Route::get('/applications', [ClientDashboardController::class, 'section'])->defaults('section', 'applications')->name('applications.index');
             Route::get('/settings', [ClientDashboardController::class, 'settings'])->name('settings');
             Route::patch('/settings', [ClientDashboardController::class, 'updateSettings'])->name('settings.update');
             Route::get('/billing', [ClientDashboardController::class, 'section'])->defaults('section', 'billing')->name('billing');

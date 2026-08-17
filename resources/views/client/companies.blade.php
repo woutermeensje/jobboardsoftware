@@ -38,7 +38,10 @@
               @php
                 $contactName = $company->contact_name ?: trim(collect([$company->contact_first_name, $company->contact_last_name])->filter()->implode(' '));
                 $logoUrl = \App\Support\PublicUploadStorage::url($company->logo_path);
-                $companyClassification = collect([$company->sector, $company->organization_type])->filter()->implode(' - ');
+                $companyClassification = collect([
+                  ...$company->sectorValues(),
+                  ...$company->organizationTypeValues(),
+                ])->filter()->implode(' - ');
               @endphp
               <tr>
                 <td>

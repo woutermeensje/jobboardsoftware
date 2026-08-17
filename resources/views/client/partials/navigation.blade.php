@@ -28,7 +28,6 @@
         ['label' => 'Add domain', 'url' => route('client.domains.create'), 'active' => request()->routeIs('client.domains.create')],
       ],
     ],
-    ['label' => 'Applications', 'icon' => 'ph-file-text', 'url' => route('client.applications.index'), 'active' => request()->routeIs('client.applications.*')],
     [
       'label' => 'Marketing',
       'icon' => 'ph-megaphone',

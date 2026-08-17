@@ -5,7 +5,7 @@
 
 @php
   $selectedJobTypes = collect((array) old('employment_type', []));
-  $selectedPackageId = (string) old('tenant_package_id', '');
+  $selectedPackageId = (string) old('tenant_package_id', $selectedPackageId ?? '');
   $selectedCountry = (string) old('country', '');
 @endphp
 

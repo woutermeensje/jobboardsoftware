@@ -725,6 +725,18 @@
   resize: vertical;
 }
 
+.domain-rich-text .richtext-field {
+  display: none;
+}
+
+.domain-rich-text.is-enhanced [data-quill-source] {
+  display: none;
+}
+
+.domain-rich-text.is-enhanced .richtext-field {
+  display: block;
+}
+
 .domain-field__error {
   color: var(--color-danger, #9f3412);
   font-size: 12px;

@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'price',
     'currency',
     'online_days',
+    'description',
 ])]
 class TenantPackage extends Model
 {

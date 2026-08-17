@@ -54,16 +54,23 @@ class TenantFrontendController extends Controller
         return $this->home($request);
     }
 
-    public function showPostJob(): View
+    public function showPostJob(Request $request): View
     {
         $tenant = tenant();
+        $packages = $this->postJobPackages($tenant->id);
+        $selectedPackageId = (string) $request->query('package', '');
+
+        if ($selectedPackageId === '' || ! ctype_digit($selectedPackageId) || ! $packages->contains('id', (int) $selectedPackageId)) {
+            $selectedPackageId = '';
+        }
 
         return view('tenant.post-job', [
             'tenant' => $tenant,
             'brandName' => $this->tenantBrandName(),
             'jobTypes' => JobTypeOptions::allForTenant($tenant),
             'countries' => CountryOptions::all(),
-            'packages' => $this->postJobPackages($tenant->id),
+            'packages' => $packages,
+            'selectedPackageId' => $selectedPackageId,
         ]);
     }
 
@@ -368,10 +375,10 @@ class TenantFrontendController extends Controller
             ->when($request->filled('location'), fn ($query) => $query->where('location', 'like', '%'.$request->string('location')->toString().'%'))
             ->when($request->filled('employment_type'), fn ($query) => $query->whereIn('employment_type', $this->selectedFilterValues($request, 'employment_type')))
             ->when($request->filled('sector') && $companySectorReady, function ($query) use ($request): void {
-                $query->whereHas('company', fn ($companyQuery) => $companyQuery->whereIn('sector', $this->selectedFilterValues($request, 'sector')));
+                $query->whereHas('company', fn ($companyQuery) => $this->whereCompanyClassificationMatches($companyQuery, 'sector', $this->selectedFilterValues($request, 'sector')));
             })
             ->when($request->filled('organization_type') && $companyOrganizationTypeReady, function ($query) use ($request): void {
-                $query->whereHas('company', fn ($companyQuery) => $companyQuery->whereIn('organization_type', $this->selectedFilterValues($request, 'organization_type')));
+                $query->whereHas('company', fn ($companyQuery) => $this->whereCompanyClassificationMatches($companyQuery, 'organization_type', $this->selectedFilterValues($request, 'organization_type')));
             })
             ->latest('published_at');
     }
@@ -420,25 +427,36 @@ class TenantFrontendController extends Controller
             && Schema::hasColumn('tenant_jobs', 'tenant_company_id');
         $companySectorReady = $companyFiltersReady && Schema::hasColumn('tenant_companies', 'sector');
         $companyOrganizationTypeReady = $companyFiltersReady && Schema::hasColumn('tenant_companies', 'organization_type');
-        $companyOptions = function (string $column) use ($baseQuery): Collection {
-            return (clone $baseQuery)
+        $sortClassificationValues = fn (Collection $values): Collection => $values
+            ->filter()
+            ->unique(fn (string $value): string => mb_strtolower($value))
+            ->sort(fn (string $first, string $second): int => strcasecmp($first, $second))
+            ->values();
+        $companyOptions = function (string $column) use ($baseQuery, $sortClassificationValues): Collection {
+            return $sortClassificationValues((clone $baseQuery)
                 ->join('tenant_companies', 'tenant_jobs.tenant_company_id', '=', 'tenant_companies.id')
                 ->whereNotNull("tenant_companies.{$column}")
                 ->where("tenant_companies.{$column}", '!=', '')
-                ->distinct()
-                ->orderBy("tenant_companies.{$column}")
-                ->pluck("tenant_companies.{$column}");
+                ->pluck("tenant_companies.{$column}")
+                ->flatMap(fn (mixed $value): array => TenantCompany::classificationValuesFromRaw($value)));
         };
         $companyOptionCounts = function (string $column) use ($baseQuery): array {
-            return (clone $baseQuery)
+            $counts = [];
+
+            (clone $baseQuery)
                 ->join('tenant_companies', 'tenant_jobs.tenant_company_id', '=', 'tenant_companies.id')
                 ->whereNotNull("tenant_companies.{$column}")
                 ->where("tenant_companies.{$column}", '!=', '')
-                ->selectRaw("tenant_companies.{$column} as option_value, count(*) as aggregate")
-                ->groupBy("tenant_companies.{$column}")
-                ->pluck('aggregate', 'option_value')
-                ->map(fn (mixed $count): int => (int) $count)
-                ->all();
+                ->pluck("tenant_companies.{$column}")
+                ->each(function (mixed $value) use (&$counts): void {
+                    foreach (TenantCompany::classificationValuesFromRaw($value) as $classificationValue) {
+                        $counts[$classificationValue] = ($counts[$classificationValue] ?? 0) + 1;
+                    }
+                });
+
+            ksort($counts, SORT_NATURAL | SORT_FLAG_CASE);
+
+            return $counts;
         };
 
         return [
@@ -493,6 +511,18 @@ class TenantFrontendController extends Controller
             ->filter()
             ->values()
             ->all();
+    }
+
+    private function whereCompanyClassificationMatches($query, string $column, array $values): void
+    {
+        $query->where(function ($query) use ($column, $values): void {
+            foreach ($values as $value) {
+                $jsonNeedle = json_encode($value, JSON_UNESCAPED_UNICODE);
+
+                $query->orWhere($column, $value)
+                    ->orWhere($column, 'like', '%'.$jsonNeedle.'%');
+            }
+        });
     }
 
     private function tenantBrandName(): string

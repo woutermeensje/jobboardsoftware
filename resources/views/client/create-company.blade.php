@@ -8,8 +8,14 @@
   $formAction = $isEditing ? route('client.companies.update', $company) : route('client.companies.store');
   $submitLabel = $isEditing ? 'Save company' : 'Create company';
   $selectedTenantId = old('tenant_id', $company?->tenant_id ?? $tenants->first()?->id);
-  $selectedSector = (string) old('sector', $company?->sector ?? '');
-  $selectedOrganizationType = (string) old('organization_type', $company?->organization_type ?? '');
+  $selectedSectors = collect((array) old('sector', $company?->sectorValues() ?? []))
+    ->map(fn (mixed $sector): string => trim((string) $sector))
+    ->filter()
+    ->values();
+  $selectedOrganizationTypes = collect((array) old('organization_type', $company?->organizationTypeValues() ?? []))
+    ->map(fn (mixed $organizationType): string => trim((string) $organizationType))
+    ->filter()
+    ->values();
 @endphp
 
 @section('title', $formTitle.' | Client dashboard')
@@ -100,29 +106,93 @@
 
                   <div class="tenant-form__grid">
                     @if($sectorColumnReady ?? false)
-                      <label>
-                        Sector
-                        <select name="sector" @disabled($sectors->isEmpty())>
-                          <option value="">{{ $sectors->isEmpty() ? 'Add sectors in Jobs settings first' : 'Select sector' }}</option>
-                          @foreach($sectors as $sector)
-                            <option value="{{ $sector }}" @selected($selectedSector === $sector)>{{ $sector }}</option>
-                          @endforeach
-                        </select>
+                      <div class="tenant-form__field tenant-multiselect" data-multiselect>
+                        <label id="company-sector-label">Job sector</label>
+                        <button
+                          class="tenant-multiselect__button"
+                          type="button"
+                          aria-haspopup="listbox"
+                          aria-expanded="false"
+                          aria-labelledby="company-sector-label"
+                          data-multiselect-button
+                          data-multiselect-empty-label="{{ $sectors->isEmpty() ? 'Add sectors in Jobs settings first' : 'Select sectors' }}"
+                          @disabled($sectors->isEmpty())
+                        >
+                          {{ $sectors->isEmpty() ? 'Add sectors in Jobs settings first' : 'Select sectors' }}
+                        </button>
+                        <div class="tenant-multiselect__menu" data-multiselect-menu>
+                          <input
+                            class="tenant-multiselect__search"
+                            type="search"
+                            aria-label="Search sectors"
+                            autocomplete="off"
+                            data-multiselect-search
+                          >
+                          <div class="tenant-multiselect__options" role="listbox" aria-multiselectable="true">
+                            @foreach($sectors as $sector)
+                              <label class="tenant-multiselect__option" data-multiselect-option-row>
+                                <input
+                                  type="checkbox"
+                                  name="sector[]"
+                                  value="{{ $sector }}"
+                                  @checked($selectedSectors->contains($sector))
+                                  data-multiselect-option
+                                  data-multiselect-label="{{ $sector }}"
+                                >
+                                <span>{{ $sector }}</span>
+                              </label>
+                            @endforeach
+                          </div>
+                          <p class="tenant-multiselect__empty" @if($sectors->isNotEmpty()) hidden @endif data-multiselect-empty>No sectors found.</p>
+                        </div>
                         @error('sector')<span class="tenant-form__error">{{ $message }}</span>@enderror
-                      </label>
+                        @error('sector.*')<span class="tenant-form__error">{{ $message }}</span>@enderror
+                      </div>
                     @endif
 
                     @if($organizationTypeColumnReady ?? false)
-                      <label>
-                        Organization type
-                        <select name="organization_type" @disabled($organizationTypes->isEmpty())>
-                          <option value="">{{ $organizationTypes->isEmpty() ? 'Add organization types in Jobs settings first' : 'Select organization type' }}</option>
-                          @foreach($organizationTypes as $organizationType)
-                            <option value="{{ $organizationType }}" @selected($selectedOrganizationType === $organizationType)>{{ $organizationType }}</option>
-                          @endforeach
-                        </select>
+                      <div class="tenant-form__field tenant-multiselect" data-multiselect>
+                        <label id="company-organization-type-label">Organization type</label>
+                        <button
+                          class="tenant-multiselect__button"
+                          type="button"
+                          aria-haspopup="listbox"
+                          aria-expanded="false"
+                          aria-labelledby="company-organization-type-label"
+                          data-multiselect-button
+                          data-multiselect-empty-label="{{ $organizationTypes->isEmpty() ? 'Add organization types in Jobs settings first' : 'Select organization types' }}"
+                          @disabled($organizationTypes->isEmpty())
+                        >
+                          {{ $organizationTypes->isEmpty() ? 'Add organization types in Jobs settings first' : 'Select organization types' }}
+                        </button>
+                        <div class="tenant-multiselect__menu" data-multiselect-menu>
+                          <input
+                            class="tenant-multiselect__search"
+                            type="search"
+                            aria-label="Search organization types"
+                            autocomplete="off"
+                            data-multiselect-search
+                          >
+                          <div class="tenant-multiselect__options" role="listbox" aria-multiselectable="true">
+                            @foreach($organizationTypes as $organizationType)
+                              <label class="tenant-multiselect__option" data-multiselect-option-row>
+                                <input
+                                  type="checkbox"
+                                  name="organization_type[]"
+                                  value="{{ $organizationType }}"
+                                  @checked($selectedOrganizationTypes->contains($organizationType))
+                                  data-multiselect-option
+                                  data-multiselect-label="{{ $organizationType }}"
+                                >
+                                <span>{{ $organizationType }}</span>
+                              </label>
+                            @endforeach
+                          </div>
+                          <p class="tenant-multiselect__empty" @if($organizationTypes->isNotEmpty()) hidden @endif data-multiselect-empty>No organization types found.</p>
+                        </div>
                         @error('organization_type')<span class="tenant-form__error">{{ $message }}</span>@enderror
-                      </label>
+                        @error('organization_type.*')<span class="tenant-form__error">{{ $message }}</span>@enderror
+                      </div>
                     @endif
                   </div>
                 </section>
@@ -218,7 +288,7 @@
             <ul>
               <li>The organization name is used for account context.</li>
               <li>The company name is shown on job posts.</li>
-              <li>Sector and organization type are stored on the company profile.</li>
+              <li>Multiple sectors and organization types can be stored on the company profile.</li>
               <li>Logos support PNG, JPG, WebP and SVG files.</li>
               <li>The maximum logo file size is 2 MB.</li>
               <li>Contact details stay linked to this company profile.</li>
@@ -274,6 +344,95 @@
         field.classList.add('is-enhanced');
         editor.dataset.quillReady = 'true';
         syncSource();
+      });
+    })();
+
+    (() => {
+      document.querySelectorAll('[data-multiselect]').forEach((multiselect) => {
+        if (multiselect.dataset.multiselectReady === 'true') {
+          return;
+        }
+
+        const button = multiselect.querySelector('[data-multiselect-button]');
+        const search = multiselect.querySelector('[data-multiselect-search]');
+        const empty = multiselect.querySelector('[data-multiselect-empty]');
+        const options = Array.from(multiselect.querySelectorAll('[data-multiselect-option]'));
+        const optionRows = Array.from(multiselect.querySelectorAll('[data-multiselect-option-row]'));
+        const maxSelections = Number(multiselect.dataset.multiselectMax || 0);
+        const emptyLabel = button?.dataset.multiselectEmptyLabel || 'Select';
+
+        if (!button || !options.length) {
+          return;
+        }
+
+        const close = () => {
+          multiselect.classList.remove('is-open');
+          button.setAttribute('aria-expanded', 'false');
+        };
+
+        const updateButton = () => {
+          const selected = options.filter((option) => option.checked);
+          const labels = selected.map((option) => option.dataset.multiselectLabel || option.value);
+
+          button.textContent = labels.length ? labels.join(', ') : emptyLabel;
+        };
+
+        button.addEventListener('click', () => {
+          const isOpen = multiselect.classList.toggle('is-open');
+          button.setAttribute('aria-expanded', String(isOpen));
+
+          if (isOpen) {
+            search?.focus();
+          }
+        });
+
+        options.forEach((option) => {
+          option.addEventListener('change', () => {
+            if (maxSelections === 1 && option.checked) {
+              options.forEach((otherOption) => {
+                if (otherOption !== option) {
+                  otherOption.checked = false;
+                }
+              });
+
+              close();
+            }
+
+            updateButton();
+          });
+        });
+
+        search?.addEventListener('input', () => {
+          const query = search.value.trim().toLowerCase();
+          let visibleCount = 0;
+
+          optionRows.forEach((row) => {
+            const label = row.textContent.trim().toLowerCase();
+            const isVisible = label.includes(query);
+
+            row.hidden = !isVisible;
+            visibleCount += isVisible ? 1 : 0;
+          });
+
+          if (empty) {
+            empty.hidden = visibleCount > 0;
+          }
+        });
+
+        document.addEventListener('click', (event) => {
+          if (!multiselect.contains(event.target)) {
+            close();
+          }
+        });
+
+        document.addEventListener('keydown', (event) => {
+          if (event.key === 'Escape') {
+            close();
+          }
+        });
+
+        multiselect.dataset.multiselectReady = 'true';
+        updateButton();
       });
     })();
   </script>
