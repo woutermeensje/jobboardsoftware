@@ -4,8 +4,7 @@
   $companyLogoPath = $job->company_logo_path ?: ($company?->logo_path ?? null);
   $companyLogoUrl = \App\Support\PublicUploadStorage::url($companyLogoPath);
   $publishedAt = $job->published_at ?? $job->created_at;
-  $daysAgo = $publishedAt ? max(1, (int) $publishedAt->diffInDays(now())) : null;
-  $postedLabel = $daysAgo ? ($daysAgo === 1 ? '1 day ago' : $daysAgo.' days ago') : null;
+  $postedLabel = $publishedAt ? $publishedAt->format('F j, Y') : null;
   $logoInitial = mb_strtoupper(mb_substr((string) ($companyName ?: $job->title), 0, 1));
   $employmentTypes = collect(explode(',', (string) $job->employment_type))
     ->map(fn (string $type): string => trim($type))
