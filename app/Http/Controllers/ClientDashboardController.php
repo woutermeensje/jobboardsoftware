@@ -159,6 +159,7 @@ class ClientDashboardController extends Controller
         return view('client.environments', [
             'user' => $request->user(),
             'tenants' => $tenants,
+            'activeTenantId' => $request->user()->active_tenant_id,
         ]);
     }
 
@@ -226,9 +227,42 @@ class ClientDashboardController extends Controller
             'ssl_issued_at' => now(),
         ]);
 
+        if ($request->user()->active_tenant_id === null) {
+            $request->user()->forceFill(['active_tenant_id' => $tenant->id])->save();
+        }
+
         return redirect()
             ->route('client.environments.index')
             ->with('status', 'Job board environment created. It is live at '.$validated['subdomain'].'.'.$baseDomain.'.');
+    }
+
+    public function activateEnvironment(Request $request, Tenant $tenant): RedirectResponse
+    {
+        abort_unless($tenant->owner_user_id === $request->user()->id, 404);
+
+        $request->user()->forceFill(['active_tenant_id' => $tenant->id])->save();
+
+        return redirect()
+            ->route('client.environments.index')
+            ->with('status', $tenant->name.' is now your active environment.');
+    }
+
+    public function destroyEnvironment(Request $request, Tenant $tenant): RedirectResponse
+    {
+        abort_unless($tenant->owner_user_id === $request->user()->id, 404);
+
+        $wasActive = $request->user()->active_tenant_id === $tenant->id;
+        $tenantName = $tenant->name;
+        $tenant->delete();
+
+        if ($wasActive) {
+            $nextTenantId = $request->user()->ownedTenants()->oldest()->value('id');
+            $request->user()->forceFill(['active_tenant_id' => $nextTenantId])->save();
+        }
+
+        return redirect()
+            ->route('client.environments.index')
+            ->with('status', $tenantName.' has been deleted.');
     }
 
     public function section(Request $request, string $section): View

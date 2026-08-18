@@ -15,6 +15,7 @@ use Laravel\Cashier\Billable;
 
 #[Fillable([
     'tenant_id',
+    'active_tenant_id',
     'name',
     'first_name',
     'last_name',
@@ -91,6 +92,11 @@ class User extends Authenticatable
     public function ownedTenants(): HasMany
     {
         return $this->hasMany(Tenant::class, 'owner_user_id');
+    }
+
+    public function activeTenant(): BelongsTo
+    {
+        return $this->belongsTo(Tenant::class, 'active_tenant_id');
     }
 
     public function billingPlan(): BelongsTo

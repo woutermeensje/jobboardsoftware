@@ -170,7 +170,8 @@
 /* Danger
 ================================ */
 
-.btn-danger {
+.btn-danger,
+.dash-btn--danger {
   border-color: var(--color-accent-strong);
   background: var(--color-accent-strong);
   color: #ffffff;
@@ -178,7 +179,9 @@
 }
 
 .btn-danger:hover,
-.btn-danger:focus-visible {
+.dash-btn--danger:hover,
+.btn-danger:focus-visible,
+.dash-btn--danger:focus-visible {
   border-color: #8a4f26;
   background: #8a4f26;
   color: #ffffff;

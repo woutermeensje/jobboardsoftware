@@ -107,6 +107,8 @@ $centralRoutes = function (): void {
             Route::get('/environments', [ClientDashboardController::class, 'environments'])->name('environments.index');
             Route::get('/environments/create', [ClientDashboardController::class, 'createEnvironment'])->name('environments.create');
             Route::post('/environments', [ClientDashboardController::class, 'storeEnvironment'])->name('environments.store');
+            Route::post('/environments/{tenant}/activate', [ClientDashboardController::class, 'activateEnvironment'])->name('environments.activate');
+            Route::delete('/environments/{tenant}', [ClientDashboardController::class, 'destroyEnvironment'])->name('environments.destroy');
             Route::get('/jobs', [ClientDashboardController::class, 'jobs'])->name('jobs.index');
             Route::post('/jobs', [ClientDashboardController::class, 'storeJob'])->name('jobs.store');
             Route::get('/jobs/create', [ClientDashboardController::class, 'createJob'])->name('jobs.create');
