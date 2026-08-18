@@ -432,6 +432,11 @@
   overflow: visible;
 }
 
+.dash-panel--companies {
+  width: 65%;
+  max-width: 100%;
+}
+
 .dash-panel--list .dash-panel__head {
   padding: 0 0 14px;
   border-bottom: 0;
@@ -1176,6 +1181,10 @@
 
   .dash-panel {
     overflow-x: auto;
+  }
+
+  .dash-panel--companies {
+    width: 100%;
   }
 
   .dash-form-layout {

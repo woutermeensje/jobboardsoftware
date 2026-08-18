@@ -9,7 +9,10 @@ use App\Models\Tenant;
 use App\Models\TenantJob;
 use App\Models\TenantPackage;
 use App\Models\User;
+use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\URL;
 use Tests\TestCase;
 
 class ExampleTest extends TestCase
@@ -713,9 +716,10 @@ class ExampleTest extends TestCase
             ->assertDontSee('Other board package');
     }
 
-    public function test_saas_user_can_register_and_continue_to_payment(): void
+    public function test_saas_user_can_register_verify_email_and_finish_onboarding(): void
     {
         config(['cashier.secret' => null]);
+        Notification::fake();
 
         $plan = BillingPlan::factory()->create([
             'key' => Tenant::PLAN_STARTER,
@@ -726,30 +730,99 @@ class ExampleTest extends TestCase
             'first_name' => 'New',
             'last_name' => 'User',
             'email' => 'owner@example.com',
-            'company_name' => 'New Company',
             'phone_number' => '+1 555 123 4567',
             'heard_about_us' => 'LinkedIn',
-            'billing_plan_id' => $plan->id,
             'password' => 'password123',
             'password_confirmation' => 'password123',
         ]);
 
-        $response->assertRedirect(route('billing.checkout'));
+        $response->assertRedirect(route('verification.notice'));
         $this->assertAuthenticated();
+
+        $owner = User::where('email', 'owner@example.com')->firstOrFail();
+
+        Notification::assertSentTo($owner, VerifyEmail::class);
+
         $this->assertDatabaseHas('users', [
             'name' => 'New User',
             'first_name' => 'New',
             'last_name' => 'User',
             'email' => 'owner@example.com',
-            'company_name' => 'New Company',
+            'company_name' => null,
             'phone_number' => '+1 555 123 4567',
             'heard_about_us' => 'LinkedIn',
             'role' => User::ROLE_TENANT_OWNER,
             'tenant_id' => null,
-            'billing_plan_id' => $plan->id,
+            'billing_plan_id' => null,
             'billing_status' => 'trial',
+            'onboarding_step' => 'plan',
+            'email_verified_at' => null,
+        ]);
+
+        $this->actingAs($owner)
+            ->get(route('register.onboarding'))
+            ->assertRedirect(route('verification.notice'));
+
+        $verificationUrl = URL::temporarySignedRoute(
+            'verification.verify',
+            now()->addMinutes(60),
+            ['id' => $owner->id, 'hash' => sha1($owner->email)]
+        );
+
+        $this->actingAs($owner)
+            ->get($verificationUrl)
+            ->assertRedirect(route('register.onboarding'))
+            ->assertSessionHas('status', 'Email verified. Finish the final sign up steps.');
+
+        $owner = $owner->fresh();
+
+        $this->assertTrue($owner->hasVerifiedEmail());
+
+        $this->actingAs($owner)
+            ->get(route('register.onboarding'))
+            ->assertOk()
+            ->assertSee('Company contact info');
+
+        $this->post(route('register.onboarding.update'), [
+            'step' => 'company',
+            'first_name' => 'New',
+            'last_name' => 'Owner',
+            'company_name' => 'New Company',
+            'phone_number' => '+1 555 765 4321',
+        ])->assertRedirect(route('register.onboarding'));
+
+        $this->assertDatabaseHas('users', [
+            'email' => 'owner@example.com',
+            'name' => 'New Owner',
+            'company_name' => 'New Company',
+            'phone_number' => '+1 555 765 4321',
+            'onboarding_step' => 'plan',
+        ]);
+
+        $this->get(route('register.onboarding'))
+            ->assertOk()
+            ->assertSee('Plan')
+            ->assertSee('Starter');
+
+        $this->post(route('register.onboarding.update'), [
+            'step' => 'plan',
+            'billing_plan_id' => $plan->id,
+        ])->assertRedirect(route('register.onboarding'));
+
+        $this->assertDatabaseHas('users', [
+            'email' => 'owner@example.com',
+            'billing_plan_id' => $plan->id,
             'onboarding_step' => 'billing',
         ]);
+
+        $this->get(route('register.onboarding'))
+            ->assertOk()
+            ->assertSee('Payment details')
+            ->assertSee('New Company');
+
+        $this->post(route('register.onboarding.update'), [
+            'step' => 'payment',
+        ])->assertRedirect(route('billing.checkout'));
 
         $this->get(route('billing.checkout'))
             ->assertRedirect(route('client.billing'))
@@ -758,10 +831,17 @@ class ExampleTest extends TestCase
 
     public function test_saas_user_can_login_and_reaches_dashboard(): void
     {
+        $plan = BillingPlan::factory()->create([
+            'key' => Tenant::PLAN_STARTER,
+        ]);
+
         $owner = User::factory()->create([
             'email' => 'owner-login@example.com',
             'password' => 'password123',
             'role' => User::ROLE_TENANT_OWNER,
+            'company_name' => 'Owner Company',
+            'billing_plan_id' => $plan->id,
+            'onboarding_step' => 'environment',
         ]);
 
         $response = $this->post('/login', [

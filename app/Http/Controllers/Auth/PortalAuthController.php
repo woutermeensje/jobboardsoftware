@@ -29,20 +29,14 @@ class PortalAuthController extends Controller
 
     public function showRegisterChoice(): View
     {
-        $plans = BillingPlan::query()
-            ->where('is_active', true)
-            ->orderByRaw('CASE WHEN monthly_price_cents = 0 THEN 1 ELSE 0 END')
-            ->orderBy('monthly_price_cents')
-            ->get();
-
-        return view('auth.sign-up', [
+        return view('auth.register', [
             'role' => User::ROLE_TENANT_OWNER,
             'eyebrow' => 'SaaS account',
             'title' => 'Start your own job board',
-            'subtitle' => 'Create your company account, choose a plan, and continue to secure Stripe checkout.',
+            'formTitle' => 'Create account',
+            'subtitle' => 'Create your account first. After verifying your email, you can finish your company, plan and payment setup.',
             'action' => route('register.submit'),
             'loginUrl' => route('login.choice'),
-            'plans' => $plans,
         ]);
     }
 
@@ -120,6 +114,23 @@ class PortalAuthController extends Controller
         }
 
         $request->session()->regenerate();
+        $user = $request->user();
+
+        if ($role === User::ROLE_TENANT_OWNER && $user instanceof User) {
+            if (! $user->hasVerifiedEmail()) {
+                $intendedPath = parse_url((string) $request->session()->get('url.intended'), PHP_URL_PATH);
+
+                if (is_string($intendedPath) && str_starts_with($intendedPath, '/email/verify/')) {
+                    return redirect()->intended(route('verification.notice'));
+                }
+
+                return redirect()->route('verification.notice');
+            }
+
+            if ($this->shouldResumeSaasOnboarding($user)) {
+                return redirect()->route('register.onboarding');
+            }
+        }
 
         return redirect()->intended($this->dashboardRouteFor($role));
     }
@@ -179,17 +190,11 @@ class PortalAuthController extends Controller
                 'max:255',
                 Rule::unique('users', 'email')->where(fn ($query) => $query->whereNull('tenant_id')),
             ],
-            'company_name' => ['required', 'string', 'max:255'],
             'phone_number' => ['required', 'string', 'max:40'],
             'heard_about_us' => ['required', 'string', 'max:255'],
-            'billing_plan_id' => [
-                'required',
-                Rule::exists('billing_plans', 'id')->where(fn ($query) => $query->where('is_active', true)),
-            ],
             'password' => ['required', 'confirmed', Password::min(8)],
         ]);
 
-        $plan = BillingPlan::query()->findOrFail($validated['billing_plan_id']);
         $name = trim($validated['first_name'].' '.$validated['last_name']);
 
         $user = User::create([
@@ -198,33 +203,100 @@ class PortalAuthController extends Controller
             'last_name' => $validated['last_name'],
             'email' => $validated['email'],
             'phone_number' => $validated['phone_number'],
-            'company_name' => $validated['company_name'],
             'heard_about_us' => $validated['heard_about_us'],
             'password' => $validated['password'],
             'role' => $role,
-            'billing_plan_id' => $plan->id,
             'billing_status' => 'trial',
-            'onboarding_step' => 'billing',
+            'onboarding_step' => 'plan',
         ]);
 
         app(AdminActionNotifier::class)->notify('New user registered', [
             'name' => $user->name,
             'email' => $user->email,
             'phone' => $user->phone_number,
-            'company' => $user->company_name,
+            'company' => 'Not completed yet',
             'role' => $user->role,
-            'plan' => $plan->name,
+            'plan' => 'Not selected yet',
             'source' => $user->heard_about_us,
         ], $user);
+
+        $user->sendEmailVerificationNotification();
 
         Auth::login($user);
         $request->session()->regenerate();
 
-        if ($role === User::ROLE_TENANT_OWNER) {
-            return redirect()->route('billing.checkout');
+        return redirect()->route('verification.notice');
+    }
+
+    public function showSaasOnboarding(Request $request): View|RedirectResponse
+    {
+        $user = $request->user();
+
+        if (! $this->shouldResumeSaasOnboarding($user)) {
+            return redirect()->route('client.dashboard');
         }
 
-        return redirect()->route($this->dashboardRouteNameFor($role));
+        $step = $this->currentSaasOnboardingStep($user);
+        $plans = $this->activeBillingPlans();
+
+        return view('auth.onboarding', [
+            'title' => 'Finish sign up',
+            'user' => $user,
+            'step' => $step,
+            'plans' => $plans,
+            'selectedPlan' => $user->billingPlan,
+            'action' => route('register.onboarding.update'),
+        ]);
+    }
+
+    public function updateSaasOnboarding(Request $request): RedirectResponse
+    {
+        $user = $request->user();
+        $currentStep = $this->currentSaasOnboardingStep($user);
+        $step = (string) $request->input('step', $currentStep);
+
+        if ($step !== $currentStep) {
+            return redirect()->route('register.onboarding');
+        }
+
+        if ($step === 'company') {
+            $validated = $request->validate([
+                'first_name' => ['required', 'string', 'max:255'],
+                'last_name' => ['required', 'string', 'max:255'],
+                'company_name' => ['required', 'string', 'max:255'],
+                'phone_number' => ['required', 'string', 'max:40'],
+            ]);
+
+            $user->update([
+                'name' => trim($validated['first_name'].' '.$validated['last_name']),
+                'first_name' => $validated['first_name'],
+                'last_name' => $validated['last_name'],
+                'company_name' => $validated['company_name'],
+                'phone_number' => $validated['phone_number'],
+                'onboarding_step' => 'plan',
+            ]);
+
+            return redirect()->route('register.onboarding');
+        }
+
+        if ($step === 'plan') {
+            $validated = $request->validate([
+                'billing_plan_id' => [
+                    'required',
+                    Rule::exists('billing_plans', 'id')->where(fn ($query) => $query->where('is_active', true)),
+                ],
+            ]);
+
+            $user->update([
+                'billing_plan_id' => $validated['billing_plan_id'],
+                'billing_status' => $user->billing_status ?: 'trial',
+                'onboarding_step' => 'billing',
+            ]);
+
+            return redirect()->route('register.onboarding');
+        }
+
+        return redirect()->route('billing.checkout');
     }
 
     public function tenantLogin(Request $request, string $role): RedirectResponse
@@ -403,5 +475,33 @@ class PortalAuthController extends Controller
         $settings = $tenant?->settings ?? [];
 
         return $settings['brand_name'] ?? $tenant?->name ?? 'Jobboard';
+    }
+
+    private function currentSaasOnboardingStep(User $user): string
+    {
+        if (! filled($user->company_name)) {
+            return 'company';
+        }
+
+        if (! $user->billingPlan instanceof BillingPlan || ! $user->billingPlan->is_active) {
+            return 'plan';
+        }
+
+        return 'payment';
+    }
+
+    private function shouldResumeSaasOnboarding(User $user): bool
+    {
+        return $this->currentSaasOnboardingStep($user) !== 'payment'
+            || $user->onboarding_step === 'billing';
+    }
+
+    private function activeBillingPlans()
+    {
+        return BillingPlan::query()
+            ->where('is_active', true)
+            ->orderByRaw('CASE WHEN monthly_price_cents = 0 THEN 1 ELSE 0 END')
+            ->orderBy('monthly_price_cents')
+            ->get();
     }
 }

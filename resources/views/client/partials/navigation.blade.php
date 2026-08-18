@@ -37,7 +37,7 @@
       'url' => route('client.marketing.index'),
       'active' => request()->routeIs('client.marketing.*'),
       'children' => [
-        ['label' => 'Landing pages', 'url' => route('client.marketing.landingpagina'), 'active' => request()->routeIs('client.marketing.landingpagina')],
+        ['label' => 'Landing pages', 'url' => route('client.marketing.landingpagina'), 'active' => request()->routeIs('client.marketing.landingpagina*')],
         ['label' => 'Social channels', 'url' => route('client.marketing.socials'), 'active' => request()->routeIs('client.marketing.socials')],
       ],
     ],

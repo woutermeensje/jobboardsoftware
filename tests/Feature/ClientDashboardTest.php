@@ -658,12 +658,14 @@ class ClientDashboardTest extends TestCase
             ->get('/client/dashboard/settings')
             ->assertOk()
             ->assertSee('tenant-settings-logo-preview', false)
+            ->assertSee('/storage/'.$logoPath, false)
             ->assertSee($logoPath, false);
 
         $this->get('http://fondsen.jobboardsoftware.co/')
             ->assertOk()
             ->assertSee('tenant-brand__logo', false)
             ->assertSee('--tenant-secondary: #FF8A2A', false)
+            ->assertSee('/storage/'.$logoPath, false)
             ->assertSee($logoPath, false);
     }
 

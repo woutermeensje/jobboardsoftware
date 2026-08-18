@@ -6,6 +6,8 @@ use App\Http\Controllers\BillingController;
 use App\Http\Controllers\ClientDashboardController;
 use App\Http\Controllers\ContactController;
 use App\Models\User;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 
@@ -61,6 +63,12 @@ $centralRoutes = function (): void {
 
         Route::get('/sign-up', 'showRegisterChoice')->name('register.choice');
         Route::post('/sign-up', 'register')->defaults('role', User::ROLE_TENANT_OWNER)->name('register.submit');
+        Route::get('/sign-up/setup', 'showSaasOnboarding')
+            ->middleware(['auth', 'role:tenant_owner', 'verified'])
+            ->name('register.onboarding');
+        Route::post('/sign-up/setup', 'updateSaasOnboarding')
+            ->middleware(['auth', 'role:tenant_owner', 'verified'])
+            ->name('register.onboarding.update');
         Route::redirect('/sign-up/jobseeker', '/sign-up')->name('register.jobseeker');
         Route::redirect('/sign-up/job-seeker', '/sign-up')->name('register.werkzoekende');
         Route::redirect('/sign-up/employer', '/sign-up')->name('register.employer');
@@ -90,6 +98,35 @@ $centralRoutes = function (): void {
             Route::patch('/applications/{application}', [AdminDashboardController::class, 'updateApplication'])->name('applications.update');
         });
     });
+
+    Route::get('/email/verify', function (Request $request) {
+        if ($request->user()->hasVerifiedEmail()) {
+            return redirect()->route('register.onboarding');
+        }
+
+        return view('auth.verify-email', [
+            'title' => 'Verify your email',
+            'user' => $request->user(),
+        ]);
+    })->middleware(['auth', 'role:tenant_owner'])->name('verification.notice');
+
+    Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+        $request->fulfill();
+
+        return redirect()
+            ->route('register.onboarding')
+            ->with('status', 'Email verified. Finish the final sign up steps.');
+    })->middleware(['auth', 'role:tenant_owner', 'signed', 'throttle:6,1'])->name('verification.verify');
+
+    Route::post('/email/verification-notification', function (Request $request) {
+        if ($request->user()->hasVerifiedEmail()) {
+            return redirect()->route('register.onboarding');
+        }
+
+        $request->user()->sendEmailVerificationNotification();
+
+        return back()->with('status', 'verification-link-sent');
+    })->middleware(['auth', 'role:tenant_owner', 'throttle:6,1'])->name('verification.send');
 
     Route::redirect('/dashboard/werkgever/omgeving', '/client/dashboard/environments');
     Route::redirect('/dashboard/omgeving', '/client/dashboard/environments');
@@ -122,7 +159,12 @@ $centralRoutes = function (): void {
             Route::patch('/settings', [ClientDashboardController::class, 'updateSettings'])->name('settings.update');
             Route::get('/billing', [ClientDashboardController::class, 'section'])->defaults('section', 'billing')->name('billing');
             Route::get('/marketing', [ClientDashboardController::class, 'section'])->defaults('section', 'marketing')->name('marketing.index');
-            Route::get('/marketing/landingpagina', [ClientDashboardController::class, 'section'])->defaults('section', 'landingpagina')->name('marketing.landingpagina');
+            Route::get('/marketing/landingpagina', [ClientDashboardController::class, 'landingPages'])->name('marketing.landingpagina');
+            Route::get('/marketing/landingpagina/create', [ClientDashboardController::class, 'createLandingPage'])->name('marketing.landingpagina.create');
+            Route::post('/marketing/landingpagina', [ClientDashboardController::class, 'storeLandingPage'])->name('marketing.landingpagina.store');
+            Route::get('/marketing/landingpagina/{landingPage}/edit', [ClientDashboardController::class, 'editLandingPage'])->name('marketing.landingpagina.edit');
+            Route::patch('/marketing/landingpagina/{landingPage}', [ClientDashboardController::class, 'updateLandingPage'])->name('marketing.landingpagina.update');
+            Route::delete('/marketing/landingpagina/{landingPage}', [ClientDashboardController::class, 'destroyLandingPage'])->name('marketing.landingpagina.destroy');
             Route::get('/marketing/socials', [ClientDashboardController::class, 'section'])->defaults('section', 'socials')->name('marketing.socials');
             Route::get('/jobs-settings', [ClientDashboardController::class, 'section'])->defaults('section', 'jobs-settings')->name('jobs-settings.index');
             Route::get('/jobs-settings/sector', [ClientDashboardController::class, 'section'])->defaults('section', 'sector')->name('jobs-settings.sector');

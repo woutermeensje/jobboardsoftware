@@ -14,7 +14,7 @@
         </section>
       @endif
 
-      <section class="dash-panel dash-panel--list">
+      <section class="dash-panel dash-panel--list dash-panel--companies">
         <div class="dash-panel__head">
           <div>
             <h2>Companies</h2>

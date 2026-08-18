@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\JobAlert;
 use App\Models\JobApplication;
+use App\Models\LandingPage;
 use App\Models\NewsletterSubscriber;
 use App\Models\TenantCompany;
 use App\Models\TenantJob;
@@ -424,6 +425,16 @@ class TenantFrontendController extends Controller
         return redirect()
             ->back()
             ->with('status', 'You are now subscribed to the newsletter.');
+    }
+
+    public function showLandingPage(LandingPage $landingPage): View
+    {
+        abort_unless($landingPage->tenant_id === tenant('id') && $landingPage->isPublished(), 404);
+
+        return view('tenant.landing-page', [
+            'tenant' => tenant(),
+            'landingPage' => $landingPage,
+        ]);
     }
 
     public function jobAlerts(): View

@@ -100,6 +100,11 @@ class Tenant extends BaseTenant
         return $this->hasMany(JobAlert::class);
     }
 
+    public function landingPages(): HasMany
+    {
+        return $this->hasMany(LandingPage::class);
+    }
+
     public function isActive(): bool
     {
         return $this->status === self::STATUS_ACTIVE;

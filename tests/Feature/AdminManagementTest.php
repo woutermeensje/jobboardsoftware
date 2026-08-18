@@ -11,6 +11,7 @@ use App\Models\TenantJob;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
 class AdminManagementTest extends TestCase
@@ -21,6 +22,7 @@ class AdminManagementTest extends TestCase
     {
         config(['admin.email' => 'admin@example.com']);
         Mail::fake();
+        Notification::fake();
 
         $plan = BillingPlan::create([
             'key' => Tenant::PLAN_STARTER,
@@ -37,15 +39,19 @@ class AdminManagementTest extends TestCase
             'first_name' => 'Nina',
             'last_name' => 'Owner',
             'email' => 'nina@example.com',
-            'company_name' => 'Nina Careers',
             'phone_number' => '0612345678',
             'heard_about_us' => 'Google',
-            'billing_plan_id' => $plan->id,
             'password' => 'password123',
             'password_confirmation' => 'password123',
-        ])->assertRedirect(route('billing.checkout'));
+        ])->assertRedirect(route('verification.notice'));
 
         $owner = User::where('email', 'nina@example.com')->firstOrFail();
+        $owner->forceFill([
+            'email_verified_at' => now(),
+            'company_name' => 'Nina Careers',
+            'billing_plan_id' => $plan->id,
+            'onboarding_step' => 'billing',
+        ])->save();
 
         $this->actingAs($owner)->get('/client/dashboard')->assertOk();
         $this->actingAs($owner)->get('/client/dashboard/billing')->assertOk();

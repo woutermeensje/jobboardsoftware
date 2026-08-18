@@ -45,7 +45,14 @@ class PublicUploadStorage
             return tenant_asset($path);
         }
 
-        return Storage::disk(self::diskName())->url($path);
+        $url = Storage::disk(self::diskName())->url($path);
+        $disk = config('filesystems.disks.'.self::diskName(), []);
+
+        if (($disk['driver'] ?? null) === 'local') {
+            return parse_url($url, PHP_URL_PATH) ?: '/storage/'.$path;
+        }
+
+        return $url;
     }
 
     private static function tenantPrefix(string|int|null $tenantId): string

@@ -42,6 +42,7 @@ Route::middleware([
     Route::post('/job-alerts', [TenantFrontendController::class, 'storeJobAlert'])->name('tenant.job-alerts.store');
     Route::get('/newsletter', [TenantFrontendController::class, 'newsletter'])->name('tenant.newsletter');
     Route::post('/newsletter', [TenantFrontendController::class, 'storeNewsletter'])->name('tenant.newsletter.store');
+    Route::get('/pages/{landingPage:slug}', [TenantFrontendController::class, 'showLandingPage'])->name('tenant.pages.show');
 
     Route::controller(PortalAuthController::class)->group(function (): void {
         Route::get('/login', 'showTenantLoginChoice')->name('tenant.login.choice');

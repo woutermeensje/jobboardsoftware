@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Domain;
 use App\Models\JobAlert;
 use App\Models\JobApplication;
+use App\Models\LandingPage;
 use App\Models\NewsletterSubscriber;
 use App\Models\Tenant;
 use App\Models\TenantCompany;
@@ -305,6 +306,154 @@ class ClientDashboardController extends Controller
                 ->latest()
                 ->get(),
         ]);
+    }
+
+    public function landingPages(Request $request): View
+    {
+        $tenants = $request->user()
+            ->ownedTenants()
+            ->with('domains')
+            ->latest()
+            ->get();
+        $tenantIds = $tenants->pluck('id');
+
+        $customPages = LandingPage::query()
+            ->with('tenant.domains')
+            ->whereIn('tenant_id', $tenantIds)
+            ->latest()
+            ->get();
+
+        $pages = collect();
+
+        foreach ($tenants as $tenant) {
+            $domain = $tenant->domains->firstWhere('is_primary', true) ?? $tenant->domains->first();
+            $baseUrl = $domain ? 'https://'.$domain->domain : null;
+
+            foreach ($this->systemFrontendPages() as $systemPage) {
+                $pages->push([
+                    'title' => $systemPage['title'],
+                    'url' => $baseUrl ? $baseUrl.$systemPage['path'] : null,
+                    'tenant_name' => $tenant->name,
+                    'type' => 'system',
+                    'status' => null,
+                    'landing_page' => null,
+                ]);
+            }
+        }
+
+        foreach ($customPages as $customPage) {
+            $domain = $customPage->tenant?->domains->firstWhere('is_primary', true) ?? $customPage->tenant?->domains->first();
+            $baseUrl = $domain ? 'https://'.$domain->domain : null;
+
+            $pages->push([
+                'title' => $customPage->title,
+                'url' => $baseUrl ? $baseUrl.'/pages/'.$customPage->slug : null,
+                'tenant_name' => $customPage->tenant?->name,
+                'type' => 'custom',
+                'status' => $customPage->status,
+                'landing_page' => $customPage,
+            ]);
+        }
+
+        return view('client.marketing-landingpagina', [
+            'user' => $request->user(),
+            'tenants' => $tenants,
+            'pages' => $pages,
+        ]);
+    }
+
+    public function createLandingPage(Request $request): View
+    {
+        return view('client.create-landingpage', [
+            'user' => $request->user(),
+            'tenants' => $request->user()->ownedTenants()->latest()->get(),
+            'landingPage' => null,
+        ]);
+    }
+
+    public function editLandingPage(Request $request, LandingPage $landingPage): View
+    {
+        $this->abortUnlessOwnedLandingPage($request, $landingPage);
+
+        return view('client.create-landingpage', [
+            'user' => $request->user(),
+            'tenants' => $request->user()->ownedTenants()->latest()->get(),
+            'landingPage' => $landingPage,
+        ]);
+    }
+
+    public function storeLandingPage(Request $request): RedirectResponse
+    {
+        $this->saveClientLandingPage($request);
+
+        return redirect()
+            ->route('client.marketing.landingpagina')
+            ->with('status', 'Landing page created.');
+    }
+
+    public function updateLandingPage(Request $request, LandingPage $landingPage): RedirectResponse
+    {
+        $this->abortUnlessOwnedLandingPage($request, $landingPage);
+        $this->saveClientLandingPage($request, $landingPage);
+
+        return redirect()
+            ->route('client.marketing.landingpagina')
+            ->with('status', 'Landing page updated.');
+    }
+
+    public function destroyLandingPage(Request $request, LandingPage $landingPage): RedirectResponse
+    {
+        $this->abortUnlessOwnedLandingPage($request, $landingPage);
+        $landingPage->delete();
+
+        return redirect()
+            ->route('client.marketing.landingpagina')
+            ->with('status', 'Landing page deleted.');
+    }
+
+    private function saveClientLandingPage(Request $request, ?LandingPage $landingPage = null): LandingPage
+    {
+        $validated = $request->validate([
+            'tenant_id' => [
+                'required',
+                Rule::exists('tenants', 'id')->where(fn ($query) => $query->where('owner_user_id', $request->user()->id)),
+            ],
+            'title' => ['required', 'string', 'max:255'],
+            'meta_description' => ['nullable', 'string', 'max:500'],
+            'content' => ['required', 'string', 'max:20000'],
+            'status' => ['required', Rule::in([LandingPage::STATUS_DRAFT, LandingPage::STATUS_PUBLISHED])],
+        ]);
+
+        $tenant = Tenant::query()
+            ->where('owner_user_id', $request->user()->id)
+            ->findOrFail($validated['tenant_id']);
+
+        $content = RichTextSanitizer::sanitize($validated['content']);
+
+        if ($content === null) {
+            return back()
+                ->withErrors(['content' => 'Enter page content.'])
+                ->withInput()
+                ->throwResponse();
+        }
+
+        $landingPageAttributes = [
+            'tenant_id' => $tenant->id,
+            'title' => $validated['title'],
+            'meta_description' => $validated['meta_description'] ?? null,
+            'content' => $content,
+            'status' => $validated['status'],
+        ];
+
+        if ($landingPage) {
+            $landingPage->update($landingPageAttributes);
+
+            return $landingPage->refresh();
+        }
+
+        $landingPageAttributes['slug'] = $this->uniqueLandingPageSlug($tenant, $validated['title']);
+
+        return LandingPage::query()->create($landingPageAttributes);
     }
 
     public function newsletterSubscribers(Request $request): View
@@ -845,9 +994,19 @@ class ClientDashboardController extends Controller
             }
         }
 
-        $logoPath = $request->hasFile('logo')
-            ? PublicUploadStorage::store($request->file('logo'), 'company-logos', $tenant->id)
-            : $company?->logo_path;
+        $logoPath = $company?->logo_path;
+
+        if ($request->hasFile('logo')) {
+            try {
+                $logoPath = PublicUploadStorage::store($request->file('logo'), 'company-logos', $tenant->id);
+            } catch (RuntimeException) {
+                return back()
+                    ->withErrors(['logo' => 'The company logo could not be saved. Check that public upload storage is writable.'])
+                    ->withInput()
+                    ->throwResponse();
+            }
+        }
+
         $description = RichTextSanitizer::sanitize($validated['description'] ?? null);
         $contactName = trim(collect([
             $validated['contact_first_name'] ?? null,
@@ -1166,6 +1325,14 @@ class ClientDashboardController extends Controller
         );
     }
 
+    private function abortUnlessOwnedLandingPage(Request $request, LandingPage $landingPage): void
+    {
+        abort_unless(
+            $request->user()->ownedTenants()->whereKey($landingPage->tenant_id)->exists(),
+            404,
+        );
+    }
+
     /**
      * @return array<string, array<string, string>>
      */
@@ -1201,13 +1368,6 @@ class ClientDashboardController extends Controller
             'marketing' => [
                 'title' => 'Marketing',
                 'description' => 'Build the custom marketing overview here.',
-            ],
-            'landingpagina' => [
-                'title' => 'Landing pages',
-                'description' => 'Build the custom landing page editor here.',
-                'layout' => 'form',
-                'aside_title' => 'Landing page setup',
-                'aside_description' => 'Landing pages should stay connected to the selected environment and campaign goal.',
             ],
             'socials' => [
                 'title' => 'Social channels',
@@ -1351,6 +1511,32 @@ class ClientDashboardController extends Controller
         }
 
         return $slug;
+    }
+
+    private function uniqueLandingPageSlug(Tenant $tenant, string $title): string
+    {
+        $base = Str::slug($title) ?: 'page';
+        $slug = $base;
+        $suffix = 2;
+
+        while (LandingPage::query()->where('tenant_id', $tenant->id)->where('slug', $slug)->exists()) {
+            $slug = $base.'-'.$suffix;
+            $suffix++;
+        }
+
+        return $slug;
+    }
+
+    /**
+     * @return array<int, array{title: string, path: string}>
+     */
+    private function systemFrontendPages(): array
+    {
+        return [
+            ['title' => 'Post a job', 'path' => '/post-a-job'],
+            ['title' => 'Login', 'path' => '/login'],
+            ['title' => 'Sign up', 'path' => '/sign-up'],
+        ];
     }
 
     private function isValidDomain(string $domain): bool
