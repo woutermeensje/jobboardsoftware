@@ -124,6 +124,20 @@
   font-size: 14px;
 }
 
+.auth-choice-card.auth-choice-card--simple::before {
+  content: none;
+}
+
+.auth-choice-card.auth-choice-card--simple {
+  min-height: 0;
+  padding: 28px;
+}
+
+.auth-choice-card.auth-choice-card--simple:hover {
+  box-shadow: none;
+  transform: none;
+}
+
 .auth-form-card {
   width: min(420px, 100%);
   margin: 0 auto;

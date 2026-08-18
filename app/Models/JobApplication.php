@@ -23,6 +23,7 @@ class JobApplication extends Model
     protected $fillable = [
         'tenant_id',
         'tenant_job_id',
+        'user_id',
         'name',
         'email',
         'phone',
@@ -39,5 +40,10 @@ class JobApplication extends Model
     public function job(): BelongsTo
     {
         return $this->belongsTo(TenantJob::class, 'tenant_job_id');
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 }

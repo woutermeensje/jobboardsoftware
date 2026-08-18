@@ -4,6 +4,7 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+@import './upload.css';
 
 /* ===============================
    Global Form Controls
@@ -84,46 +85,6 @@ input[type="checkbox"],
 input[type="radio"]{
   accent-color: var(--color-primary);
 }
-
-input[type="file"]{
-  width: 100%;
-  padding: 8px 12px;
-  border: 1px solid #dedede;
-  border-radius: 5px;
-  background: var(--field-bg);
-  font-family: var(--font-text);
-  font-size: 14px;
-  color: var(--color-text);
-  line-height: 1.4;
-}
-
-input[type="file"]:hover{
-  border-color: var(--field-border-hover);
-}
-
-input[type="file"]:focus{
-  outline: none;
-  border-color: var(--field-focus);
-}
-
-input[type="file"]::file-selector-button{
-  margin-right: 12px;
-  border: 1px solid var(--color-primary);
-  border-radius: var(--radius-default);
-  background: var(--color-primary);
-  color: #fff;
-  font-family: var(--font-ui);
-  font-size: 13px;
-  font-weight: 600;
-  padding: 8px 10px;
-  cursor: pointer;
-}
-
-input[type="file"]::file-selector-button:hover{
-  background: var(--color-primary-strong);
-  border-color: var(--color-primary-strong);
-}
-
 
 /* ===============================
    Form Layout Styling
@@ -353,24 +314,6 @@ input[type="file"]::file-selector-button:hover{
 .form-control:focus-visible{
   outline: none;
   border-color: var(--field-focus);
-}
-
-.form-control[type="file"]{
-  padding: 8px 12px;
-  cursor: pointer;
-}
-
-.form-control[type="file"]::file-selector-button{
-  margin-right: 12px;
-  border: 1px solid var(--color-primary);
-  border-radius: var(--radius-default);
-  background: var(--color-primary);
-  color: #fff;
-  font-family: var(--font-ui);
-  font-size: 13px;
-  font-weight: 600;
-  padding: 8px 10px;
-  cursor: pointer;
 }
 
 .form-actions,
@@ -740,160 +683,6 @@ input[type="file"]::file-selector-button:hover{
   color: var(--color-primary-strong);
 }
 
-/* File upload (custom) */
-.file-input{
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0,0,0,0);
-  border: 0;
-}
-
-.file-field{
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-  min-width: 0;
-  padding: 8px 12px;
-  border: var(--border-default);
-  border-radius: var(--radius-default);
-  background: var(--color-bg-white);
-  cursor: pointer;
-  transition: border-color .15s ease, transform .15s ease, background .15s ease;
-}
-
-.file-field:hover{
-  transform: translateY(-1px);
-  background: var(--color-bg);
-}
-
-.file-field:focus-within{
-  border-color: var(--color-primary);
-
-}
-
-.file-icon{
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: #F3F4F6;
-  border: 1px solid #E5E7EB;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  flex: 0 0 36px;
-}
-
-.file-field__icon{
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: #F3F4F6;
-  border: 1px solid #E5E7EB;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  flex: 0 0 36px;
-}
-
-.file-text{
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-  flex: 1 1 auto;
-}
-
-.file-field__content{
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-  flex: 1 1 auto;
-}
-
-.file-title{
-  font-family: var(--font-ui);
-  font-weight: 700;
-  font-size: 14px;
-  color: var(--color-text);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.file-field__title{
-  font-family: var(--font-ui);
-  font-weight: 700;
-  font-size: 14px;
-  color: var(--color-text);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.file-subtitle{
-  font-family: var(--font-text);
-  font-size: 13px;
-  color: var(--color-text-muted);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.file-field__meta{
-  font-family: var(--font-text);
-  font-size: 13px;
-  color: var(--color-text-muted);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.file-cta{
-  font-family: var(--font-ui);
-  font-weight: 600;
-  font-size: 13px;
-  padding: 8px 10px;
-  border-radius: 10px;
-  background: var(--color-primary);
-  color: #fff;
-  flex: 0 0 auto;
-  white-space: nowrap;
-}
-
-.file-field:hover .file-cta{
-  background: #0B1220;
-}
-
-.file-preview-hint{
-  margin-top: 2px;
-  color: var(--color-text-muted);
-  font-size: 13px;
-}
-
-.file-remove{
-  border: 1px solid var(--color-accent-muted, rgba(217, 154, 91, .30));
-  border-radius: var(--radius-default);
-  background: var(--color-accent-soft);
-  color: var(--color-accent-strong);
-  cursor: pointer;
-  font-family: var(--font-ui);
-  font-size: 13px;
-  font-weight: 700;
-  padding: 8px 10px;
-}
-
-.file-remove:hover{
-  background: var(--color-accent-tint, rgba(217, 154, 91, .16));
-}
-
 /* ===============================
    Toggle and option groups
 ================================ */
@@ -929,27 +718,10 @@ input[type="file"]::file-selector-button:hover{
 }
 
 /* Keep upload controls inside narrow sidebar cards, such as employer profiles. */
-.portal-layout__side .file-field{
+.portal-layout__side .upload-box{
   max-width: 100%;
   overflow: hidden;
 }
-
-.portal-layout__side .file-text{
-  min-width: 0;
-}
-
-@media (max-width: 560px){
-  .file-field{
-    flex-wrap: wrap;
-    align-items: flex-start;
-  }
-
-  .file-cta{
-    width: 100%;
-    text-align: center;
-  }
-}
-
 
 .auth-footer-links {
   margin-top: 14px;

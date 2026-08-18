@@ -318,39 +318,74 @@ class TenantFrontendController extends Controller
     {
         abort_unless($job->tenant_id === tenant('id') && $job->isPublished(), 404);
 
+        $tenant = tenant();
+        $createAccount = $request->boolean('create_account');
+
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'first_name' => ['required', 'string', 'max:255'],
+            'last_name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255'],
-            'phone' => ['nullable', 'string', 'max:40'],
-            'motivation' => ['nullable', 'string', 'max:3000'],
+            'phone_number' => ['nullable', 'string', 'max:40'],
+            'motivation' => ['nullable', 'string', 'max:5000'],
             'cv' => ['nullable', 'file', 'mimes:pdf,doc,docx', 'max:5120'],
+            'password' => [Rule::requiredIf($createAccount), 'nullable', 'confirmed', Password::min(8)],
         ]);
+
+        $name = trim($validated['first_name'].' '.$validated['last_name']);
+
+        if ($createAccount && User::query()->where('tenant_id', $tenant->id)->where('email', $validated['email'])->exists()) {
+            return back()
+                ->withErrors(['email' => 'An account already exists for this email address on this job board.'])
+                ->withInput();
+        }
 
         $cvPath = null;
 
         if ($request->hasFile('cv')) {
-            $cvPath = PublicUploadStorage::store($request->file('cv'), 'applications', tenant('id'));
+            $cvPath = PublicUploadStorage::store($request->file('cv'), 'applications', $tenant->id);
+        }
+
+        $userId = null;
+
+        if ($createAccount) {
+            $user = User::create([
+                'tenant_id' => $tenant->id,
+                'name' => $name,
+                'first_name' => $validated['first_name'],
+                'last_name' => $validated['last_name'],
+                'email' => $validated['email'],
+                'phone_number' => $validated['phone_number'] ?? null,
+                'heard_about_us' => 'Job application',
+                'password' => $validated['password'],
+                'role' => User::ROLE_JOBSEEKER,
+            ]);
+
+            $userId = $user->id;
+            Auth::login($user);
+            $request->session()->regenerate();
         }
 
         $application = JobApplication::create([
-            'tenant_id' => tenant('id'),
+            'tenant_id' => $tenant->id,
             'tenant_job_id' => $job->id,
-            'name' => $validated['name'],
+            'user_id' => $userId,
+            'name' => $name,
             'email' => $validated['email'],
-            'phone' => $validated['phone'] ?? null,
-            'motivation' => $validated['motivation'] ?? null,
+            'phone' => $validated['phone_number'] ?? null,
+            'motivation' => $this->sanitizeRichText($validated['motivation'] ?? null),
             'cv_path' => $cvPath,
             'status' => JobApplication::STATUS_NEW,
         ]);
 
         app(AdminActionNotifier::class)->notify('New application received', [
-            'tenant_id' => tenant('id'),
-            'tenant_name' => tenant('name'),
+            'tenant_id' => $tenant->id,
+            'tenant_name' => $tenant->name,
             'job' => $job->title,
             'applicant' => $application->name,
             'email' => $application->email,
             'phone' => $application->phone,
             'cv_uploaded' => (bool) $application->cv_path,
+            'account_created' => $createAccount,
         ]);
 
         return redirect()

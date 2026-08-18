@@ -1,0 +1,157 @@
+/* ===============================
+   Upload box — shared file upload component
+   Used app-wide for every file/CV/logo picker.
+   Pairs with the generic [data-file-picker] / [data-file-name]
+   JS handler in resources/js/app.js.
+================================ */
+
+.upload-box {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 100%;
+  padding: 28px 20px;
+  border: 1.5px dashed var(--color-border-strong, var(--color-border));
+  border-radius: var(--radius-default);
+  background: var(--color-bg-white);
+  color: var(--color-text);
+  text-align: center;
+  cursor: pointer;
+  transition: border-color .16s ease, background-color .16s ease;
+}
+
+.upload-box:hover,
+.upload-box:focus-within {
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+}
+
+.upload-box input[type="file"] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.upload-box__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin-bottom: 6px;
+  border-radius: 999px;
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  font-size: 20px;
+}
+
+.upload-box__title {
+  margin: 0;
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.upload-box__title span {
+  color: var(--color-primary);
+}
+
+.upload-box__meta {
+  margin: 0;
+  font-family: var(--font-text);
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.upload-box__filename {
+  display: inline-block;
+  max-width: 100%;
+  margin-top: 6px;
+  padding: 4px 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--color-primary-soft);
+  color: var(--color-primary-strong);
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.upload-box.is-invalid {
+  border-color: var(--color-accent-strong);
+}
+
+/* Compact / inline variant — logo pickers and other small file fields */
+.upload-box--compact {
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  width: auto;
+  min-width: 240px;
+  padding: 10px 14px;
+  text-align: left;
+}
+
+.upload-box--compact .upload-box__icon {
+  width: 36px;
+  height: 36px;
+  margin-bottom: 0;
+  border-radius: var(--radius-default);
+  font-size: 17px;
+  flex: 0 0 auto;
+}
+
+.upload-box--compact .upload-box__body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.upload-box--compact .upload-box__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: max-content;
+  max-width: 100%;
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: var(--radius-default);
+  background: var(--color-primary);
+  color: var(--color-bg-white);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.upload-box--compact .upload-box__filename {
+  margin-top: 0;
+  padding: 0;
+  overflow: hidden;
+  background: none;
+  color: var(--color-text-muted);
+  font-weight: 400;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 560px) {
+  .upload-box--compact {
+    flex-wrap: wrap;
+    width: 100%;
+  }
+}
