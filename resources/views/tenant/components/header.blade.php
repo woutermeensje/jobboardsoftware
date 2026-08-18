@@ -8,15 +8,7 @@
   }
 
   $primaryNav = [
-    [
-      'label' => 'Jobs',
-      'url' => route('tenant.jobs'),
-      'active' => request()->routeIs('tenant.home', 'tenant.jobs', 'tenant.jobs.show'),
-      'children' => [
-        ['label' => 'All jobs', 'url' => route('tenant.jobs'), 'active' => request()->routeIs('tenant.home', 'tenant.jobs')],
-        ['label' => 'Contact', 'url' => route('tenant.contact'), 'active' => request()->routeIs('tenant.contact')],
-      ],
-    ],
+    ['label' => 'Jobs', 'url' => route('tenant.jobs'), 'active' => request()->routeIs('tenant.home', 'tenant.jobs', 'tenant.jobs.show')],
     ['label' => 'Pricing', 'url' => route('tenant.pricing'), 'active' => request()->routeIs('tenant.pricing')],
     ['label' => 'Job alerts', 'url' => route('tenant.job-alerts'), 'active' => request()->routeIs('tenant.job-alerts*')],
     ['label' => 'Newsletter', 'url' => route('tenant.newsletter'), 'active' => request()->routeIs('tenant.newsletter*')],
