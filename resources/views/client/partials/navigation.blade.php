@@ -1,15 +1,25 @@
 @php
-  $hasEnvironment = auth()->user()?->ownedTenants()->exists() ?? false;
-
   $items = [
     ['label' => 'Dashboard', 'icon' => 'ph-squares-four', 'url' => route('client.dashboard'), 'active' => request()->routeIs('client.dashboard')],
     [
-      'label' => 'Environments',
-      'icon' => 'ph-buildings',
-      'url' => route('client.environments.index'),
-      'active' => request()->routeIs('client.environments.*'),
-      'children' => $hasEnvironment ? [] : [
-        ['label' => 'Create environment', 'url' => route('client.environments.create'), 'active' => request()->routeIs('client.environments.create')],
+      'label' => 'My jobboard',
+      'icon' => 'ph-browser',
+      'url' => route('client.settings'),
+      'active' => request()->routeIs(
+        'client.settings*',
+        'client.environments.*',
+        'client.domains.*',
+        'client.job-alerts.*',
+        'client.newsletter-subscribers.*',
+        'client.billing',
+      ),
+      'children' => [
+        ['label' => 'Settings', 'url' => route('client.settings'), 'active' => request()->routeIs('client.settings*')],
+        ['label' => 'Environment', 'url' => route('client.environments.index'), 'active' => request()->routeIs('client.environments.*')],
+        ['label' => 'Domains', 'url' => route('client.domains.index'), 'active' => request()->routeIs('client.domains.*')],
+        ['label' => 'Job alerts', 'url' => route('client.job-alerts.index'), 'active' => request()->routeIs('client.job-alerts.*')],
+        ['label' => 'Newsletter', 'url' => route('client.newsletter-subscribers.index'), 'active' => request()->routeIs('client.newsletter-subscribers.*')],
+        ['label' => 'Billing', 'url' => route('client.billing'), 'active' => request()->routeIs('client.billing')],
       ],
     ],
     [
@@ -19,15 +29,6 @@
       'active' => request()->routeIs('client.jobs.*'),
       'children' => [
         ['label' => 'Create job', 'url' => route('client.jobs.create'), 'active' => request()->routeIs('client.jobs.create')],
-      ],
-    ],
-    [
-      'label' => 'Domains',
-      'icon' => 'ph-globe',
-      'url' => route('client.domains.index'),
-      'active' => request()->routeIs('client.domains.*'),
-      'children' => [
-        ['label' => 'Add domain', 'url' => route('client.domains.create'), 'active' => request()->routeIs('client.domains.create')],
       ],
     ],
     [
@@ -61,8 +62,6 @@
         ['label' => 'Create company', 'url' => route('client.companies.create'), 'active' => request()->routeIs('client.companies.create')],
       ],
     ],
-    ['label' => 'Settings', 'icon' => 'ph-sliders-horizontal', 'url' => route('client.settings'), 'active' => request()->routeIs('client.settings*')],
-    ['label' => 'Billing', 'icon' => 'ph-credit-card', 'url' => route('client.billing'), 'active' => request()->routeIs('client.billing')],
     [
       'label' => 'My packages',
       'icon' => 'ph-package',
@@ -72,8 +71,6 @@
         ['label' => 'Add packages', 'url' => route('client.packages.create'), 'active' => request()->routeIs('client.packages.create')],
       ],
     ],
-    ['label' => 'Job alerts', 'icon' => 'ph-bell', 'url' => route('client.job-alerts.index'), 'active' => request()->routeIs('client.job-alerts.*')],
-    ['label' => 'Newsletter', 'icon' => 'ph-envelope-simple', 'url' => route('client.newsletter-subscribers.index'), 'active' => request()->routeIs('client.newsletter-subscribers.*')],
   ];
 @endphp
 
