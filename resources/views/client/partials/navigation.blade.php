@@ -70,6 +70,8 @@
         ['label' => 'Add packages', 'url' => route('client.packages.create'), 'active' => request()->routeIs('client.packages.create')],
       ],
     ],
+    ['label' => 'Job alerts', 'icon' => 'ph-bell', 'url' => route('client.job-alerts.index'), 'active' => request()->routeIs('client.job-alerts.*')],
+    ['label' => 'Newsletter', 'icon' => 'ph-envelope-simple', 'url' => route('client.newsletter-subscribers.index'), 'active' => request()->routeIs('client.newsletter-subscribers.*')],
   ];
 @endphp
 
