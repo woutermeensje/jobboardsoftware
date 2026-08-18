@@ -90,6 +90,16 @@ class Tenant extends BaseTenant
         return $this->hasMany(JobApplication::class);
     }
 
+    public function newsletterSubscribers(): HasMany
+    {
+        return $this->hasMany(NewsletterSubscriber::class);
+    }
+
+    public function jobAlerts(): HasMany
+    {
+        return $this->hasMany(JobAlert::class);
+    }
+
     public function isActive(): bool
     {
         return $this->status === self::STATUS_ACTIVE;

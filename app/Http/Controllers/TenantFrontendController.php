@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\JobAlert;
 use App\Models\JobApplication;
+use App\Models\NewsletterSubscriber;
 use App\Models\TenantCompany;
 use App\Models\TenantJob;
 use App\Models\TenantPackage;
@@ -318,6 +320,79 @@ class TenantFrontendController extends Controller
         return redirect()
             ->route('tenant.jobs.show', $job)
             ->with('status', 'Your application has been received.');
+    }
+
+    public function newsletter(): View
+    {
+        return view('tenant.newsletter', [
+            'tenant' => tenant(),
+            'brandName' => $this->tenantBrandName(),
+        ]);
+    }
+
+    public function storeNewsletter(Request $request): RedirectResponse
+    {
+        $tenant = tenant();
+
+        $validated = $request->validate([
+            'first_name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255'],
+        ]);
+
+        NewsletterSubscriber::updateOrCreate(
+            ['tenant_id' => $tenant->id, 'email' => $validated['email']],
+            ['first_name' => $validated['first_name']],
+        );
+
+        return redirect()
+            ->route('tenant.newsletter')
+            ->with('status', 'You are now subscribed to the newsletter.');
+    }
+
+    public function jobAlerts(): View
+    {
+        $tenant = tenant();
+        $filterOptions = $this->cachedFilterOptions((string) $tenant->id);
+
+        return view('tenant.job-alerts', [
+            'tenant' => $tenant,
+            'brandName' => $this->tenantBrandName(),
+            'employmentTypes' => $filterOptions['employmentTypes'],
+            'departments' => $filterOptions['departments'],
+            'sectors' => $filterOptions['sectors'],
+            'organizationTypes' => $filterOptions['organizationTypes'],
+        ]);
+    }
+
+    public function storeJobAlert(Request $request): RedirectResponse
+    {
+        $tenant = tenant();
+
+        $validated = $request->validate([
+            'email' => ['required', 'email', 'max:255'],
+            'employment_type' => ['nullable', 'array'],
+            'employment_type.*' => ['string', 'max:80'],
+            'department' => ['nullable', 'array'],
+            'department.*' => ['string', 'max:80'],
+            'sector' => ['nullable', 'array'],
+            'sector.*' => ['string', 'max:80'],
+            'organization_type' => ['nullable', 'array'],
+            'organization_type.*' => ['string', 'max:80'],
+        ]);
+
+        JobAlert::updateOrCreate(
+            ['tenant_id' => $tenant->id, 'email' => $validated['email']],
+            [
+                'employment_types' => $validated['employment_type'] ?? [],
+                'departments' => $validated['department'] ?? [],
+                'sectors' => $validated['sector'] ?? [],
+                'organization_types' => $validated['organization_type'] ?? [],
+            ],
+        );
+
+        return redirect()
+            ->route('tenant.job-alerts')
+            ->with('status', 'Your job alert has been saved.');
     }
 
     public function contact(): View
