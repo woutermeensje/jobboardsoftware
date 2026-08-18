@@ -144,8 +144,8 @@
             @forelse($plans as $plan)
               @php
                 $planId = (string) $plan->id;
-                $features = collect($plan->features ?? [])->take(4);
-                $monthlyPrice = $plan->monthly_price_cents === 0 ? 'Custom' : $plan->formattedMonthlyPrice();
+                $features = collect($plan->features ?? []);
+                $monthlyPrice = $plan->formattedMonthlyPrice();
               @endphp
 
               <label class="signup-plan-card" for="billing_plan_{{ $plan->id }}">

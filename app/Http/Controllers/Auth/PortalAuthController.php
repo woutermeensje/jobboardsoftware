@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\BillingPlan;
 use App\Models\User;
 use App\Support\AdminActionNotifier;
+use App\Support\BillingPlanCatalog;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -498,10 +499,13 @@ class PortalAuthController extends Controller
 
     private function activeBillingPlans()
     {
+        $sortOrder = array_flip(BillingPlanCatalog::sortOrder());
+
         return BillingPlan::query()
             ->where('is_active', true)
-            ->orderByRaw('CASE WHEN monthly_price_cents = 0 THEN 1 ELSE 0 END')
             ->orderBy('monthly_price_cents')
-            ->get();
+            ->get()
+            ->sortBy(fn (BillingPlan $plan): int => (($sortOrder[$plan->key] ?? 99) * 100000000) + $plan->monthly_price_cents)
+            ->values();
     }
 }

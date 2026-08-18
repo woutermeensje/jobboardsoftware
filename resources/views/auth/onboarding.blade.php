@@ -11,6 +11,7 @@
   $currentIndex = array_search($step, $stepKeys, true);
   $selectedPlanId = (string) old('billing_plan_id', optional($selectedPlan)->id ?? optional($plans->first())->id);
   $trialDays = (int) config('billing.free_trial_days', 14);
+  $selectedPlanIsFree = $selectedPlan && (int) $selectedPlan->monthly_price_cents === 0;
 @endphp
 
 @section('title', $title.' | '.$brandTitle)
@@ -126,8 +127,8 @@
             @forelse($plans as $plan)
               @php
                 $planId = (string) $plan->id;
-                $features = collect($plan->features ?? [])->take(4);
-                $monthlyPrice = $plan->monthly_price_cents === 0 ? 'Custom' : $plan->formattedMonthlyPrice();
+                $features = collect($plan->features ?? []);
+                $monthlyPrice = $plan->formattedMonthlyPrice();
               @endphp
 
               <label class="signup-plan-card" for="billing_plan_{{ $plan->id }}">
@@ -200,13 +201,15 @@
 
           <div class="auth-actions">
             <button class="auth-button auth-button--primary" type="submit">
-              Finish sign up
+              {{ $selectedPlanIsFree ? 'Start free trial' : 'Finish sign up' }}
               <i class="ph ph-arrow-right"></i>
             </button>
           </div>
         </form>
 
-        <p class="signup-payment__note">Payment details are entered securely on Stripe Checkout.</p>
+        <p class="signup-payment__note">
+          {{ $selectedPlanIsFree ? 'No payment details are needed for the free trial.' : 'Payment details are entered securely on Stripe Checkout.' }}
+        </p>
       @endif
     </section>
   </div>

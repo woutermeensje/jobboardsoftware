@@ -7,39 +7,7 @@
 @include('pages.partials.page-styles')
 
 @php
-  $fakeBenefits = [
-    'Placeholder benefit one',
-    'Placeholder benefit two',
-    'Placeholder benefit three',
-    'Placeholder benefit four',
-    'Placeholder benefit five',
-    'Placeholder benefit six',
-    'Placeholder benefit seven',
-    'Placeholder benefit eight',
-    'Placeholder benefit nine',
-    'Placeholder benefit ten',
-  ];
-
-  $plans = [
-    [
-      'name' => 'Free plan',
-      'price' => '14-day free trial',
-      'description' => 'Try the platform and explore the core job board tools.',
-      'features' => $fakeBenefits,
-    ],
-    [
-      'name' => 'Standard plan',
-      'price' => '€149 per month',
-      'description' => 'For job boards that are ready to publish and grow.',
-      'features' => $fakeBenefits,
-    ],
-    [
-      'name' => 'Pro plan',
-      'price' => '€249 per month',
-      'description' => 'For professional job boards with advanced growth needs.',
-      'features' => $fakeBenefits,
-    ],
-  ];
+  $plans = \App\Support\BillingPlanCatalog::publicPlans();
 @endphp
 
 <div class="content-page">

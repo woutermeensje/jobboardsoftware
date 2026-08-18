@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\BillingPlan;
 use App\Models\Tenant;
+use App\Models\User;
 use App\Support\AdminActionNotifier;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -29,9 +30,7 @@ class BillingController extends Controller
         }
 
         if ($plan->monthly_price_cents === 0) {
-            return redirect()
-                ->route('client.billing')
-                ->with('status', 'Your account is ready. We will contact you to finish the custom plan setup.');
+            return $this->activateFreePlan($user);
         }
 
         $stripePriceId = $this->stripePriceIdFor($plan);
@@ -107,6 +106,36 @@ class BillingController extends Controller
         $priceId = $plan->stripe_price_id ?: config('services.stripe.prices.'.$plan->key);
 
         return is_string($priceId) && Str::startsWith($priceId, 'price_') ? $priceId : null;
+    }
+
+    private function activateFreePlan(User $user): RedirectResponse
+    {
+        $trialDays = $this->freeTrialDays();
+        $isTrial = $trialDays > 0;
+
+        $user->forceFill([
+            'billing_status' => $isTrial ? 'trial' : 'active',
+            'onboarding_step' => $user->ownedTenants()->exists() ? 'jobs' : 'environment',
+        ])->save();
+
+        $user->ownedTenants()->update([
+            'billing_status' => $isTrial ? 'trial' : 'active',
+            'status' => $isTrial ? Tenant::STATUS_TRIAL : Tenant::STATUS_ACTIVE,
+            'trial_ends_at' => $isTrial ? now()->addDays($trialDays) : null,
+        ]);
+
+        app(AdminActionNotifier::class)->notify($isTrial ? 'Trial started' : 'Free plan activated', [
+            'billing_status' => $user->billing_status,
+            'onboarding_step' => $user->onboarding_step,
+            'free_trial_days' => $trialDays,
+            'tenant_count' => $user->ownedTenants()->count(),
+        ], $user);
+
+        return redirect()
+            ->route('client.environments.index')
+            ->with('status', $isTrial
+                ? 'Your free trial is active for '.$trialDays.' days.'
+                : 'Your free plan is active.');
     }
 
     private function freeTrialDays(): int

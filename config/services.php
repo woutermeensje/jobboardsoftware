@@ -24,9 +24,9 @@ return [
 
     'stripe' => [
         'prices' => [
-            'starter' => env('STRIPE_PRICE_STARTER'),
-            'growth' => env('STRIPE_PRICE_GROWTH'),
-            'enterprise' => env('STRIPE_PRICE_ENTERPRISE', env('STRIPE_PRICE_PLATFORM')),
+            'starter' => env('STRIPE_PRICE_FREE', env('STRIPE_PRICE_STARTER')),
+            'growth' => env('STRIPE_PRICE_STANDARD', env('STRIPE_PRICE_GROWTH')),
+            'enterprise' => env('STRIPE_PRICE_PRO', env('STRIPE_PRICE_ENTERPRISE', env('STRIPE_PRICE_PLATFORM'))),
         ],
     ],
 

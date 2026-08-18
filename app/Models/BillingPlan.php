@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\BillingPlanCatalog;
 use Database\Factories\BillingPlanFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -37,10 +38,10 @@ class BillingPlan extends Model
 
     public function formattedMonthlyPrice(): string
     {
-        if ($this->monthly_price_cents === 0) {
-            return 'Op maat';
-        }
-
-        return 'EUR '.number_format($this->monthly_price_cents / 100, 0, ',', '.').' / mnd';
+        return BillingPlanCatalog::priceLabel(
+            $this->key,
+            $this->monthly_price_cents,
+            $this->currency,
+        );
     }
 }

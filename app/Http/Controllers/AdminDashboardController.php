@@ -8,6 +8,7 @@ use App\Models\JobApplication;
 use App\Models\Tenant;
 use App\Models\TenantJob;
 use App\Models\User;
+use App\Support\BillingPlanCatalog;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -38,7 +39,7 @@ class AdminDashboardController extends Controller
         return view('admin.users', [
             'user' => $request->user(),
             'users' => User::with('billingPlan')->withCount('ownedTenants')->latest()->get(),
-            'plans' => BillingPlan::query()->orderBy('monthly_price_cents')->get(),
+            'plans' => $this->billingPlans(),
         ]);
     }
 
@@ -77,7 +78,7 @@ class AdminDashboardController extends Controller
         return view('admin.tenants', [
             'user' => $request->user(),
             'tenants' => Tenant::with(['owner', 'domains'])->withCount(['jobs', 'applications'])->latest()->get(),
-            'plans' => BillingPlan::query()->orderBy('monthly_price_cents')->get(),
+            'plans' => $this->billingPlans(),
         ]);
     }
 
@@ -199,5 +200,16 @@ class AdminDashboardController extends Controller
         $application->update($validated);
 
         return back()->with('status', 'Application updated.');
+    }
+
+    private function billingPlans()
+    {
+        $sortOrder = array_flip(BillingPlanCatalog::sortOrder());
+
+        return BillingPlan::query()
+            ->orderBy('monthly_price_cents')
+            ->get()
+            ->sortBy(fn (BillingPlan $plan): int => (($sortOrder[$plan->key] ?? 99) * 100000000) + $plan->monthly_price_cents)
+            ->values();
     }
 }

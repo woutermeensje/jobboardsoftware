@@ -7,6 +7,7 @@ use App\Models\Domain;
 use App\Models\Tenant;
 use App\Models\TenantJob;
 use App\Models\User;
+use App\Support\BillingPlanCatalog;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
@@ -20,41 +21,16 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $plans = collect([
-            [
-                'key' => Tenant::PLAN_STARTER,
-                'name' => 'Starter',
-                'description' => 'For a niche job board or MVP with a custom domain.',
-                'monthly_price_cents' => 4900,
-                'features' => ['1 job board', 'Custom domain', 'Basic management portal', 'Job management'],
-                'limits' => ['tenants' => 1, 'jobs' => 50, 'domains' => 1],
-            ],
-            [
-                'key' => Tenant::PLAN_GROWTH,
-                'name' => 'Growth',
-                'description' => 'For agencies and communities managing multiple job boards.',
-                'monthly_price_cents' => 14900,
-                'features' => ['3 job boards', 'Multiple domains', 'Advanced management', 'Priority support'],
-                'limits' => ['tenants' => 3, 'jobs' => 250, 'domains' => 6],
-            ],
-            [
-                'key' => Tenant::PLAN_ENTERPRISE,
-                'name' => 'Platform',
-                'description' => 'For white-label software, custom integrations and higher volumes.',
-                'monthly_price_cents' => 0,
-                'features' => ['Unlimited tenants', 'Custom integrations', 'Dedicated onboarding'],
-                'limits' => ['tenants' => null, 'jobs' => null, 'domains' => null],
-            ],
-        ])->map(fn (array $plan) => BillingPlan::updateOrCreate(
+        $plans = collect(BillingPlanCatalog::definitions())->map(fn (array $plan) => BillingPlan::updateOrCreate(
             ['key' => $plan['key']],
             [
                 'name' => $plan['name'],
                 'description' => $plan['description'],
                 'monthly_price_cents' => $plan['monthly_price_cents'],
-                'currency' => 'eur',
+                'currency' => $plan['currency'],
                 'features' => $plan['features'],
                 'limits' => $plan['limits'],
-                'is_active' => true,
+                'is_active' => $plan['is_active'],
             ],
         ));
 

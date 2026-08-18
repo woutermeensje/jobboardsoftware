@@ -205,12 +205,14 @@ class ClientDashboardController extends Controller
             'subdomain.regex' => 'Use only lowercase letters, numbers and hyphens.',
         ]);
 
+        $tenantPlan = $request->user()->billingPlan?->key ?? Tenant::PLAN_STARTER;
+
         $tenant = Tenant::create([
             'id' => $validated['subdomain'],
             'owner_user_id' => $request->user()->id,
             'name' => $validated['name'],
             'slug' => $validated['subdomain'],
-            'plan' => Tenant::PLAN_STARTER,
+            'plan' => $tenantPlan,
             'status' => Tenant::STATUS_TRIAL,
             'billing_status' => 'trial',
             'onboarding_step' => 'domain',

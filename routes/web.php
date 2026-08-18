@@ -69,6 +69,8 @@ $centralRoutes = function (): void {
         Route::post('/sign-up/setup', 'updateSaasOnboarding')
             ->middleware(['auth', 'role:tenant_owner', 'verified'])
             ->name('register.onboarding.update');
+        Route::redirect('/set-up', '/sign-up/setup');
+        Route::redirect('/setup', '/sign-up/setup');
         Route::redirect('/sign-up/jobseeker', '/sign-up')->name('register.jobseeker');
         Route::redirect('/sign-up/job-seeker', '/sign-up')->name('register.werkzoekende');
         Route::redirect('/sign-up/employer', '/sign-up')->name('register.employer');
