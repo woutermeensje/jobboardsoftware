@@ -9,14 +9,7 @@
   $employmentTypes = collect(explode(',', (string) $job->employment_type))
     ->map(fn (string $type): string => trim($type))
     ->filter()
-    ->values();
-  $chipLabels = collect($employmentTypes)
-    ->when($job->department, fn ($chips) => $chips->push($job->department))
-    ->when($companyName, fn ($chips) => $chips->push($companyName))
-    ->when($job->location, fn ($chips) => $chips->push($job->location))
-    ->when($job->salary_range, fn ($chips) => $chips->push($job->salary_range))
-    ->filter()
-    ->unique(fn (string $tag): string => mb_strtolower($tag))
+    ->unique(fn (string $type): string => mb_strtolower($type))
     ->values();
 @endphp
 
@@ -43,10 +36,28 @@
     <div class="tenant-job-card__main">
       <h3>{{ $job->title }}</h3>
 
-      @if($chipLabels->isNotEmpty())
+      @if($companyName || $job->location)
+        <div class="tenant-job-card__meta">
+          @if($companyName)
+            <span>
+              <i class="ph ph-buildings" aria-hidden="true"></i>
+              {{ $companyName }}
+            </span>
+          @endif
+
+          @if($job->location)
+            <span>
+              <i class="ph ph-map-pin" aria-hidden="true"></i>
+              {{ $job->location }}
+            </span>
+          @endif
+        </div>
+      @endif
+
+      @if($employmentTypes->isNotEmpty())
         <div class="tenant-job-card__tags">
-          @foreach($chipLabels as $tag)
-            <span>{{ $tag }}</span>
+          @foreach($employmentTypes as $type)
+            <span>{{ $type }}</span>
           @endforeach
         </div>
       @endif

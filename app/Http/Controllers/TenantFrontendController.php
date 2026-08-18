@@ -335,17 +335,23 @@ class TenantFrontendController extends Controller
         $tenant = tenant();
 
         $validated = $request->validate([
-            'first_name' => ['required', 'string', 'max:255'],
+            'first_name' => ['nullable', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255'],
         ]);
 
-        NewsletterSubscriber::updateOrCreate(
-            ['tenant_id' => $tenant->id, 'email' => $validated['email']],
-            ['first_name' => $validated['first_name']],
-        );
+        $subscriber = NewsletterSubscriber::firstOrNew([
+            'tenant_id' => $tenant->id,
+            'email' => $validated['email'],
+        ]);
+
+        if (filled($validated['first_name'] ?? null)) {
+            $subscriber->first_name = $validated['first_name'];
+        }
+
+        $subscriber->save();
 
         return redirect()
-            ->route('tenant.newsletter')
+            ->back()
             ->with('status', 'You are now subscribed to the newsletter.');
     }
 

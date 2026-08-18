@@ -35,7 +35,7 @@
               <tbody>
                 @foreach($subscribers as $subscriber)
                   <tr>
-                    <td><span class="dash-cell-title">{{ $subscriber->first_name }}</span></td>
+                    <td><span class="dash-cell-title">{{ $subscriber->first_name ?: 'No name provided' }}</span></td>
                     <td>{{ $subscriber->email }}</td>
                     <td>
                       <span class="dash-cell-title">{{ $subscriber->tenant?->name ?? $subscriber->tenant_id }}</span>

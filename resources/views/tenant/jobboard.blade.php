@@ -65,6 +65,23 @@
 
         <section class="tenant-jobs-results-section" aria-label="Job results">
           <div class="tenant-jobs">
+            <div class="tenant-job-card tenant-newsletter-card">
+              <form method="POST" action="{{ route('tenant.newsletter.store') }}" class="tenant-newsletter-card__form">
+                @csrf
+
+                <div class="tenant-newsletter-card__row">
+                  <h3 class="tenant-newsletter-card__title">Subscribe to Job Alerts</h3>
+
+                  <div class="tenant-newsletter-card__field">
+                    <input type="email" name="email" placeholder="Email Address" value="{{ old('email') }}" required>
+                    <button type="submit" class="tenant-newsletter-card__submit">Subscribe</button>
+                  </div>
+                </div>
+
+                <p class="tenant-newsletter-card__consent">By subscribing, you're consenting to us sending you job updates from {{ $brandName }}.</p>
+              </form>
+            </div>
+
             @forelse($jobs as $job)
               @include('tenant.components.job-card', ['job' => $job])
             @empty

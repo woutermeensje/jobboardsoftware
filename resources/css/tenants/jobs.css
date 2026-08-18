@@ -73,6 +73,102 @@
   transform: translateY(-1px);
 }
 
+.tenant-newsletter-card:hover {
+  border-color: var(--color-border);
+  transform: none;
+}
+
+.tenant-newsletter-card__form {
+  display: grid;
+  gap: 10px;
+  padding: 22px 24px;
+}
+
+.tenant-newsletter-card__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.tenant-newsletter-card__title {
+  margin: 0;
+  color: var(--color-text);
+  font-family: 'Inter', var(--font-heading), sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.25;
+  white-space: nowrap;
+}
+
+.tenant-newsletter-card__field {
+  display: flex;
+  flex: 1 1 340px;
+  max-width: 460px;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+  background: var(--color-bg-white);
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+
+.tenant-newsletter-card__field:focus-within {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 14%, transparent);
+}
+
+.tenant-newsletter-card__field input {
+  width: 100%;
+  min-width: 0;
+  height: 42px;
+  padding: 0 14px;
+  border: 0;
+  background: transparent;
+  color: var(--color-text);
+  font-family: var(--font-text);
+  font-size: 14px;
+}
+
+.tenant-newsletter-card__field input:focus {
+  outline: none;
+}
+
+.tenant-newsletter-card__field input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.tenant-newsletter-card__submit {
+  appearance: none;
+  flex: 0 0 auto;
+  height: 42px;
+  padding: 0 20px;
+  border: 0;
+  border-left: 1px solid color-mix(in srgb, var(--color-primary) 82%, var(--color-black) 18%);
+  background: var(--color-primary);
+  color: var(--color-bg-white);
+  cursor: pointer;
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+  transition: background-color .18s ease;
+}
+
+.tenant-newsletter-card__submit:hover,
+.tenant-newsletter-card__submit:focus-visible {
+  background: color-mix(in srgb, var(--color-primary) 82%, var(--color-black) 18%);
+  outline: none;
+}
+
+.tenant-newsletter-card__consent {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 12px;
+  font-style: italic;
+}
+
 .tenant-job-card__logo {
   position: relative;
   display: inline-flex;
@@ -154,7 +250,7 @@
   margin: 0;
   color: var(--color-text);
   font-family: 'Inter', var(--font-heading), sans-serif;
-  font-size: clamp(16px, 1.8vw, 19px);
+  font-size: clamp(12px, 1.8vw, 15px);
   font-weight: 700;
   line-height: 1.25;
 }
