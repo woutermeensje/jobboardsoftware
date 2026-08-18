@@ -11,16 +11,24 @@
     ->map(fn (string $type): string => trim($type))
     ->filter()
     ->values();
-  $tagLabels = collect([$job->department])
-    ->merge($employmentTypes)
+  $chipLabels = collect($employmentTypes)
+    ->when($job->department, fn ($chips) => $chips->push($job->department))
+    ->when($companyName, fn ($chips) => $chips->push($companyName))
+    ->when($job->location, fn ($chips) => $chips->push($job->location))
+    ->when($job->salary_range, fn ($chips) => $chips->push($job->salary_range))
     ->filter()
     ->unique(fn (string $tag): string => mb_strtolower($tag))
     ->values();
-  $excerptSource = trim(strip_tags((string) ($job->intro ?: $job->description)));
-  $excerpt = $excerptSource !== '' ? \Illuminate\Support\Str::words($excerptSource, 35) : null;
 @endphp
 
 <article class="tenant-job-card">
+  @if($postedLabel)
+    <span class="tenant-job-card__posted">
+      <i class="ph ph-calendar-blank" aria-hidden="true"></i>
+      {{ $postedLabel }}
+    </span>
+  @endif
+
   <a class="tenant-job-card__body" href="{{ route('tenant.jobs.show', $job) }}">
     <span class="tenant-job-card__logo @unless($companyLogoUrl) tenant-job-card__logo--empty @endunless" aria-hidden="true">
       <span class="tenant-job-card__logo-text">{{ $logoInitial }}</span>
@@ -34,54 +42,19 @@
     </span>
 
     <div class="tenant-job-card__main">
-      @if($companyName)
-        <p class="tenant-job-card__company">{{ $companyName }}</p>
-      @endif
-
       <h3>{{ $job->title }}</h3>
 
-      @if($excerpt)
-        <p class="tenant-job-card__excerpt">{{ $excerpt }}</p>
-      @endif
-
-      @if($job->location || $postedLabel || $job->salary_range)
-        <div class="tenant-job-card__meta">
-          @if($job->location)
-            <span>
-              <i class="ph ph-map-pin" aria-hidden="true"></i>
-              {{ $job->location }}
-            </span>
-          @endif
-
-          @if($postedLabel)
-            <span>
-              <i class="ph ph-calendar-blank" aria-hidden="true"></i>
-              {{ $postedLabel }}
-            </span>
-          @endif
-
-          @if($job->salary_range)
-            <span>
-              <i class="ph ph-wallet" aria-hidden="true"></i>
-              {{ $job->salary_range }}
-            </span>
-          @endif
-        </div>
-      @endif
-    </div>
-
-    <div class="tenant-job-card__side">
-      @if($tagLabels->isNotEmpty())
+      @if($chipLabels->isNotEmpty())
         <div class="tenant-job-card__tags">
-          @foreach($tagLabels as $tag)
+          @foreach($chipLabels as $tag)
             <span>{{ $tag }}</span>
           @endforeach
         </div>
       @endif
-
-      <span class="tenant-job-card__cta" aria-hidden="true">
-        <i class="ph ph-arrow-right"></i>
-      </span>
     </div>
+
+    <span class="tenant-job-card__cta" aria-hidden="true">
+      <i class="ph ph-arrow-right"></i>
+    </span>
   </a>
 </article>

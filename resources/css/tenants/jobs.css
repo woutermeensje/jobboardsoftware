@@ -110,7 +110,7 @@
 
 .tenant-job-card__body {
   display: grid;
-  grid-template-columns: 73px minmax(0, 1fr) minmax(190px, auto);
+  grid-template-columns: 73px minmax(0, 1fr) 34px;
   align-items: center;
   gap: 18px;
   min-height: 112px;
@@ -127,8 +127,27 @@
 
 .tenant-job-card__main {
   display: grid;
-  gap: 6px;
+  gap: 10px;
   min-width: 0;
+}
+
+.tenant-job-card__posted {
+  position: absolute;
+  top: 20px;
+  right: 22px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-text-subtle);
+  font-family: var(--font-text);
+  font-size: 12px;
+  font-weight: 600;
+  pointer-events: none;
+}
+
+.tenant-job-card__posted i {
+  font-size: 14px;
 }
 
 .tenant-job-card h3,
@@ -141,58 +160,10 @@
   line-height: 1.25;
 }
 
-.tenant-job-card__company {
-  margin: 0;
-  color: var(--color-text-muted);
-  font-family: var(--font-text);
-  font-size: 13px;
-  font-weight: 500;
-  line-height: 1.25;
-}
-
-.tenant-job-card__excerpt {
-  max-width: 62ch;
-  margin: 0;
-  color: var(--color-text-muted);
-  font-family: var(--font-text);
-  font-size: 13px;
-  font-weight: 300;
-  line-height: 1.5;
-}
-
-.tenant-job-card__side {
-  min-width: 0;
-  display: grid;
-  justify-items: end;
-  gap: 12px;
-}
-
-.tenant-job-card__meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 14px;
-  color: var(--color-text-muted);
-  font-size: 13px;
-  line-height: 1.35;
-}
-
-.tenant-job-card__meta span {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  white-space: nowrap;
-}
-
-.tenant-job-card__meta i {
-  color: var(--color-text-subtle);
-  font-size: 16px;
-  font-weight: 700;
-}
-
 .tenant-job-card__tags {
   display: flex;
   flex-wrap: wrap;
-  justify-content: flex-end;
+  justify-content: flex-start;
   gap: 10px;
 }
 
@@ -260,17 +231,8 @@
 
 @media (max-width: 900px) {
   .tenant-job-card__body {
-    grid-template-columns: 58px minmax(0, 1fr);
+    grid-template-columns: 58px minmax(0, 1fr) 34px;
     gap: 14px;
-  }
-
-  .tenant-job-card__side {
-    grid-column: 2;
-  }
-
-  .tenant-job-card__tags {
-    justify-content: flex-start;
-    justify-items: start;
   }
 }
 
@@ -288,13 +250,13 @@
     padding: 16px;
   }
 
-  .tenant-job-card__meta {
-    gap: 12px;
-    font-size: 14px;
+  .tenant-job-card__posted {
+    top: 16px;
+    right: 16px;
   }
 
-  .tenant-job-card__side {
-    grid-column: 1 / -1;
+  .tenant-job-card__main {
+    padding-right: 100px;
   }
 
   .tenant-job-card__cta {
