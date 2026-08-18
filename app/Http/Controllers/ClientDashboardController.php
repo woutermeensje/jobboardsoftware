@@ -89,18 +89,16 @@ class ClientDashboardController extends Controller
                     }
                 },
             ],
-            'is_primary' => ['nullable', 'boolean'],
         ]);
 
         $tenant = Tenant::query()
             ->where('owner_user_id', $request->user()->id)
             ->findOrFail($validated['tenant_id']);
 
-        $makePrimary = (bool) ($validated['is_primary'] ?? false) || ! $tenant->domains()->exists();
+        // Only one domain may be primary/live, and only one replacement can be pending at a time.
+        $tenant->domains()->where('is_primary', false)->delete();
 
-        if ($makePrimary) {
-            $tenant->domains()->update(['is_primary' => false]);
-        }
+        $makePrimary = ! $tenant->domains()->exists();
 
         $verificationToken = Str::random(40);
         $domain = $tenant->domains()->create([
@@ -127,7 +125,9 @@ class ClientDashboardController extends Controller
 
         return redirect()
             ->route('client.domains.index')
-            ->with('status', 'Domain connected. Add the DNS records below to complete verification.');
+            ->with('status', $makePrimary
+                ? 'Domain connected. Add the DNS records below to complete verification.'
+                : 'Domain connected. Once DNS verification succeeds, this will replace your current domain. Add the DNS records below to complete verification.');
     }
 
     public function verifyDomain(Request $request, Domain $domain): RedirectResponse
@@ -139,10 +139,15 @@ class ClientDashboardController extends Controller
 
         $verified = $domain->checkDnsVerification();
 
+        if ($verified) {
+            $domain->tenant->domains()->whereKeyNot($domain->id)->delete();
+            $domain->forceFill(['is_primary' => true])->save();
+        }
+
         return back()->with(
             'status',
             $verified
-                ? 'DNS verification succeeded. SSL can now be activated.'
+                ? 'DNS verification succeeded and this domain now replaces your previous domain. SSL can now be activated.'
                 : 'DNS records were not found yet. Check the values below and try again.',
         );
     }

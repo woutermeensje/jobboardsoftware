@@ -16,7 +16,9 @@
                 <h2>Environments</h2>
                 <p>Current job boards owned by this account.</p>
               </div>
-              <a class="dash-link" href="{{ route('client.environments.create') }}">Create environment</a>
+              @if($tenants->isEmpty())
+                <a class="dash-link" href="{{ route('client.environments.create') }}">Create environment</a>
+              @endif
             </div>
 
             <div class="dash-panel__body">

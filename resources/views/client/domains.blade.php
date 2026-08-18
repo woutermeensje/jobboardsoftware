@@ -33,7 +33,7 @@
             <div class="dash-panel__head">
               <div>
                 <h2>Connect domain</h2>
-                <p>Add a custom domain to one of your job board environments.</p>
+                <p>Connect a custom domain to your job board environment. Once DNS verification succeeds, it replaces the environment's current domain &mdash; each environment can only have one live domain.</p>
               </div>
             </div>
 
@@ -73,11 +73,6 @@
                     >
                   </label>
                 </div>
-
-                <label class="domain-switch">
-                  <input type="checkbox" name="is_primary" value="1" @checked(old('is_primary'))>
-                  Primary domain for this environment
-                </label>
 
                 <div class="dash-actions dash-actions--spaced">
                   <button class="dash-btn dash-btn--primary" type="submit">
@@ -136,7 +131,9 @@
                   <tr>
                     <td>
                       <span class="dash-cell-title">{{ $domain->domain }}</span>
-                      <span class="dash-cell-meta">{{ $domain->is_primary ? 'Primary' : 'Additional' }}</span>
+                      <span class="dash-cell-meta">
+                        {{ $domain->is_primary ? 'Live domain' : 'Pending — will replace the live domain once verified' }}
+                      </span>
                     </td>
                     <td>
                       <span class="dash-cell-title">{{ $domain->tenant?->name ?? $domain->tenant_id }}</span>

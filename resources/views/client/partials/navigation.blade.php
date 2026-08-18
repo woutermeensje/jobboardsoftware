@@ -1,4 +1,6 @@
 @php
+  $hasEnvironment = auth()->user()?->ownedTenants()->exists() ?? false;
+
   $items = [
     ['label' => 'Dashboard', 'icon' => 'ph-squares-four', 'url' => route('client.dashboard'), 'active' => request()->routeIs('client.dashboard')],
     [
@@ -6,7 +8,7 @@
       'icon' => 'ph-buildings',
       'url' => route('client.environments.index'),
       'active' => request()->routeIs('client.environments.*'),
-      'children' => [
+      'children' => $hasEnvironment ? [] : [
         ['label' => 'Create environment', 'url' => route('client.environments.create'), 'active' => request()->routeIs('client.environments.create')],
       ],
     ],
