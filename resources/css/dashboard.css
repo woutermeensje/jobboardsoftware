@@ -568,7 +568,12 @@
   margin-top: 14px;
 }
 
-/* Button styling for .dash-btn / .dash-link lives in buttons.css */
+/* Button styling for .dash-btn / .dash-link lives in buttons.css.
+   Dashboard buttons use a lighter weight than the shared 600 default. */
+.dash-btn,
+.dash-link {
+  font-weight: 400;
+}
 
 .dash-card {
   padding: 18px;
