@@ -150,7 +150,15 @@
   font-size: 14px;
 }
 
-.tenant-job-card h3,
+.tenant-job-card h3 {
+  margin: 0;
+  color: var(--color-text);
+  font-family: 'Inter', var(--font-heading), sans-serif;
+  font-size: clamp(16px, 1.8vw, 19px);
+  font-weight: 700;
+  line-height: 1.25;
+}
+
 .tenant-jobs-empty h3 {
   margin: 0;
   color: var(--color-text);
