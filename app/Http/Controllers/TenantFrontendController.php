@@ -247,6 +247,42 @@ class TenantFrontendController extends Controller
             ->with('status', 'Your job has been submitted as a draft.');
     }
 
+    public function companies(): View
+    {
+        $tenant = tenant();
+
+        $companies = TenantCompany::query()
+            ->where('tenant_id', $tenant->id)
+            ->withCount(['jobs as jobs_count' => fn ($query) => $query->where('status', TenantJob::STATUS_PUBLISHED)])
+            ->orderBy('name')
+            ->get();
+
+        return view('tenant.companies-index', [
+            'tenant' => $tenant,
+            'brandName' => $this->tenantBrandName(),
+            'companies' => $companies,
+        ]);
+    }
+
+    public function showCompany(TenantCompany $company): View
+    {
+        abort_unless($company->tenant_id === tenant('id'), 404);
+
+        $jobs = TenantJob::query()
+            ->where('tenant_id', tenant('id'))
+            ->where('tenant_company_id', $company->id)
+            ->where('status', TenantJob::STATUS_PUBLISHED)
+            ->latest('published_at')
+            ->get();
+
+        return view('tenant.companies-show', [
+            'tenant' => tenant(),
+            'brandName' => $this->tenantBrandName(),
+            'company' => $company,
+            'jobs' => $jobs,
+        ]);
+    }
+
     public function showJob(TenantJob $job): View
     {
         abort_unless($job->tenant_id === tenant('id') && $job->isPublished(), 404);

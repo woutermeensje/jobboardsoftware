@@ -9,6 +9,7 @@
 
   $primaryNav = [
     ['label' => 'Jobs', 'url' => route('tenant.jobs'), 'active' => request()->routeIs('tenant.home', 'tenant.jobs', 'tenant.jobs.show')],
+    ['label' => 'Companies', 'url' => route('tenant.companies'), 'active' => request()->routeIs('tenant.companies*')],
     ['label' => 'Pricing', 'url' => route('tenant.pricing'), 'active' => request()->routeIs('tenant.pricing')],
     ['label' => 'Job alerts', 'url' => route('tenant.job-alerts'), 'active' => request()->routeIs('tenant.job-alerts*')],
     ['label' => 'Newsletter', 'url' => route('tenant.newsletter'), 'active' => request()->routeIs('tenant.newsletter*')],
@@ -17,6 +18,7 @@
 
   $utilityLinks = [
     ['label' => 'View jobs', 'url' => route('tenant.jobs').'#jobs'],
+    ['label' => 'Companies', 'url' => route('tenant.companies')],
     ['label' => 'Pricing', 'url' => route('tenant.pricing')],
     ['label' => 'Job alerts', 'url' => route('tenant.job-alerts')],
     ['label' => 'Newsletter', 'url' => route('tenant.newsletter')],
