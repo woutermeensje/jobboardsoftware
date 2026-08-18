@@ -289,6 +289,7 @@
 
 .tenant-color-field input[type="text"],
 .tenant-color-field input[name="primary_color"],
+.tenant-color-field input[name="secondary_color"],
 .tenant-settings-field input {
   width: 100%;
   min-height: 42px;

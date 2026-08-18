@@ -147,6 +147,10 @@ $centralRoutes = function (): void {
             Route::get('/job-alerts', [ClientDashboardController::class, 'jobAlerts'])->name('job-alerts.index');
         });
 
+    Route::get('/dashboard/billing/checkout', [BillingController::class, 'checkout'])
+        ->middleware(['auth', 'role:tenant_owner'])
+        ->name('billing.checkout');
+
     Route::get('/dashboard/billing/success', [BillingController::class, 'success'])
         ->middleware(['auth', 'role:tenant_owner'])
         ->name('billing.success');

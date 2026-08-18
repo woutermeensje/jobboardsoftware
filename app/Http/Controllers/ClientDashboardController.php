@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
+use RuntimeException;
 
 class ClientDashboardController extends Controller
 {
@@ -212,11 +213,12 @@ class ClientDashboardController extends Controller
             'status' => Tenant::STATUS_TRIAL,
             'billing_status' => 'trial',
             'onboarding_step' => 'domain',
-            'trial_ends_at' => now()->addDays(14),
+            'trial_ends_at' => now()->addDays((int) config('billing.free_trial_days', 14)),
             'settings' => [
                 'brand_name' => $validated['name'],
                 'primary_color' => '#2f5f80',
-                'accent_color' => '#2f5f80',
+                'secondary_color' => '#d99a5b',
+                'accent_color' => '#d99a5b',
                 'homepage_title' => 'Search all jobs',
                 'homepage_subtitle' => 'Jobs, internships and roles at '.$validated['name'].'.',
                 'intro' => 'Find your next role at '.$validated['name'].'.',
@@ -361,6 +363,7 @@ class ClientDashboardController extends Controller
                 Rule::exists('tenants', 'id')->where(fn ($query) => $query->where('owner_user_id', $request->user()->id)),
             ],
             'primary_color' => ['required', 'string', 'regex:/^#[0-9a-fA-F]{6}$/'],
+            'secondary_color' => ['required', 'string', 'regex:/^#[0-9a-fA-F]{6}$/'],
             'homepage_title' => ['nullable', 'string', 'max:255'],
             'homepage_subtitle' => ['nullable', 'string', 'max:500'],
             'logo' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,svg', 'max:2048'],
@@ -371,11 +374,20 @@ class ClientDashboardController extends Controller
             ->findOrFail($validated['tenant_id']);
         $settings = $tenant->settings ?? [];
         $settings['primary_color'] = Str::upper($validated['primary_color']);
+        $settings['secondary_color'] = Str::upper($validated['secondary_color']);
+        $settings['accent_color'] = $settings['secondary_color'];
         $settings['homepage_title'] = Str::of($validated['homepage_title'] ?? '')->squish()->toString() ?: null;
         $settings['homepage_subtitle'] = Str::of($validated['homepage_subtitle'] ?? '')->squish()->toString() ?: null;
 
         if ($request->hasFile('logo')) {
-            $settings['logo_path'] = PublicUploadStorage::store($request->file('logo'), 'tenant-logos', $tenant->id);
+            try {
+                $settings['logo_path'] = PublicUploadStorage::store($request->file('logo'), 'tenant-logos', $tenant->id);
+            } catch (RuntimeException) {
+                return back()
+                    ->withErrors(['logo' => 'The header logo could not be saved. Check that public upload storage is writable.'])
+                    ->withInput();
+            }
+
             unset($settings['logo_url']);
         }
 

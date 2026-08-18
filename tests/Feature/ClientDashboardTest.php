@@ -615,6 +615,53 @@ class ClientDashboardTest extends TestCase
             ->assertSee('storage/tenants/'.$tenant->id.'/company-logos', false);
     }
 
+    public function test_tenant_owner_can_upload_job_board_header_logo(): void
+    {
+        Storage::fake(PublicUploadStorage::diskName());
+
+        $owner = User::factory()->create(['role' => User::ROLE_TENANT_OWNER]);
+        $tenant = $this->tenantFor($owner, 'Fondsen', 'fondsen');
+
+        $this->actingAs($owner)
+            ->get('/client/dashboard/settings')
+            ->assertOk()
+            ->assertSee('Job board header logo')
+            ->assertSee('Secondary color');
+
+        $this->actingAs($owner)
+            ->patch('/client/dashboard/settings', [
+                'tenant_id' => $tenant->id,
+                'primary_color' => '#1189C9',
+                'secondary_color' => '#FF8A2A',
+                'homepage_title' => 'Impact jobs',
+                'homepage_subtitle' => 'Find roles with purpose.',
+                'logo' => UploadedFile::fake()->create('fonds-logo.png', 39, 'image/png'),
+            ])
+            ->assertRedirect(route('client.settings'))
+            ->assertSessionHas('status', 'Settings saved.');
+
+        $tenant->refresh();
+        $logoPath = $tenant->settings['logo_path'] ?? null;
+
+        $this->assertNotNull($logoPath);
+        $this->assertSame('#1189C9', $tenant->settings['primary_color'] ?? null);
+        $this->assertSame('#FF8A2A', $tenant->settings['secondary_color'] ?? null);
+        $this->assertStringContainsString('tenant-logos', $logoPath);
+        Storage::disk(PublicUploadStorage::diskName())->assertExists($logoPath);
+
+        $this->actingAs($owner)
+            ->get('/client/dashboard/settings')
+            ->assertOk()
+            ->assertSee('tenant-settings-logo-preview', false)
+            ->assertSee($logoPath, false);
+
+        $this->get('http://fondsen.jobboardsoftware.co/')
+            ->assertOk()
+            ->assertSee('tenant-brand__logo', false)
+            ->assertSee('--tenant-secondary: #FF8A2A', false)
+            ->assertSee($logoPath, false);
+    }
+
     public function test_tenant_owner_can_edit_company_from_the_client_dashboard(): void
     {
         Storage::fake(PublicUploadStorage::diskName());

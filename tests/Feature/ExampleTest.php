@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\BillingPlan;
 use App\Models\Domain;
 use App\Models\JobApplication;
 use App\Models\Tenant;
@@ -712,30 +713,47 @@ class ExampleTest extends TestCase
             ->assertDontSee('Other board package');
     }
 
-    public function test_saas_user_can_register_and_reaches_dashboard(): void
+    public function test_saas_user_can_register_and_continue_to_payment(): void
     {
+        config(['cashier.secret' => null]);
+
+        $plan = BillingPlan::factory()->create([
+            'key' => Tenant::PLAN_STARTER,
+            'name' => 'Starter',
+        ]);
+
         $response = $this->post('/sign-up', [
             'first_name' => 'New',
             'last_name' => 'User',
             'email' => 'owner@example.com',
+            'company_name' => 'New Company',
             'phone_number' => '+1 555 123 4567',
             'heard_about_us' => 'LinkedIn',
+            'billing_plan_id' => $plan->id,
             'password' => 'password123',
             'password_confirmation' => 'password123',
         ]);
 
-        $response->assertRedirect(route('client.dashboard'));
+        $response->assertRedirect(route('billing.checkout'));
         $this->assertAuthenticated();
         $this->assertDatabaseHas('users', [
             'name' => 'New User',
             'first_name' => 'New',
             'last_name' => 'User',
             'email' => 'owner@example.com',
+            'company_name' => 'New Company',
             'phone_number' => '+1 555 123 4567',
             'heard_about_us' => 'LinkedIn',
             'role' => User::ROLE_TENANT_OWNER,
             'tenant_id' => null,
+            'billing_plan_id' => $plan->id,
+            'billing_status' => 'trial',
+            'onboarding_step' => 'billing',
         ]);
+
+        $this->get(route('billing.checkout'))
+            ->assertRedirect(route('client.billing'))
+            ->assertSessionHas('status', 'Your account was created. Stripe checkout will start once the API keys and plan price IDs are configured.');
     }
 
     public function test_saas_user_can_login_and_reaches_dashboard(): void

@@ -29,7 +29,7 @@
         <div class="dash-panel__head">
           <div>
             <h2>Settings</h2>
-            <p>Manage the primary color for each job board environment.</p>
+            <p>Manage the header logo, primary color and homepage text for each job board environment.</p>
           </div>
         </div>
 
@@ -46,6 +46,8 @@
                 $settings = $tenant->settings ?? [];
                 $primaryColor = $settings['primary_color'] ?? $settings['accent_color'] ?? '#2f5f80';
                 $primaryColor = is_string($primaryColor) && preg_match('/^#[0-9a-fA-F]{6}$/', $primaryColor) ? $primaryColor : '#2f5f80';
+                $secondaryColor = $settings['secondary_color'] ?? $settings['accent_color'] ?? '#d99a5b';
+                $secondaryColor = is_string($secondaryColor) && preg_match('/^#[0-9a-fA-F]{6}$/', $secondaryColor) ? $secondaryColor : '#d99a5b';
                 $homepageTitle = $settings['homepage_title'] ?? '';
                 $homepageSubtitle = $settings['homepage_subtitle'] ?? '';
                 $logoPath = $settings['logo_path'] ?? null;
@@ -80,8 +82,23 @@
                     </span>
                   </label>
 
+                  <label class="tenant-color-field">
+                    <span>Secondary color</span>
+                    <span class="tenant-color-field__control">
+                      <input type="color" value="{{ $secondaryColor }}" data-color-picker>
+                      <input
+                        name="secondary_color"
+                        value="{{ $useOldValues ? old('secondary_color', $secondaryColor) : $secondaryColor }}"
+                        pattern="#[0-9a-fA-F]{6}"
+                        maxlength="7"
+                        required
+                        data-color-code
+                      >
+                    </span>
+                  </label>
+
                   <label class="tenant-settings-field tenant-settings-field--logo">
-                    <span>Bedrijfslogo</span>
+                    <span>Job board header logo</span>
                     <span class="upload-box upload-box--compact" data-file-picker>
                       <input type="file" name="logo" accept=".jpg,.jpeg,.png,.webp,.svg,image/jpeg,image/png,image/webp,image/svg+xml">
                       <span class="upload-box__icon" aria-hidden="true"><i class="ph ph-image"></i></span>
@@ -90,7 +107,7 @@
                         <span class="upload-box__filename" data-file-name data-empty-label="Geen bestand gekozen">Geen bestand gekozen</span>
                       </span>
                     </span>
-                    <span class="input-description">Aanbevolen formaat: 440 x 120 px. Gebruik PNG, SVG, JPG of WebP; max. 2 MB.</span>
+                    <span class="input-description">This appears in the live job board header. Use PNG, SVG, JPG or WebP; max. 2 MB.</span>
                     @if($logoUrl)
                       <span class="tenant-settings-logo-preview">
                         <img src="{{ $logoUrl }}" alt="{{ $tenant->name }} logo">

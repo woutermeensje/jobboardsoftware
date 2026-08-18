@@ -37,14 +37,15 @@ class AdminManagementTest extends TestCase
             'first_name' => 'Nina',
             'last_name' => 'Owner',
             'email' => 'nina@example.com',
+            'company_name' => 'Nina Careers',
             'phone_number' => '0612345678',
             'heard_about_us' => 'Google',
+            'billing_plan_id' => $plan->id,
             'password' => 'password123',
             'password_confirmation' => 'password123',
-        ])->assertRedirect(route('client.dashboard'));
+        ])->assertRedirect(route('billing.checkout'));
 
         $owner = User::where('email', 'nina@example.com')->firstOrFail();
-        $owner->forceFill(['billing_plan_id' => $plan->id])->save();
 
         $this->actingAs($owner)->get('/client/dashboard')->assertOk();
         $this->actingAs($owner)->get('/client/dashboard/billing')->assertOk();
@@ -92,7 +93,7 @@ class AdminManagementTest extends TestCase
 
         foreach ([
             'New user registered',
-            'License activated',
+            'Trial started',
             'New application received',
         ] as $title) {
             $this->assertAdminMailWasSent($title);

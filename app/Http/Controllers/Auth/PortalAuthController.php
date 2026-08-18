@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\BillingPlan;
 use App\Models\User;
 use App\Support\AdminActionNotifier;
 use Illuminate\Http\RedirectResponse;
@@ -28,13 +29,20 @@ class PortalAuthController extends Controller
 
     public function showRegisterChoice(): View
     {
-        return view('auth.register', [
+        $plans = BillingPlan::query()
+            ->where('is_active', true)
+            ->orderByRaw('CASE WHEN monthly_price_cents = 0 THEN 1 ELSE 0 END')
+            ->orderBy('monthly_price_cents')
+            ->get();
+
+        return view('auth.sign-up', [
             'role' => User::ROLE_TENANT_OWNER,
             'eyebrow' => 'SaaS account',
             'title' => 'Start your own job board',
-            'subtitle' => 'Create an admin account to start your license and connect your own domain.',
+            'subtitle' => 'Create your company account, choose a plan, and continue to secure Stripe checkout.',
             'action' => route('register.submit'),
             'loginUrl' => route('login.choice'),
+            'plans' => $plans,
         ]);
     }
 
@@ -171,11 +179,17 @@ class PortalAuthController extends Controller
                 'max:255',
                 Rule::unique('users', 'email')->where(fn ($query) => $query->whereNull('tenant_id')),
             ],
+            'company_name' => ['required', 'string', 'max:255'],
             'phone_number' => ['required', 'string', 'max:40'],
             'heard_about_us' => ['required', 'string', 'max:255'],
+            'billing_plan_id' => [
+                'required',
+                Rule::exists('billing_plans', 'id')->where(fn ($query) => $query->where('is_active', true)),
+            ],
             'password' => ['required', 'confirmed', Password::min(8)],
         ]);
 
+        $plan = BillingPlan::query()->findOrFail($validated['billing_plan_id']);
         $name = trim($validated['first_name'].' '.$validated['last_name']);
 
         $user = User::create([
@@ -184,16 +198,22 @@ class PortalAuthController extends Controller
             'last_name' => $validated['last_name'],
             'email' => $validated['email'],
             'phone_number' => $validated['phone_number'],
+            'company_name' => $validated['company_name'],
             'heard_about_us' => $validated['heard_about_us'],
             'password' => $validated['password'],
             'role' => $role,
+            'billing_plan_id' => $plan->id,
+            'billing_status' => 'trial',
+            'onboarding_step' => 'billing',
         ]);
 
         app(AdminActionNotifier::class)->notify('New user registered', [
             'name' => $user->name,
             'email' => $user->email,
             'phone' => $user->phone_number,
+            'company' => $user->company_name,
             'role' => $user->role,
+            'plan' => $plan->name,
             'source' => $user->heard_about_us,
         ], $user);
 
@@ -201,7 +221,7 @@ class PortalAuthController extends Controller
         $request->session()->regenerate();
 
         if ($role === User::ROLE_TENANT_OWNER) {
-            return redirect()->route('client.dashboard');
+            return redirect()->route('billing.checkout');
         }
 
         return redirect()->route($this->dashboardRouteNameFor($role));

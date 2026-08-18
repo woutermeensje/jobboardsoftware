@@ -2,8 +2,10 @@
   $tenantSettings = isset($tenant) ? ($tenant->settings ?? []) : [];
   $tenantBrandName = $tenantSettings['brand_name'] ?? $tenant->name ?? 'Jobboard';
   $tenantPrimary = $tenantSettings['primary_color'] ?? $tenantSettings['accent_color'] ?? '#2f5f80';
+  $tenantSecondary = $tenantSettings['secondary_color'] ?? $tenantSettings['accent_color'] ?? '#d99a5b';
 
   $tenantPrimary = is_string($tenantPrimary) && preg_match('/^#[0-9a-fA-F]{6}$/', $tenantPrimary) ? $tenantPrimary : '#2f5f80';
+  $tenantSecondary = is_string($tenantSecondary) && preg_match('/^#[0-9a-fA-F]{6}$/', $tenantSecondary) ? $tenantSecondary : '#d99a5b';
 @endphp
 
 <!DOCTYPE html>
@@ -29,7 +31,7 @@
 </head>
 <body
   class="tenant-body"
-  style="--tenant-primary: {{ $tenantPrimary }}; --color-primary: {{ $tenantPrimary }};"
+  style="--tenant-primary: {{ $tenantPrimary }}; --tenant-secondary: {{ $tenantSecondary }}; --color-primary: {{ $tenantPrimary }};"
 >
   <section class="tenant-page">
     @include('tenant.components.header', [

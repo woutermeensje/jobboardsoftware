@@ -5,6 +5,7 @@ namespace App\Support;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use RuntimeException;
 
 class PublicUploadStorage
 {
@@ -19,7 +20,13 @@ class PublicUploadStorage
         $tenantPrefix = self::tenantPrefix($tenantId);
         $path = trim($tenantPrefix.'/'.$directory, '/');
 
-        return $file->storePublicly($path, self::diskName());
+        $storedPath = $file->storePublicly($path, self::diskName());
+
+        if (! is_string($storedPath) || $storedPath === '') {
+            throw new RuntimeException('The uploaded file could not be stored.');
+        }
+
+        return $storedPath;
     }
 
     public static function url(?string $path): ?string

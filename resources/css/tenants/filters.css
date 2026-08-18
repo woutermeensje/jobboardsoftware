@@ -67,8 +67,8 @@
   gap: 8px;
   padding: 0 20px;
   border: 0;
-  border-left: 1px solid color-mix(in srgb, var(--color-primary) 82%, var(--color-black) 18%);
-  background: var(--color-primary);
+  border-left: 1px solid color-mix(in srgb, var(--tenant-secondary, var(--color-primary)) 82%, var(--color-black) 18%);
+  background: var(--tenant-secondary, var(--color-primary));
   color: var(--color-bg-white);
   cursor: pointer;
   font-family: var(--font-ui);
@@ -81,7 +81,7 @@
 
 .tenant-job-filters__submit:hover,
 .tenant-job-filters__submit:focus-visible {
-  background: color-mix(in srgb, var(--color-primary) 82%, var(--color-black) 18%);
+  background: color-mix(in srgb, var(--tenant-secondary, var(--color-primary)) 82%, var(--color-black) 18%);
   color: var(--color-bg-white);
 }
 
@@ -123,7 +123,7 @@
   top: 50%;
   z-index: 1;
   transform: translateY(-50%);
-  color: var(--color-primary);
+  color: var(--tenant-secondary, var(--color-primary));
   font-size: 17px;
   line-height: 1;
   pointer-events: none;

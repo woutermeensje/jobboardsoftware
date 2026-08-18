@@ -60,7 +60,7 @@
 }
 
 .tenant-nav__link.is-active {
-  color: var(--color-primary);
+  color: var(--tenant-secondary, var(--color-primary));
 }
 
 .tenant-nav__chev {
@@ -171,9 +171,9 @@
 }
 
 .tenant-mobile-nav__list a.is-active {
-  border-color: color-mix(in srgb, var(--color-primary) 24%, var(--color-bg-white));
-  background: color-mix(in srgb, var(--color-primary) 10%, var(--color-bg-white));
-  color: var(--color-primary);
+  border-color: color-mix(in srgb, var(--tenant-secondary, var(--color-primary)) 24%, var(--color-bg-white));
+  background: color-mix(in srgb, var(--tenant-secondary, var(--color-primary)) 10%, var(--color-bg-white));
+  color: var(--tenant-secondary, var(--color-primary));
 }
 
 .tenant-mobile-nav__list ul {
