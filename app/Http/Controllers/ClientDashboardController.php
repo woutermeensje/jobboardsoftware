@@ -147,6 +147,90 @@ class ClientDashboardController extends Controller
         );
     }
 
+    public function environments(Request $request): View
+    {
+        $tenants = $request->user()
+            ->ownedTenants()
+            ->with('domains')
+            ->withCount(['jobs', 'applications'])
+            ->latest()
+            ->get();
+
+        return view('client.environments', [
+            'user' => $request->user(),
+            'tenants' => $tenants,
+        ]);
+    }
+
+    public function createEnvironment(Request $request): View
+    {
+        return view('client.create-environment', [
+            'user' => $request->user(),
+            'baseDomain' => $this->dnsTarget(),
+        ]);
+    }
+
+    public function storeEnvironment(Request $request): RedirectResponse
+    {
+        $baseDomain = $this->dnsTarget();
+
+        $request->merge([
+            'subdomain' => Str::lower(trim((string) $request->input('subdomain'))),
+        ]);
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'subdomain' => [
+                'required',
+                'string',
+                'max:63',
+                'regex:/^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/',
+                Rule::unique('tenants', 'id'),
+                Rule::unique('tenants', 'slug'),
+                function (string $attribute, mixed $value, \Closure $fail) use ($baseDomain): void {
+                    if (Domain::query()->where('domain', $value.'.'.$baseDomain)->exists()) {
+                        $fail('This subdomain is already taken.');
+                    }
+                },
+            ],
+        ], [
+            'subdomain.regex' => 'Use only lowercase letters, numbers and hyphens.',
+        ]);
+
+        $tenant = Tenant::create([
+            'id' => $validated['subdomain'],
+            'owner_user_id' => $request->user()->id,
+            'name' => $validated['name'],
+            'slug' => $validated['subdomain'],
+            'plan' => Tenant::PLAN_STARTER,
+            'status' => Tenant::STATUS_TRIAL,
+            'billing_status' => 'trial',
+            'onboarding_step' => 'domain',
+            'trial_ends_at' => now()->addDays(14),
+            'settings' => [
+                'brand_name' => $validated['name'],
+                'primary_color' => '#2f5f80',
+                'accent_color' => '#2f5f80',
+                'homepage_title' => 'Search all jobs',
+                'homepage_subtitle' => 'Jobs, internships and roles at '.$validated['name'].'.',
+                'intro' => 'Find your next role at '.$validated['name'].'.',
+            ],
+        ]);
+
+        $tenant->domains()->create([
+            'domain' => $validated['subdomain'].'.'.$baseDomain,
+            'is_primary' => true,
+            'status' => Domain::STATUS_ACTIVE,
+            'ssl_status' => Domain::SSL_ACTIVE,
+            'verified_at' => now(),
+            'ssl_issued_at' => now(),
+        ]);
+
+        return redirect()
+            ->route('client.environments.index')
+            ->with('status', 'Job board environment created. It is live at '.$validated['subdomain'].'.'.$baseDomain.'.');
+    }
+
     public function section(Request $request, string $section): View
     {
         if (TenantOptionSettings::has($section)) {
@@ -1037,17 +1121,6 @@ class ClientDashboardController extends Controller
     private function sections(): array
     {
         return [
-            'environments' => [
-                'title' => 'Environments',
-                'description' => 'Design the custom overview and settings for a user job board environment here.',
-            ],
-            'create-environment' => [
-                'title' => 'Create environment',
-                'description' => 'Build the custom flow for creating a new job board environment here.',
-                'layout' => 'form',
-                'aside_title' => 'Environment setup',
-                'aside_description' => 'Connect the environment to the brand, domain and job settings that belong to this job board.',
-            ],
             'jobs' => [
                 'title' => 'Jobs',
                 'description' => 'Build the custom job management screens here.',

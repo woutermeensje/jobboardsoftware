@@ -204,10 +204,13 @@
 
                   <label class="tenant-form__field">
                     Logo file
-                    <span class="tenant-logo-upload tenant-logo-upload--with-filename" data-file-picker>
-                      <span class="tenant-file-picker__button">Choose file</span>
-                      <span class="tenant-file-picker__filename" data-file-name data-empty-label="No file selected">No file selected</span>
+                    <span class="upload-box upload-box--compact" data-file-picker>
                       <input type="file" name="logo" accept=".jpg,.jpeg,.png,.webp,.svg,image/jpeg,image/png,image/webp,image/svg+xml">
+                      <span class="upload-box__icon" aria-hidden="true"><i class="ph ph-image"></i></span>
+                      <span class="upload-box__body">
+                        <span class="upload-box__button">Choose file</span>
+                        <span class="upload-box__filename" data-file-name data-empty-label="No file selected">No file selected</span>
+                      </span>
                     </span>
                     <span class="input-description">Upload a PNG, JPG, WebP or SVG logo. Maximum file size: 2 MB.</span>
                     @if($isEditing && $company?->logo_path)

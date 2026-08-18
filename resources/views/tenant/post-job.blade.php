@@ -229,9 +229,13 @@
 
               <label class="tenant-post-job-form__field tenant-post-job-form__logo-field">
                 Add logo
-                <span class="tenant-logo-upload" data-file-picker>
-                  <span class="tenant-file-picker__button">Choose file</span>
+                <span class="upload-box upload-box--compact" data-file-picker>
                   <input type="file" name="company_logo" accept=".jpg,.jpeg,.png,.webp,.svg,image/jpeg,image/png,image/webp,image/svg+xml">
+                  <span class="upload-box__icon" aria-hidden="true"><i class="ph ph-image"></i></span>
+                  <span class="upload-box__body">
+                    <span class="upload-box__button">Choose file</span>
+                    <span class="upload-box__filename" data-file-name data-empty-label="No file selected">No file selected</span>
+                  </span>
                 </span>
                 @error('company_logo')<span class="tenant-post-job-form__error">{{ $message }}</span>@enderror
               </label>

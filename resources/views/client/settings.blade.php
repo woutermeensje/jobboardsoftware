@@ -82,10 +82,13 @@
 
                   <label class="tenant-settings-field tenant-settings-field--logo">
                     <span>Bedrijfslogo</span>
-                    <span class="tenant-logo-upload tenant-logo-upload--with-filename" data-file-picker>
-                      <span class="tenant-file-picker__button">Bestand kiezen</span>
-                      <span class="tenant-file-picker__filename" data-file-name data-empty-label="Geen bestand gekozen">Geen bestand gekozen</span>
+                    <span class="upload-box upload-box--compact" data-file-picker>
                       <input type="file" name="logo" accept=".jpg,.jpeg,.png,.webp,.svg,image/jpeg,image/png,image/webp,image/svg+xml">
+                      <span class="upload-box__icon" aria-hidden="true"><i class="ph ph-image"></i></span>
+                      <span class="upload-box__body">
+                        <span class="upload-box__button">Bestand kiezen</span>
+                        <span class="upload-box__filename" data-file-name data-empty-label="Geen bestand gekozen">Geen bestand gekozen</span>
+                      </span>
                     </span>
                     <span class="input-description">Aanbevolen formaat: 440 x 120 px. Gebruik PNG, SVG, JPG of WebP; max. 2 MB.</span>
                     @if($logoUrl)

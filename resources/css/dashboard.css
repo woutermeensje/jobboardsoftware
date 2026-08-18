@@ -309,7 +309,7 @@
   box-shadow: 0 0 0 3px var(--color-primary-soft);
 }
 
-.tenant-settings-field--logo .tenant-logo-upload.tenant-logo-upload--with-filename {
+.tenant-settings-field--logo .upload-box--compact {
   width: 100%;
   min-width: 0;
 }
