@@ -10,7 +10,7 @@
 @section('content')
       <div class="dash-layout">
         <main class="dash-main">
-          <section class="dash-panel">
+          <section class="dash-panel dash-panel--list">
             <div class="dash-panel__head">
               <div>
                 <h2>Environments</h2>
@@ -19,34 +19,36 @@
               <a class="dash-link" href="{{ route('client.environments.create') }}">Create environment</a>
             </div>
 
-            <table class="dash-table">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Plan</th>
-                  <th>Domains</th>
-                  <th>Jobs</th>
-                </tr>
-              </thead>
-              <tbody>
-                @forelse($tenants as $tenant)
+            <div class="dash-panel__body">
+              <table class="dash-table">
+                <thead>
                   <tr>
-                    <td>
-                      <span class="dash-cell-title">{{ $tenant->name }}</span>
-                      <span class="dash-cell-meta">{{ $tenant->slug }}</span>
-                    </td>
-                    <td>{{ ucfirst($tenant->plan) }}</td>
-                    <td>{{ $tenant->domains->count() }}</td>
-                    <td>{{ $tenant->jobs_count }}</td>
+                    <th>Name</th>
+                    <th>Plan</th>
+                    <th>Domains</th>
+                    <th>Jobs</th>
                   </tr>
-                @empty
-                  <tr><td colspan="4">No environments yet.</td></tr>
-                @endforelse
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  @forelse($tenants as $tenant)
+                    <tr>
+                      <td>
+                        <span class="dash-cell-title">{{ $tenant->name }}</span>
+                        <span class="dash-cell-meta">{{ $tenant->slug }}</span>
+                      </td>
+                      <td>{{ ucfirst($tenant->plan) }}</td>
+                      <td>{{ $tenant->domains->count() }}</td>
+                      <td>{{ $tenant->jobs_count }}</td>
+                    </tr>
+                  @empty
+                    <tr><td colspan="4">No environments yet.</td></tr>
+                  @endforelse
+                </tbody>
+              </table>
+            </div>
           </section>
 
-          <section class="dash-panel">
+          <section class="dash-panel dash-panel--list">
             <div class="dash-panel__head">
               <div>
                 <h2>Recent jobs</h2>
@@ -55,29 +57,31 @@
               <a class="dash-link" href="{{ route('client.jobs.create') }}">Create job</a>
             </div>
 
-            <table class="dash-table">
-              <thead>
-                <tr>
-                  <th>Job</th>
-                  <th>Tenant</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                @forelse($jobs as $job)
+            <div class="dash-panel__body">
+              <table class="dash-table">
+                <thead>
                   <tr>
-                    <td>
-                      <span class="dash-cell-title">{{ $job->title }}</span>
-                      <span class="dash-cell-meta">{{ $job->location ?: 'No location' }}</span>
-                    </td>
-                    <td>{{ $job->tenant_id }}</td>
-                    <td><span class="dash-status">{{ ucfirst($job->status) }}</span></td>
+                    <th>Job</th>
+                    <th>Tenant</th>
+                    <th>Status</th>
                   </tr>
-                @empty
-                  <tr><td colspan="3">No jobs yet.</td></tr>
-                @endforelse
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  @forelse($jobs as $job)
+                    <tr>
+                      <td>
+                        <span class="dash-cell-title">{{ $job->title }}</span>
+                        <span class="dash-cell-meta">{{ $job->location ?: 'No location' }}</span>
+                      </td>
+                      <td>{{ $job->tenant_id }}</td>
+                      <td><span class="dash-status">{{ ucfirst($job->status) }}</span></td>
+                    </tr>
+                  @empty
+                    <tr><td colspan="3">No jobs yet.</td></tr>
+                  @endforelse
+                </tbody>
+              </table>
+            </div>
           </section>
         </main>
 

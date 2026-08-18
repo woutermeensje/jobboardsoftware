@@ -103,7 +103,7 @@
         </aside>
       </div>
 
-      <section class="dash-panel">
+      <section class="dash-panel dash-panel--list">
         <div class="dash-panel__head">
           <div>
             <h2>Connected domains</h2>
@@ -111,73 +111,75 @@
           </div>
         </div>
 
-        @if($domains->isEmpty())
-          <div class="dash-empty">
-            <h3>No domains connected</h3>
-            <p>Your connected domains will appear here.</p>
-          </div>
-        @else
-          <table class="dash-table domain-table">
-            <thead>
-              <tr>
-                <th>Domain</th>
-                <th>Environment</th>
-                <th>Status</th>
-                <th>DNS records</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              @foreach($domains as $domain)
-                @php
-                  $payload = $domain->verification_payload ?? [];
-                @endphp
+        <div class="dash-panel__body">
+          @if($domains->isEmpty())
+            <div class="dash-empty">
+              <h3>No domains connected</h3>
+              <p>Your connected domains will appear here.</p>
+            </div>
+          @else
+            <table class="dash-table domain-table">
+              <thead>
                 <tr>
-                  <td>
-                    <span class="dash-cell-title">{{ $domain->domain }}</span>
-                    <span class="dash-cell-meta">{{ $domain->is_primary ? 'Primary' : 'Additional' }}</span>
-                  </td>
-                  <td>
-                    <span class="dash-cell-title">{{ $domain->tenant?->name ?? $domain->tenant_id }}</span>
-                    <span class="dash-cell-meta">{{ $domain->tenant_id }}</span>
-                  </td>
-                  <td>
-                    <span class="dash-status">{{ ucfirst($domain->status) }}</span>
-                    <span class="dash-cell-meta">SSL: {{ ucfirst($domain->ssl_status) }}</span>
-                  </td>
-                  <td>
-                    <div class="domain-records">
-                      <div>
-                        <span>CNAME</span>
-                        <code>{{ $payload['host'] ?? $domain->domain }}</code>
-                        <code>{{ $payload['value'] ?? $dnsTarget }}</code>
-                      </div>
-                      @if(! empty($payload['txt_name']) && ! empty($payload['txt_value']))
-                        <div>
-                          <span>TXT</span>
-                          <code>{{ $payload['txt_name'] }}</code>
-                          <code>{{ $payload['txt_value'] }}</code>
-                        </div>
-                      @endif
-                    </div>
-                  </td>
-                  <td>
-                    @if($domain->isReadyForTraffic())
-                      <span class="dash-status dash-status--muted">Ready</span>
-                    @else
-                      <form method="POST" action="{{ route('client.domains.verify', $domain) }}">
-                        @csrf
-                        <button class="dash-btn dash-btn--ghost btn-sm" type="submit">
-                          <i class="ph ph-arrows-clockwise" aria-hidden="true"></i>
-                          Check DNS
-                        </button>
-                      </form>
-                    @endif
-                  </td>
+                  <th>Domain</th>
+                  <th>Environment</th>
+                  <th>Status</th>
+                  <th>DNS records</th>
+                  <th>Action</th>
                 </tr>
-              @endforeach
-            </tbody>
-          </table>
-        @endif
+              </thead>
+              <tbody>
+                @foreach($domains as $domain)
+                  @php
+                    $payload = $domain->verification_payload ?? [];
+                  @endphp
+                  <tr>
+                    <td>
+                      <span class="dash-cell-title">{{ $domain->domain }}</span>
+                      <span class="dash-cell-meta">{{ $domain->is_primary ? 'Primary' : 'Additional' }}</span>
+                    </td>
+                    <td>
+                      <span class="dash-cell-title">{{ $domain->tenant?->name ?? $domain->tenant_id }}</span>
+                      <span class="dash-cell-meta">{{ $domain->tenant_id }}</span>
+                    </td>
+                    <td>
+                      <span class="dash-status">{{ ucfirst($domain->status) }}</span>
+                      <span class="dash-cell-meta">SSL: {{ ucfirst($domain->ssl_status) }}</span>
+                    </td>
+                    <td>
+                      <div class="domain-records">
+                        <div>
+                          <span>CNAME</span>
+                          <code>{{ $payload['host'] ?? $domain->domain }}</code>
+                          <code>{{ $payload['value'] ?? $dnsTarget }}</code>
+                        </div>
+                        @if(! empty($payload['txt_name']) && ! empty($payload['txt_value']))
+                          <div>
+                            <span>TXT</span>
+                            <code>{{ $payload['txt_name'] }}</code>
+                            <code>{{ $payload['txt_value'] }}</code>
+                          </div>
+                        @endif
+                      </div>
+                    </td>
+                    <td>
+                      @if($domain->isReadyForTraffic())
+                        <span class="dash-status dash-status--muted">Ready</span>
+                      @else
+                        <form method="POST" action="{{ route('client.domains.verify', $domain) }}">
+                          @csrf
+                          <button class="dash-btn dash-btn--ghost btn-sm" type="submit">
+                            <i class="ph ph-arrows-clockwise" aria-hidden="true"></i>
+                            Check DNS
+                          </button>
+                        </form>
+                      @endif
+                    </td>
+                  </tr>
+                @endforeach
+              </tbody>
+            </table>
+          @endif
+        </div>
       </section>
 @endsection

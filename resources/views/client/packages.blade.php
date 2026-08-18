@@ -12,7 +12,7 @@
         <section class="dash-card dash-card--success"><strong>{{ session('status') }}</strong></section>
       @endif
 
-      <section class="dash-panel">
+      <section class="dash-panel dash-panel--list">
         <div class="dash-panel__head">
           <div>
             <h2>My packages</h2>
@@ -21,51 +21,53 @@
           <a class="dash-link" href="{{ route('client.packages.create') }}">Add packages</a>
         </div>
 
-        @if(! $packageTableReady)
-          <div class="dash-empty">
-            <h3>Package setup is not ready yet</h3>
-            <p>Run the latest database migrations before adding packages.</p>
-          </div>
-        @elseif($packages->isEmpty())
-          <div class="dash-empty">
-            <h3>No packages yet</h3>
-            <p>Add your first package to make it available on the post-a-job form.</p>
-            @if($tenants->isEmpty())
-              <div class="dash-actions">
-                <a class="dash-link" href="{{ route('client.environments.create') }}">Create environment</a>
-              </div>
-            @else
-              <div class="dash-actions">
-                <a class="dash-link" href="{{ route('client.packages.create') }}">Add packages</a>
-              </div>
-            @endif
-          </div>
-        @else
-          <table class="dash-table">
-            <thead>
-              <tr>
-                <th>Environment</th>
-                <th>Package</th>
-                <th>Price</th>
-                <th>Days online</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              @foreach($packages as $package)
+        <div class="dash-panel__body">
+          @if(! $packageTableReady)
+            <div class="dash-empty">
+              <h3>Package setup is not ready yet</h3>
+              <p>Run the latest database migrations before adding packages.</p>
+            </div>
+          @elseif($packages->isEmpty())
+            <div class="dash-empty">
+              <h3>No packages yet</h3>
+              <p>Add your first package to make it available on the post-a-job form.</p>
+              @if($tenants->isEmpty())
+                <div class="dash-actions">
+                  <a class="dash-link" href="{{ route('client.environments.create') }}">Create environment</a>
+                </div>
+              @else
+                <div class="dash-actions">
+                  <a class="dash-link" href="{{ route('client.packages.create') }}">Add packages</a>
+                </div>
+              @endif
+            </div>
+          @else
+            <table class="dash-table">
+              <thead>
                 <tr>
-                  <td>
-                    <span class="dash-cell-title">{{ $package->tenant->name }}</span>
-                    <span class="dash-cell-meta">{{ $package->tenant->slug }}</span>
-                  </td>
-                  <td>{{ $package->name }}</td>
-                  <td>{{ $package->currency }} {{ number_format((float) $package->price, 2) }}</td>
-                  <td>{{ $package->online_days }}</td>
-                  <td><a class="dash-link" href="{{ route('client.packages.edit', $package) }}">Edit</a></td>
+                  <th>Environment</th>
+                  <th>Package</th>
+                  <th>Price</th>
+                  <th>Days online</th>
+                  <th>Action</th>
                 </tr>
-              @endforeach
-            </tbody>
-          </table>
-        @endif
+              </thead>
+              <tbody>
+                @foreach($packages as $package)
+                  <tr>
+                    <td>
+                      <span class="dash-cell-title">{{ $package->tenant->name }}</span>
+                      <span class="dash-cell-meta">{{ $package->tenant->slug }}</span>
+                    </td>
+                    <td>{{ $package->name }}</td>
+                    <td>{{ $package->currency }} {{ number_format((float) $package->price, 2) }}</td>
+                    <td>{{ $package->online_days }}</td>
+                    <td><a class="dash-link" href="{{ route('client.packages.edit', $package) }}">Edit</a></td>
+                  </tr>
+                @endforeach
+              </tbody>
+            </table>
+          @endif
+        </div>
       </section>
 @endsection

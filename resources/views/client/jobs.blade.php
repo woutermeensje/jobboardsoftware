@@ -12,7 +12,7 @@
         <section class="dash-card dash-card--success"><strong>{{ session('status') }}</strong></section>
       @endif
 
-      <section class="dash-panel">
+      <section class="dash-panel dash-panel--list">
         <div class="dash-panel__head">
           <div>
             <h2>Jobs</h2>
@@ -21,49 +21,51 @@
           <a class="dash-link" href="{{ route('client.jobs.create') }}">Create job</a>
         </div>
 
-        @if($jobs->isEmpty())
-          <div class="dash-empty">
-            <h3>No jobs yet</h3>
-            <p>Published and draft jobs will appear here.</p>
-            <div class="dash-actions">
-              <a class="dash-link" href="{{ route('client.jobs.create') }}">Create job</a>
+        <div class="dash-panel__body">
+          @if($jobs->isEmpty())
+            <div class="dash-empty">
+              <h3>No jobs yet</h3>
+              <p>Published and draft jobs will appear here.</p>
+              <div class="dash-actions">
+                <a class="dash-link" href="{{ route('client.jobs.create') }}">Create job</a>
+              </div>
             </div>
-          </div>
-        @else
-          <table class="dash-table">
-            <thead>
-              <tr>
-                <th>Job</th>
-                <th>Company</th>
-                <th>Environment</th>
-                <th>Status</th>
-                <th>Created</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              @foreach($jobs as $job)
+          @else
+            <table class="dash-table">
+              <thead>
                 <tr>
-                  <td>
-                    <a class="dash-cell-title dash-cell-title--link" href="{{ route('client.jobs.edit', $job) }}">{{ $job->title }}</a>
-                    <span class="dash-cell-meta">{{ $job->location }}</span>
-                  </td>
-                  <td>{{ $job->company?->name ?? $job->company_name ?? 'No company' }}</td>
-                  <td>
-                    <span class="dash-cell-title">{{ $job->tenant?->name ?? $job->tenant_id }}</span>
-                    <span class="dash-cell-meta">{{ $job->tenant?->slug }}</span>
-                  </td>
-                  <td>
-                    <span class="dash-status {{ $job->status === \App\Models\TenantJob::STATUS_DRAFT ? 'dash-status--muted' : '' }}">
-                      {{ $job->status === \App\Models\TenantJob::STATUS_PUBLISHED ? 'Published' : 'Draft' }}
-                    </span>
-                  </td>
-                  <td>{{ $job->created_at?->format('M j, Y') }}</td>
-                  <td><a class="dash-link" href="{{ route('client.jobs.edit', $job) }}">Edit</a></td>
+                  <th>Job</th>
+                  <th>Company</th>
+                  <th>Environment</th>
+                  <th>Status</th>
+                  <th>Created</th>
+                  <th>Action</th>
                 </tr>
-              @endforeach
-            </tbody>
-          </table>
-        @endif
+              </thead>
+              <tbody>
+                @foreach($jobs as $job)
+                  <tr>
+                    <td>
+                      <a class="dash-cell-title dash-cell-title--link" href="{{ route('client.jobs.edit', $job) }}">{{ $job->title }}</a>
+                      <span class="dash-cell-meta">{{ $job->location }}</span>
+                    </td>
+                    <td>{{ $job->company?->name ?? $job->company_name ?? 'No company' }}</td>
+                    <td>
+                      <span class="dash-cell-title">{{ $job->tenant?->name ?? $job->tenant_id }}</span>
+                      <span class="dash-cell-meta">{{ $job->tenant?->slug }}</span>
+                    </td>
+                    <td>
+                      <span class="dash-status {{ $job->status === \App\Models\TenantJob::STATUS_DRAFT ? 'dash-status--muted' : '' }}">
+                        {{ $job->status === \App\Models\TenantJob::STATUS_PUBLISHED ? 'Published' : 'Draft' }}
+                      </span>
+                    </td>
+                    <td>{{ $job->created_at?->format('M j, Y') }}</td>
+                    <td><a class="dash-link" href="{{ route('client.jobs.edit', $job) }}">Edit</a></td>
+                  </tr>
+                @endforeach
+              </tbody>
+            </table>
+          @endif
+        </div>
       </section>
 @endsection
