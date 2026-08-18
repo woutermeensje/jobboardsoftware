@@ -298,3 +298,8 @@
 .tenant-sidebar-filter-reset:hover {
   color: var(--color-primary);
 }
+
+.tenant-job-alerts-groups {
+  display: grid;
+  gap: 12px;
+}

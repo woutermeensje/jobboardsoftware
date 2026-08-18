@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Domain;
+use App\Models\JobAlert;
 use App\Models\JobApplication;
+use App\Models\NewsletterSubscriber;
 use App\Models\Tenant;
 use App\Models\TenantCompany;
 use App\Models\TenantJob;
@@ -173,6 +175,42 @@ class ClientDashboardController extends Controller
             'user' => $request->user(),
             'tenants' => $tenants,
             'companies' => TenantCompany::query()
+                ->with('tenant')
+                ->whereIn('tenant_id', $tenants->pluck('id'))
+                ->latest()
+                ->get(),
+        ]);
+    }
+
+    public function newsletterSubscribers(Request $request): View
+    {
+        $tenants = $request->user()
+            ->ownedTenants()
+            ->latest()
+            ->get();
+
+        return view('client.newsletter-subscribers', [
+            'user' => $request->user(),
+            'tenants' => $tenants,
+            'subscribers' => NewsletterSubscriber::query()
+                ->with('tenant')
+                ->whereIn('tenant_id', $tenants->pluck('id'))
+                ->latest()
+                ->get(),
+        ]);
+    }
+
+    public function jobAlerts(Request $request): View
+    {
+        $tenants = $request->user()
+            ->ownedTenants()
+            ->latest()
+            ->get();
+
+        return view('client.job-alerts', [
+            'user' => $request->user(),
+            'tenants' => $tenants,
+            'alerts' => JobAlert::query()
                 ->with('tenant')
                 ->whereIn('tenant_id', $tenants->pluck('id'))
                 ->latest()

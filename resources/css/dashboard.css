@@ -444,6 +444,8 @@
 }
 
 .dash-panel--list .dash-panel__head .dash-link {
+  min-height: 38px;
+  padding: 0 16px;
   border-color: transparent;
   background: var(--color-primary);
   color: #ffffff;

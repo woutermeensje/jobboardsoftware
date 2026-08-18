@@ -140,6 +140,8 @@ $centralRoutes = function (): void {
             Route::post('/packages', [ClientDashboardController::class, 'storePackage'])->name('packages.store');
             Route::get('/packages/{package}/edit', [ClientDashboardController::class, 'editPackage'])->name('packages.edit');
             Route::patch('/packages/{package}', [ClientDashboardController::class, 'updatePackage'])->name('packages.update');
+            Route::get('/newsletter-subscribers', [ClientDashboardController::class, 'newsletterSubscribers'])->name('newsletter-subscribers.index');
+            Route::get('/job-alerts', [ClientDashboardController::class, 'jobAlerts'])->name('job-alerts.index');
         });
 
     Route::get('/dashboard/billing/success', [BillingController::class, 'success'])

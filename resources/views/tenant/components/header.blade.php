@@ -18,12 +18,16 @@
       ],
     ],
     ['label' => 'Pricing', 'url' => route('tenant.pricing'), 'active' => request()->routeIs('tenant.pricing')],
+    ['label' => 'Job alerts', 'url' => route('tenant.job-alerts'), 'active' => request()->routeIs('tenant.job-alerts*')],
+    ['label' => 'Newsletter', 'url' => route('tenant.newsletter'), 'active' => request()->routeIs('tenant.newsletter*')],
     ['label' => 'Contact', 'url' => route('tenant.contact'), 'active' => request()->routeIs('tenant.contact')],
   ];
 
   $utilityLinks = [
     ['label' => 'View jobs', 'url' => route('tenant.jobs').'#jobs'],
     ['label' => 'Pricing', 'url' => route('tenant.pricing')],
+    ['label' => 'Job alerts', 'url' => route('tenant.job-alerts')],
+    ['label' => 'Newsletter', 'url' => route('tenant.newsletter')],
     ['label' => 'Contact', 'url' => route('tenant.contact')],
   ];
 @endphp
