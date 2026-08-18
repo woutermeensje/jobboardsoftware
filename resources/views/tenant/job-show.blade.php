@@ -137,8 +137,6 @@
               </span>
               @error('cv')<span class="tenant-single-job__form-error">{{ $message }}</span>@enderror
             </label>
-
-            <button class="tenant-btn tenant-btn--primary" type="submit">Submit application</button>
           </form>
         </section>
 
@@ -167,6 +165,8 @@
             </div>
           </div>
         </section>
+
+        <button class="tenant-btn tenant-btn--primary tenant-single-job__apply-submit" type="submit" form="tenant-job-apply-form">Submit application</button>
       </div>
 
       <aside class="tenant-single-job__sidebar" aria-label="Job sidebar">

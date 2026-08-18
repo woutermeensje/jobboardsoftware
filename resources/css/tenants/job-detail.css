@@ -251,6 +251,10 @@
   line-height: 1.5;
 }
 
+.tenant-single-job__apply-submit {
+  margin-top: 20px;
+}
+
 .tenant-single-job__sidebar {
   display: flex;
   flex-direction: column;
