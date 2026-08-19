@@ -37,7 +37,7 @@
   display: grid;
   gap: 12px;
   margin-top: 16px;
-  padding: 24px;
+  padding: 0;
 }
 
 .tenant-apply label {
@@ -108,7 +108,7 @@
 .tenant-post-job-form {
   display: grid;
   gap: 22px;
-  padding: 24px;
+  padding: 0;
 }
 
 .tenant-company-form,
@@ -705,9 +705,12 @@
 
 @media (max-width: 900px) {
   .tenant-panel.tenant-post-job__main > form.tenant-post-job-form,
-  .tenant-panel.tenant-post-job__account-panel,
   .tenant-company-form,
   .tenant-dashboard-form {
+    padding: 0;
+  }
+
+  .tenant-panel.tenant-post-job__account-panel {
     padding: 24px;
   }
 

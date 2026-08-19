@@ -47,6 +47,20 @@ class BillingPlanCatalog
         ];
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
+    public static function definitionFor(string $key): ?array
+    {
+        foreach (self::definitions() as $definition) {
+            if ($definition['key'] === $key) {
+                return $definition;
+            }
+        }
+
+        return null;
+    }
+
     public static function priceLabel(string $key, int $monthlyPriceCents, string $currency = 'eur'): string
     {
         if ($monthlyPriceCents === 0 && $key === Tenant::PLAN_STARTER) {

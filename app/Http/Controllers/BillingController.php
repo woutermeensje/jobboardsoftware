@@ -29,7 +29,7 @@ class BillingController extends Controller
                 ->with('status', 'Your subscription is already active.');
         }
 
-        if ($plan->monthly_price_cents === 0) {
+        if ($plan->effectiveMonthlyPriceCents() === 0) {
             return $this->activateFreePlan($user);
         }
 

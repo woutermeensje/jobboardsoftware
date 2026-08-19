@@ -11,7 +11,7 @@
   $currentIndex = array_search($step, $stepKeys, true);
   $selectedPlanId = (string) old('billing_plan_id', optional($selectedPlan)->id ?? optional($plans->first())->id);
   $trialDays = (int) config('billing.free_trial_days', 14);
-  $selectedPlanIsFree = $selectedPlan && (int) $selectedPlan->monthly_price_cents === 0;
+  $selectedPlanIsFree = $selectedPlan && $selectedPlan->effectiveMonthlyPriceCents() === 0;
 @endphp
 
 @section('title', $title.' | '.$brandTitle)
@@ -127,7 +127,7 @@
             @forelse($plans as $plan)
               @php
                 $planId = (string) $plan->id;
-                $features = collect($plan->features ?? []);
+                $features = collect($plan->displayFeatures());
                 $monthlyPrice = $plan->formattedMonthlyPrice();
               @endphp
 
@@ -135,11 +135,11 @@
                 <input id="billing_plan_{{ $plan->id }}" type="radio" name="billing_plan_id" value="{{ $plan->id }}" @checked($selectedPlanId === $planId) required>
                 <span class="signup-plan-card__body">
                   <span class="signup-plan-card__top">
-                    <strong>{{ $plan->name }}</strong>
+                    <strong>{{ $plan->displayName() }}</strong>
                     <span>{{ $monthlyPrice }}</span>
                   </span>
-                  @if($plan->description)
-                    <span class="signup-plan-card__description">{{ $plan->description }}</span>
+                  @if($plan->displayDescription())
+                    <span class="signup-plan-card__description">{{ $plan->displayDescription() }}</span>
                   @endif
                   @if($features->isNotEmpty())
                     <span class="signup-plan-card__features">
@@ -187,7 +187,7 @@
           </div>
           <div>
             <span>Plan</span>
-            <strong>{{ $selectedPlan?->name ?? 'Selected plan' }}</strong>
+            <strong>{{ $selectedPlan?->displayName() ?? 'Selected plan' }}</strong>
           </div>
           <div>
             <span>Trial</span>

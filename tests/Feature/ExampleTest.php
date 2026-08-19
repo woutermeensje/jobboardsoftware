@@ -802,7 +802,8 @@ class ExampleTest extends TestCase
         $this->get(route('register.onboarding'))
             ->assertOk()
             ->assertSee('Plan')
-            ->assertSee('Starter');
+            ->assertSee('Free plan')
+            ->assertSee('365-day free trial');
 
         $this->post(route('register.onboarding.update'), [
             'step' => 'plan',
