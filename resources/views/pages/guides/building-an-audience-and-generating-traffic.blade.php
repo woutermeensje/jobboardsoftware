@@ -19,7 +19,7 @@
 
           <p>After running two successful job boards over the past five years, I can tell you there's a bit of "black magic" involved. What I mean is, it's not always 100% clear why companies decide to post paid jobs, or why job seekers decide to apply or sign up on your board.</p>
 
-          <p>That said, it all comes down to one thing: you need to build an audience.</p>
+          <p>That said, it all comes down to one thing: <strong>you need to build an audience.</strong></p>
 
           <p>That starts with nailing down the one keyword that sums up your job board in a nutshell.</p>
 
@@ -31,7 +31,7 @@
 
           <p>Say you're running a job board for the construction industry — your keyword might be "Construction Jobs."</p>
 
-          <p>Why does this matter?</p>
+          <h2>Why does this matter?</h2>
 
           <p>Because this keyword is your starting point for research. Head over to Google, ChatGPT, Reddit, Claude, and Bing, and type it in. See what sites pop up. Check out what roles they list. Look at their content. Study their approach. See what you can learn about their target audience while you're at it.</p>
         </div>
