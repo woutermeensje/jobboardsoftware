@@ -890,6 +890,11 @@ class ClientDashboardTest extends TestCase
 
     public function test_tenant_owner_can_connect_a_custom_domain(): void
     {
+        config([
+            'services.laravel_cloud.token' => null,
+            'services.laravel_cloud.environment_id' => null,
+        ]);
+
         $owner = User::factory()->create(['role' => User::ROLE_TENANT_OWNER]);
         $tenant = $this->tenantFor($owner, 'Acme Careers', 'acme-careers');
 
@@ -1096,6 +1101,119 @@ class ClientDashboardTest extends TestCase
             'domain' => 'acme-careers.jobboardsoftware.co',
             'is_primary' => false,
         ]);
+    }
+
+    public function test_replacing_a_pending_laravel_cloud_domain_removes_the_old_cloud_domain(): void
+    {
+        config([
+            'services.laravel_cloud.token' => 'cloud-token',
+            'services.laravel_cloud.environment_id' => 'env_123',
+        ]);
+
+        Http::fake([
+            'https://cloud.laravel.com/api/domains/dom_old' => Http::response([], 204),
+            'https://cloud.laravel.com/api/environments/env_123/domains' => Http::response([
+                'data' => [
+                    'id' => 'dom_new',
+                    'type' => 'domains',
+                    'attributes' => [
+                        'name' => 'new-careers.example.com',
+                        'hostname_status' => 'pending',
+                        'ssl_status' => 'pending',
+                        'origin_status' => 'pending',
+                        'dns_records' => [
+                            'origin_cname' => 'new-careers.laravel.cloud',
+                        ],
+                    ],
+                    'relationships' => [
+                        'environment' => [
+                            'data' => [
+                                'id' => 'env_123',
+                                'type' => 'environments',
+                            ],
+                        ],
+                    ],
+                ],
+            ]),
+        ]);
+
+        $owner = User::factory()->create(['role' => User::ROLE_TENANT_OWNER]);
+        $tenant = $this->tenantFor($owner, 'Acme Careers', 'acme-careers');
+        $oldDomain = $tenant->domains()->create([
+            'domain' => 'old-careers.example.com',
+            'is_primary' => false,
+            'status' => Domain::STATUS_PENDING,
+            'ssl_status' => Domain::SSL_PENDING,
+            'cloud_domain_id' => 'dom_old',
+            'cloud_environment_id' => 'env_123',
+            'verification_payload' => ['provider' => 'laravel_cloud'],
+        ]);
+
+        $this->actingAs($owner)
+            ->post('/client/dashboard/domains', [
+                'tenant_id' => $tenant->id,
+                'domain' => 'new-careers.example.com',
+                'cloudflare_strategy' => Domain::CLOUDFLARE_NONE,
+                'verification_method' => Domain::VERIFICATION_REAL_TIME,
+                'allow_downtime' => '1',
+            ])
+            ->assertRedirect(route('client.domains.index'));
+
+        Http::assertSent(fn ($request): bool => $request->method() === 'DELETE'
+            && $request->url() === 'https://cloud.laravel.com/api/domains/dom_old');
+
+        $this->assertDatabaseMissing('domains', [
+            'id' => $oldDomain->id,
+        ]);
+
+        $this->assertDatabaseHas('domains', [
+            'tenant_id' => $tenant->id,
+            'domain' => 'new-careers.example.com',
+            'cloud_domain_id' => 'dom_new',
+        ]);
+    }
+
+    public function test_tenant_owner_can_remove_a_laravel_cloud_domain(): void
+    {
+        config([
+            'services.laravel_cloud.token' => 'cloud-token',
+            'services.laravel_cloud.environment_id' => 'env_123',
+        ]);
+
+        Http::fake([
+            'https://cloud.laravel.com/api/domains/dom_123' => Http::response([], 204),
+        ]);
+
+        $owner = User::factory()->create(['role' => User::ROLE_TENANT_OWNER]);
+        $tenant = $this->tenantFor($owner, 'Acme Careers', 'acme-careers');
+        $fallbackDomain = $tenant->domains()->firstOrFail();
+        $fallbackDomain->forceFill(['is_primary' => false])->save();
+
+        $domain = $tenant->domains()->create([
+            'domain' => 'careers.example.com',
+            'is_primary' => true,
+            'status' => Domain::STATUS_ACTIVE,
+            'ssl_status' => Domain::SSL_ACTIVE,
+            'cloud_domain_id' => 'dom_123',
+            'cloud_environment_id' => 'env_123',
+            'verification_payload' => ['provider' => 'laravel_cloud'],
+            'verified_at' => now(),
+            'ssl_issued_at' => now(),
+        ]);
+
+        $this->actingAs($owner)
+            ->delete(route('client.domains.destroy', $domain))
+            ->assertRedirect()
+            ->assertSessionHas('status', 'careers.example.com has been removed.');
+
+        Http::assertSent(fn ($request): bool => $request->method() === 'DELETE'
+            && $request->url() === 'https://cloud.laravel.com/api/domains/dom_123');
+
+        $this->assertDatabaseMissing('domains', [
+            'id' => $domain->id,
+        ]);
+
+        $this->assertTrue($fallbackDomain->fresh()->is_primary);
     }
 
     public function test_tenant_owner_can_manage_job_types_for_owned_environments(): void

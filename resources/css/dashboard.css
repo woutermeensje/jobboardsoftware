@@ -829,6 +829,13 @@
   line-height: 1.45;
 }
 
+.domain-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
 .company-logo-upload {
   position: relative;
   display: grid;

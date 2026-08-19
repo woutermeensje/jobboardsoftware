@@ -165,10 +165,12 @@ $centralRoutes = function (): void {
             Route::get('/jobs/create', [ClientDashboardController::class, 'createJob'])->name('jobs.create');
             Route::get('/jobs/{job}/edit', [ClientDashboardController::class, 'editJob'])->name('jobs.edit');
             Route::patch('/jobs/{job}', [ClientDashboardController::class, 'updateJob'])->name('jobs.update');
+            Route::get('/applications', [ClientDashboardController::class, 'section'])->defaults('section', 'applications')->name('applications.index');
             Route::get('/domains', [ClientDashboardController::class, 'domains'])->name('domains.index');
             Route::post('/domains', [ClientDashboardController::class, 'storeDomain'])->name('domains.store');
             Route::get('/domains/create', [ClientDashboardController::class, 'domains'])->name('domains.create');
             Route::post('/domains/{domain}/verify', [ClientDashboardController::class, 'verifyDomain'])->name('domains.verify');
+            Route::delete('/domains/{domain}', [ClientDashboardController::class, 'destroyDomain'])->name('domains.destroy');
             Route::get('/settings', [ClientDashboardController::class, 'settings'])->name('settings');
             Route::patch('/settings', [ClientDashboardController::class, 'updateSettings'])->name('settings.update');
             Route::get('/billing', [ClientDashboardController::class, 'section'])->defaults('section', 'billing')->name('billing');

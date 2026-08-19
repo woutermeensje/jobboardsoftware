@@ -222,17 +222,28 @@
                       </div>
                     </td>
                     <td>
-                      @if($domain->isReadyForTraffic())
-                        <span class="dash-status dash-status--muted">Ready</span>
-                      @else
-                        <form method="POST" action="{{ route('client.domains.verify', $domain) }}">
+                      <div class="domain-actions">
+                        @if($domain->isReadyForTraffic())
+                          <span class="dash-status dash-status--muted">Ready</span>
+                        @else
+                          <form method="POST" action="{{ route('client.domains.verify', $domain) }}">
+                            @csrf
+                            <button class="dash-btn dash-btn--ghost btn-sm" type="submit">
+                              <i class="ph ph-arrows-clockwise" aria-hidden="true"></i>
+                              Check DNS
+                            </button>
+                          </form>
+                        @endif
+
+                        <form method="POST" action="{{ route('client.domains.destroy', $domain) }}" onsubmit="return confirm('Remove {{ addslashes($domain->domain) }} from this environment?');">
                           @csrf
+                          @method('DELETE')
                           <button class="dash-btn dash-btn--ghost btn-sm" type="submit">
-                            <i class="ph ph-arrows-clockwise" aria-hidden="true"></i>
-                            Check DNS
+                            <i class="ph ph-trash" aria-hidden="true"></i>
+                            Remove
                           </button>
                         </form>
-                      @endif
+                      </div>
                     </td>
                   </tr>
                 @endforeach

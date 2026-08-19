@@ -16,6 +16,11 @@ class LaravelCloudClient
             && $this->environmentId() !== null;
     }
 
+    public function syncRequested(): bool
+    {
+        return (bool) config('services.laravel_cloud.domain_sync', true);
+    }
+
     public function environmentId(): ?string
     {
         $environmentId = trim((string) config('services.laravel_cloud.environment_id', ''));
@@ -103,7 +108,8 @@ class LaravelCloudClient
             $response = $callback($this->request($token))->throw();
         } catch (RequestException $exception) {
             $response = $exception->response;
-            $message = $response?->json('message') ?: $exception->getMessage();
+            $message = $response ? $this->errorMessage($response->json()) : null;
+            $message ??= $exception->getMessage();
 
             throw new LaravelCloudApiException((string) $message, $exception->getCode(), $exception);
         } catch (Throwable $exception) {
@@ -113,6 +119,36 @@ class LaravelCloudClient
         $json = $response->json();
 
         return is_array($json) ? $json : [];
+    }
+
+    private function errorMessage(mixed $json): ?string
+    {
+        if (! is_array($json)) {
+            return null;
+        }
+
+        $message = $json['message'] ?? null;
+
+        if (is_string($message) && $message !== '') {
+            return $message;
+        }
+
+        $errors = $json['errors'] ?? null;
+
+        if (! is_array($errors)) {
+            return null;
+        }
+
+        return collect($errors)
+            ->map(function (mixed $error): ?string {
+                if (! is_array($error)) {
+                    return null;
+                }
+
+                return $error['detail'] ?? $error['title'] ?? null;
+            })
+            ->filter(fn (mixed $error): bool => is_string($error) && $error !== '')
+            ->implode(' ');
     }
 
     private function request(string $token): PendingRequest

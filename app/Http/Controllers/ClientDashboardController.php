@@ -127,9 +127,21 @@ class ClientDashboardController extends Controller
                 ->withInput();
         }
 
+        if (! $cloud->enabled() && $cloud->syncRequested() && app()->isProduction()) {
+            return back()
+                ->withErrors(['domain' => 'Laravel Cloud domain sync is not fully configured. Set LARAVEL_CLOUD_API_TOKEN and LARAVEL_CLOUD_ENVIRONMENT_ID before connecting production domains.'])
+                ->withInput();
+        }
+
         $tenant = Tenant::query()
             ->where('owner_user_id', $request->user()->id)
             ->findOrFail($validated['tenant_id']);
+
+        if ($error = $this->deleteReplacementDomains($tenant, $cloud)) {
+            return back()
+                ->withErrors(['domain' => $error])
+                ->withInput();
+        }
 
         $cloudResponse = null;
 
@@ -148,9 +160,6 @@ class ClientDashboardController extends Controller
                     ->withInput();
             }
         }
-
-        // Only one replacement can be pending at a time.
-        $tenant->domains()->where('is_primary', false)->delete();
 
         $makePrimary = $cloudResponse === null || ! $tenant->domains()->exists();
 
@@ -241,6 +250,40 @@ class ClientDashboardController extends Controller
                 ? 'DNS verification succeeded and this domain now replaces your previous domain. SSL can now be activated.'
                 : 'DNS records were not found yet. Check the values below and try again.',
         );
+    }
+
+    public function destroyDomain(Request $request, Domain $domain, LaravelCloudClient $cloud): RedirectResponse
+    {
+        abort_unless(
+            $request->user()->ownedTenants()->whereKey($domain->tenant_id)->exists(),
+            404,
+        );
+
+        $tenant = $domain->tenant;
+
+        if ($tenant->domains()->count() <= 1) {
+            return back()->withErrors(['domain' => 'This is the only domain for this environment and cannot be removed.']);
+        }
+
+        if ($error = $this->deleteDomainFromCloud($domain, $cloud)) {
+            return back()->withErrors(['domain' => $error]);
+        }
+
+        $wasPrimary = $domain->is_primary;
+        $domainName = $domain->domain;
+
+        $domain->delete();
+
+        if ($wasPrimary) {
+            $fallback = $tenant->domains()
+                ->orderByRaw("CASE WHEN status = 'active' AND ssl_status = 'active' THEN 0 ELSE 1 END")
+                ->oldest()
+                ->first();
+
+            $fallback?->forceFill(['is_primary' => true])->save();
+        }
+
+        return back()->with('status', $domainName.' has been removed.');
     }
 
     public function environments(Request $request): View
@@ -1549,6 +1592,48 @@ class ClientDashboardController extends Controller
         $domain->forceFill(['is_primary' => true])->save();
 
         return true;
+    }
+
+    private function deleteReplacementDomains(Tenant $tenant, LaravelCloudClient $cloud): ?string
+    {
+        $replacementDomains = Domain::query()
+            ->where('tenant_id', $tenant->id)
+            ->where('is_primary', false)
+            ->get()
+            ->reject(fn (Domain $domain): bool => $domain->isReadyForTraffic());
+
+        foreach ($replacementDomains as $domain) {
+            if ($error = $this->deleteDomainFromCloud($domain, $cloud)) {
+                return $error;
+            }
+
+            $domain->delete();
+        }
+
+        return null;
+    }
+
+    private function deleteDomainFromCloud(Domain $domain, LaravelCloudClient $cloud): ?string
+    {
+        if (! $domain->usesLaravelCloud() || ! $domain->cloud_domain_id) {
+            return null;
+        }
+
+        if (! $cloud->enabled()) {
+            return 'Laravel Cloud domain sync is not fully configured. Set LARAVEL_CLOUD_API_TOKEN and LARAVEL_CLOUD_ENVIRONMENT_ID before removing Cloud domains.';
+        }
+
+        try {
+            $cloud->deleteDomain($domain->cloud_domain_id);
+        } catch (LaravelCloudApiException $exception) {
+            if ((int) $exception->getCode() === 404) {
+                return null;
+            }
+
+            return 'Laravel Cloud could not remove '.$domain->domain.': '.$exception->getMessage();
+        }
+
+        return null;
     }
 
     private function normalizeDomain(string $value): string
