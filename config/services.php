@@ -30,6 +30,20 @@ return [
         ],
     ],
 
+    'laravel_cloud' => [
+        'base_url' => env('LARAVEL_CLOUD_API_URL', 'https://cloud.laravel.com/api'),
+        'token' => env('LARAVEL_CLOUD_API_TOKEN'),
+        'environment_id' => env('LARAVEL_CLOUD_ENVIRONMENT_ID'),
+        'domain_sync' => env('LARAVEL_CLOUD_DOMAIN_SYNC', true),
+        'domain_defaults' => [
+            'www_redirect' => env('LARAVEL_CLOUD_DOMAIN_WWW_REDIRECT'),
+            'wildcard_enabled' => (bool) env('LARAVEL_CLOUD_DOMAIN_WILDCARD_ENABLED', false),
+            'allow_downtime' => (bool) env('LARAVEL_CLOUD_DOMAIN_ALLOW_DOWNTIME', true),
+            'cloudflare_strategy' => env('LARAVEL_CLOUD_DOMAIN_CLOUDFLARE_STRATEGY', 'none'),
+            'verification_method' => env('LARAVEL_CLOUD_DOMAIN_VERIFICATION_METHOD', 'real_time'),
+        ],
+    ],
+
     'ses' => [
         'key' => env('AWS_ACCESS_KEY_ID'),
         'secret' => env('AWS_SECRET_ACCESS_KEY'),

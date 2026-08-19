@@ -12,6 +12,7 @@ use App\Models\User;
 use App\Support\PublicUploadStorage;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
@@ -944,6 +945,156 @@ class ClientDashboardTest extends TestCase
         $this->assertDatabaseMissing('domains', [
             'tenant_id' => $otherTenant->id,
             'domain' => 'jobs.example.com',
+        ]);
+    }
+
+    public function test_tenant_owner_can_connect_a_custom_domain_through_laravel_cloud(): void
+    {
+        config([
+            'services.laravel_cloud.token' => 'cloud-token',
+            'services.laravel_cloud.environment_id' => 'env_123',
+        ]);
+
+        Http::fake([
+            'https://cloud.laravel.com/api/environments/env_123/domains' => Http::response([
+                'data' => [
+                    'id' => 'dom_123',
+                    'type' => 'domains',
+                    'attributes' => [
+                        'name' => 'careers.example.com',
+                        'hostname_status' => 'pending',
+                        'ssl_status' => 'pending',
+                        'origin_status' => 'pending',
+                        'action_required' => 'add_txt_records',
+                        'dns_records' => [
+                            'ssl' => [
+                                [
+                                    'type' => 'CNAME',
+                                    'name' => '_acme-challenge.careers.example.com',
+                                    'value' => 'token.laravel-cloud-dcv.com',
+                                ],
+                            ],
+                            'pre_verification' => 'ownership-token',
+                            'origin_cname' => 'careers-example.laravel.cloud',
+                        ],
+                    ],
+                    'relationships' => [
+                        'environment' => [
+                            'data' => [
+                                'id' => 'env_123',
+                                'type' => 'environments',
+                            ],
+                        ],
+                    ],
+                ],
+            ]),
+        ]);
+
+        $owner = User::factory()->create(['role' => User::ROLE_TENANT_OWNER]);
+        $tenant = $this->tenantFor($owner, 'Acme Careers', 'acme-careers');
+
+        $this->actingAs($owner)
+            ->post('/client/dashboard/domains', [
+                'tenant_id' => $tenant->id,
+                'domain' => 'careers.example.com',
+                'www_redirect' => Domain::WWW_TO_ROOT,
+                'cloudflare_strategy' => Domain::CLOUDFLARE_DNS,
+                'verification_method' => Domain::VERIFICATION_PRE_VERIFICATION,
+                'allow_downtime' => '0',
+            ])
+            ->assertRedirect(route('client.domains.index'))
+            ->assertSessionHas('status', 'Domain connected. Once DNS verification succeeds, this will replace your current domain. Add the DNS records below to complete verification.');
+
+        Http::assertSent(fn ($request): bool => $request->method() === 'POST'
+            && $request->url() === 'https://cloud.laravel.com/api/environments/env_123/domains'
+            && $request['name'] === 'careers.example.com'
+            && $request['www_redirect'] === Domain::WWW_TO_ROOT
+            && $request['cloudflare_strategy'] === Domain::CLOUDFLARE_DNS
+            && $request['verification_method'] === Domain::VERIFICATION_PRE_VERIFICATION
+            && $request['allow_downtime'] === false);
+
+        $domain = Domain::where('domain', 'careers.example.com')->firstOrFail();
+
+        $this->assertSame('dom_123', $domain->cloud_domain_id);
+        $this->assertSame('env_123', $domain->cloud_environment_id);
+        $this->assertSame(Domain::STATUS_PENDING, $domain->status);
+        $this->assertFalse($domain->is_primary);
+        $this->assertSame('add_txt_records', $domain->cloud_action_required);
+        $this->assertSame('laravel_cloud', $domain->verification_payload['provider']);
+        $this->assertContains(
+            '_acme-challenge.careers.example.com',
+            collect($domain->cloudDnsRecords())->pluck('name')->all(),
+        );
+
+        $this->actingAs($owner)
+            ->get('/client/dashboard/domains')
+            ->assertOk()
+            ->assertSee('_acme-challenge.careers.example.com')
+            ->assertSee('token.laravel-cloud-dcv.com')
+            ->assertSee('ownership-token');
+    }
+
+    public function test_laravel_cloud_domain_verification_promotes_ready_domain(): void
+    {
+        config([
+            'services.laravel_cloud.token' => 'cloud-token',
+            'services.laravel_cloud.environment_id' => 'env_123',
+        ]);
+
+        Http::fake([
+            'https://cloud.laravel.com/api/domains/dom_123/verify' => Http::response([
+                'data' => [
+                    'id' => 'dom_123',
+                    'type' => 'domains',
+                    'attributes' => [
+                        'name' => 'careers.example.com',
+                        'hostname_status' => 'verified',
+                        'ssl_status' => 'verified',
+                        'origin_status' => 'verified',
+                        'last_verified_at' => '2026-08-19T10:00:00Z',
+                        'dns_records' => [
+                            'origin_cname' => 'careers-example.laravel.cloud',
+                        ],
+                    ],
+                    'relationships' => [
+                        'environment' => [
+                            'data' => [
+                                'id' => 'env_123',
+                                'type' => 'environments',
+                            ],
+                        ],
+                    ],
+                ],
+            ]),
+        ]);
+
+        $owner = User::factory()->create(['role' => User::ROLE_TENANT_OWNER]);
+        $tenant = $this->tenantFor($owner, 'Acme Careers', 'acme-careers');
+        $domain = $tenant->domains()->create([
+            'domain' => 'careers.example.com',
+            'is_primary' => false,
+            'status' => Domain::STATUS_PENDING,
+            'ssl_status' => Domain::SSL_PENDING,
+            'cloud_domain_id' => 'dom_123',
+            'cloud_environment_id' => 'env_123',
+            'verification_payload' => ['provider' => 'laravel_cloud'],
+        ]);
+
+        $this->actingAs($owner)
+            ->post(route('client.domains.verify', $domain))
+            ->assertRedirect()
+            ->assertSessionHas('status', 'Laravel Cloud verification succeeded and this domain is now live.');
+
+        $domain->refresh();
+
+        $this->assertTrue($domain->is_primary);
+        $this->assertSame(Domain::STATUS_ACTIVE, $domain->status);
+        $this->assertSame(Domain::SSL_ACTIVE, $domain->ssl_status);
+        $this->assertSame(Domain::CLOUD_STATUS_VERIFIED, $domain->cloud_hostname_status);
+        $this->assertDatabaseHas('domains', [
+            'tenant_id' => $tenant->id,
+            'domain' => 'acme-careers.jobboardsoftware.co',
+            'is_primary' => false,
         ]);
     }
 

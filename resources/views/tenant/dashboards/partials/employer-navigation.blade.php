@@ -1,10 +1,10 @@
 @php
   $items = [
-    ['label' => 'Dashboard', 'icon' => 'ph-squares-four', 'url' => route('tenant.employer.dashboard'), 'active' => request()->routeIs('tenant.employer.dashboard')],
-    ['label' => 'Jobs', 'icon' => 'ph-briefcase', 'url' => route('tenant.employer.dashboard').'#jobs', 'active' => false],
-    ['label' => 'Applications', 'icon' => 'ph-file-text', 'url' => route('tenant.employer.dashboard').'#applications', 'active' => false],
-    ['label' => 'Company profile', 'icon' => 'ph-buildings', 'url' => route('tenant.employer.dashboard').'#company', 'active' => false],
-    ['label' => 'Job board', 'icon' => 'ph-house', 'url' => route('tenant.home'), 'active' => false],
+    ['label' => 'My jobs', 'icon' => 'ph-briefcase', 'url' => route('tenant.employer.dashboard'), 'active' => request()->routeIs('tenant.employer.dashboard')],
+    ['label' => 'My company page', 'icon' => 'ph-buildings', 'url' => route('tenant.employer.company'), 'active' => request()->routeIs('tenant.employer.company')],
+    ['label' => 'CV Database', 'icon' => 'ph-database', 'url' => route('tenant.employer.cv-database'), 'active' => request()->routeIs('tenant.employer.cv-database')],
+    ['label' => 'Applicants', 'icon' => 'ph-file-text', 'url' => route('tenant.employer.applicants'), 'active' => request()->routeIs('tenant.employer.applicants')],
+    ['label' => 'My account', 'icon' => 'ph-user-circle', 'url' => route('tenant.employer.account'), 'active' => request()->routeIs('tenant.employer.account')],
   ];
 @endphp
 

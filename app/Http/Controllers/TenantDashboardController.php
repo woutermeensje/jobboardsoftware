@@ -63,7 +63,49 @@ class TenantDashboardController extends Controller
         ]);
     }
 
-    public function employer(Request $request): View|RedirectResponse
+    public function employerJobs(Request $request): View|RedirectResponse
+    {
+        $user = $this->tenantUser($request, User::ROLE_EMPLOYER);
+
+        if ($user instanceof RedirectResponse) {
+            return $user;
+        }
+
+        return view('tenant.dashboards.employer.jobs', [
+            ...$this->dashboardFrameData(),
+            'user' => $user,
+        ]);
+    }
+
+    public function employerCompany(Request $request): View|RedirectResponse
+    {
+        $user = $this->tenantUser($request, User::ROLE_EMPLOYER);
+
+        if ($user instanceof RedirectResponse) {
+            return $user;
+        }
+
+        return view('tenant.dashboards.employer.company', [
+            ...$this->dashboardFrameData(),
+            'user' => $user,
+        ]);
+    }
+
+    public function employerCvDatabase(Request $request): View|RedirectResponse
+    {
+        $user = $this->tenantUser($request, User::ROLE_EMPLOYER);
+
+        if ($user instanceof RedirectResponse) {
+            return $user;
+        }
+
+        return view('tenant.dashboards.employer.cv-database', [
+            ...$this->dashboardFrameData(),
+            'user' => $user,
+        ]);
+    }
+
+    public function employerApplicants(Request $request): View|RedirectResponse
     {
         $user = $this->tenantUser($request, User::ROLE_EMPLOYER);
 
@@ -72,41 +114,37 @@ class TenantDashboardController extends Controller
         }
 
         $tenantId = tenant('id');
-        $employerJobs = fn () => TenantJob::query()
-            ->where('tenant_id', $tenantId)
-            ->where('submitted_by_user_id', $user->id);
-
         $jobIds = TenantJob::query()
             ->select('id')
             ->where('tenant_id', $tenantId)
             ->where('submitted_by_user_id', $user->id);
-        $employerApplications = fn () => JobApplication::query()
+
+        $applications = JobApplication::query()
             ->where('tenant_id', $tenantId)
-            ->whereIn('tenant_job_id', clone $jobIds);
-
-        $jobs = $employerJobs()
-            ->withCount('applications')
-            ->latest()
-            ->take(8)
-            ->get();
-
-        $applications = $employerApplications()
+            ->whereIn('tenant_job_id', $jobIds)
             ->with('job')
             ->latest()
             ->take(8)
             ->get();
 
-        return view('tenant.dashboards.employer', [
+        return view('tenant.dashboards.employer.applicants', [
             ...$this->dashboardFrameData(),
             'user' => $user,
-            'jobs' => $jobs,
             'applications' => $applications,
-            'stats' => [
-                ['label' => 'Published jobs', 'value' => $employerJobs()->where('status', TenantJob::STATUS_PUBLISHED)->count()],
-                ['label' => 'Draft jobs', 'value' => $employerJobs()->where('status', TenantJob::STATUS_DRAFT)->count()],
-                ['label' => 'New applications', 'value' => $employerApplications()->where('status', JobApplication::STATUS_NEW)->count()],
-                ['label' => 'Total applications', 'value' => $employerApplications()->count()],
-            ],
+        ]);
+    }
+
+    public function employerAccount(Request $request): View|RedirectResponse
+    {
+        $user = $this->tenantUser($request, User::ROLE_EMPLOYER);
+
+        if ($user instanceof RedirectResponse) {
+            return $user;
+        }
+
+        return view('tenant.dashboards.employer.account', [
+            ...$this->dashboardFrameData(),
+            'user' => $user,
         ]);
     }
 

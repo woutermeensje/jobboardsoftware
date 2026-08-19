@@ -9,6 +9,11 @@
 
 @php
   $selectedTenantId = old('tenant_id', $tenants->first()?->id);
+  $domainDefaults = config('services.laravel_cloud.domain_defaults', []);
+  $wwwRedirect = old('www_redirect', $domainDefaults['www_redirect'] ?? '');
+  $cloudflareStrategy = old('cloudflare_strategy', $domainDefaults['cloudflare_strategy'] ?? \App\Models\Domain::CLOUDFLARE_NONE);
+  $verificationMethod = old('verification_method', $domainDefaults['verification_method'] ?? \App\Models\Domain::VERIFICATION_REAL_TIME);
+  $allowDowntime = old('allow_downtime', ($domainDefaults['allow_downtime'] ?? true) ? '1' : '0');
 @endphp
 
 @section('content')
@@ -33,7 +38,7 @@
             <div class="dash-panel__head">
               <div>
                 <h2>Connect domain</h2>
-                <p>Connect a custom domain to your job board environment. Once DNS verification succeeds, it replaces the environment's current domain &mdash; each environment can only have one live domain.</p>
+                <p>Connect an apex domain, subdomain, or wildcard domain to your job board environment. Once Laravel Cloud verification succeeds, it replaces the environment's current primary domain.</p>
               </div>
             </div>
 
@@ -67,12 +72,51 @@
                       type="text"
                       name="domain"
                       value="{{ old('domain') }}"
-                      placeholder="careers.example.com"
+                      placeholder="example.com or careers.example.com"
                       autocomplete="off"
                       required
                     >
                   </label>
+
+                  <label class="domain-field">
+                    <span>WWW redirect</span>
+                    <select name="www_redirect">
+                      <option value="" @selected($wwwRedirect === '')>No www redirect</option>
+                      <option value="{{ \App\Models\Domain::WWW_TO_ROOT }}" @selected($wwwRedirect === \App\Models\Domain::WWW_TO_ROOT)>www to root</option>
+                      <option value="{{ \App\Models\Domain::ROOT_TO_WWW }}" @selected($wwwRedirect === \App\Models\Domain::ROOT_TO_WWW)>root to www</option>
+                    </select>
+                  </label>
+
+                  <label class="domain-field">
+                    <span>Verification path</span>
+                    <select name="verification_method">
+                      <option value="{{ \App\Models\Domain::VERIFICATION_REAL_TIME }}" @selected($verificationMethod === \App\Models\Domain::VERIFICATION_REAL_TIME)>Real-time</option>
+                      <option value="{{ \App\Models\Domain::VERIFICATION_PRE_VERIFICATION }}" @selected($verificationMethod === \App\Models\Domain::VERIFICATION_PRE_VERIFICATION)>Pre-verification</option>
+                    </select>
+                  </label>
+
+                  <label class="domain-field">
+                    <span>Cloudflare setup</span>
+                    <select name="cloudflare_strategy" required>
+                      <option value="{{ \App\Models\Domain::CLOUDFLARE_NONE }}" @selected($cloudflareStrategy === \App\Models\Domain::CLOUDFLARE_NONE)>No Cloudflare</option>
+                      <option value="{{ \App\Models\Domain::CLOUDFLARE_DNS }}" @selected($cloudflareStrategy === \App\Models\Domain::CLOUDFLARE_DNS)>Cloudflare DNS only</option>
+                      <option value="{{ \App\Models\Domain::CLOUDFLARE_DNS_PROXY }}" @selected($cloudflareStrategy === \App\Models\Domain::CLOUDFLARE_DNS_PROXY)>Cloudflare proxied</option>
+                    </select>
+                  </label>
+
+                  <label class="domain-field">
+                    <span>Downtime preference</span>
+                    <select name="allow_downtime">
+                      <option value="1" @selected($allowDowntime === '1')>Flexible</option>
+                      <option value="0" @selected($allowDowntime === '0')>Uninterrupted</option>
+                    </select>
+                  </label>
                 </div>
+
+                <label class="domain-switch">
+                  <input type="checkbox" name="wildcard_enabled" value="1" @checked(old('wildcard_enabled', $domainDefaults['wildcard_enabled'] ?? false))>
+                  <span>Enable wildcard subdomains</span>
+                </label>
 
                 <div class="dash-actions dash-actions--spaced">
                   <button class="dash-btn dash-btn--primary" type="submit">
@@ -88,11 +132,11 @@
         <aside class="dash-form-layout__aside">
           <section class="dash-card dash-form-side">
             <h2>DNS setup</h2>
-            <p>After connecting a domain, DNS records appear in the table below for verification.</p>
+            <p>After connecting a domain, Laravel Cloud returns the DNS records needed for ownership, SSL, and origin verification.</p>
             <ul>
-              <li>Use a subdomain such as careers.example.com.</li>
-              <li>Primary domains become the default environment URL.</li>
-              <li>SSL can be activated after DNS verification succeeds.</li>
+              <li>Use an apex domain such as example.com or a subdomain such as careers.example.com.</li>
+              <li>Wildcard domains require pre-verification unless the hostname is already Cloudflare proxied.</li>
+              <li>SSL is issued by Laravel Cloud after the required DNS records resolve.</li>
             </ul>
           </section>
         </aside>
@@ -127,6 +171,7 @@
                 @foreach($domains as $domain)
                   @php
                     $payload = $domain->verification_payload ?? [];
+                    $cloudRecords = $domain->cloudDnsRecords();
                   @endphp
                   <tr>
                     <td>
@@ -142,21 +187,38 @@
                     <td>
                       <span class="dash-status">{{ ucfirst($domain->status) }}</span>
                       <span class="dash-cell-meta">SSL: {{ ucfirst($domain->ssl_status) }}</span>
+                      @if($domain->usesLaravelCloud())
+                        <span class="dash-cell-meta">
+                          Cloud: hostname {{ ucfirst($domain->cloud_hostname_status ?? 'pending') }},
+                          origin {{ ucfirst($domain->cloud_origin_status ?? 'pending') }}
+                        </span>
+                        @if($domain->cloud_action_required)
+                          <span class="dash-cell-meta">Action: {{ str($domain->cloud_action_required)->replace('_', ' ')->headline() }}</span>
+                        @endif
+                      @endif
                     </td>
                     <td>
                       <div class="domain-records">
-                        <div>
-                          <span>CNAME</span>
-                          <code>{{ $payload['host'] ?? $domain->domain }}</code>
-                          <code>{{ $payload['value'] ?? $dnsTarget }}</code>
-                        </div>
-                        @if(! empty($payload['txt_name']) && ! empty($payload['txt_value']))
+                        @forelse($cloudRecords as $record)
                           <div>
-                            <span>TXT</span>
-                            <code>{{ $payload['txt_name'] }}</code>
-                            <code>{{ $payload['txt_value'] }}</code>
+                            <span>{{ $record['type'] }}</span>
+                            <code>{{ $record['name'] }}</code>
+                            <code>{{ $record['value'] }}</code>
                           </div>
-                        @endif
+                        @empty
+                          <div>
+                            <span>CNAME</span>
+                            <code>{{ $payload['host'] ?? $domain->domain }}</code>
+                            <code>{{ $payload['value'] ?? $dnsTarget }}</code>
+                          </div>
+                          @if(! empty($payload['txt_name']) && ! empty($payload['txt_value']))
+                            <div>
+                              <span>TXT</span>
+                              <code>{{ $payload['txt_name'] }}</code>
+                              <code>{{ $payload['txt_value'] }}</code>
+                            </div>
+                          @endif
+                        @endforelse
                       </div>
                     </td>
                     <td>

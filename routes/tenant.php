@@ -72,7 +72,11 @@ Route::middleware([
 
     Route::get('/account', [TenantDashboardController::class, 'account'])->name('tenant.account');
     Route::get('/jobseeker/dashboard', [TenantDashboardController::class, 'jobseeker'])->name('tenant.jobseeker.dashboard');
-    Route::get('/employer/dashboard', [TenantDashboardController::class, 'employer'])->name('tenant.employer.dashboard');
+    Route::get('/employer/dashboard', [TenantDashboardController::class, 'employerJobs'])->name('tenant.employer.dashboard');
+    Route::get('/employer/dashboard/company', [TenantDashboardController::class, 'employerCompany'])->name('tenant.employer.company');
+    Route::get('/employer/dashboard/cv-database', [TenantDashboardController::class, 'employerCvDatabase'])->name('tenant.employer.cv-database');
+    Route::get('/employer/dashboard/applicants', [TenantDashboardController::class, 'employerApplicants'])->name('tenant.employer.applicants');
+    Route::get('/employer/dashboard/account', [TenantDashboardController::class, 'employerAccount'])->name('tenant.employer.account');
 
     Route::redirect('/vacatures', '/jobs');
     Route::redirect('/tarieven', '/pricing');

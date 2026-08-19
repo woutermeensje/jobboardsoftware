@@ -149,8 +149,9 @@
 }
 
 .dash-nav {
-  display: grid;
-  align-content: start;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   gap: 16px;
 }
 
@@ -344,7 +345,7 @@
 }
 
 .dash-nav__logout {
-  margin: 0;
+  margin: auto 0 0;
   padding-top: 16px;
   border-top: 1px solid var(--color-border);
 }

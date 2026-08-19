@@ -14,6 +14,8 @@ use App\Models\TenantPackage;
 use App\Support\AdminActionNotifier;
 use App\Support\CountryOptions;
 use App\Support\JobTypeOptions;
+use App\Support\LaravelCloudApiException;
+use App\Support\LaravelCloudClient;
 use App\Support\PublicUploadStorage;
 use App\Support\RichTextSanitizer;
 use App\Support\TenantOptionSettings;
@@ -66,10 +68,12 @@ class ClientDashboardController extends Controller
         ]);
     }
 
-    public function storeDomain(Request $request, AdminActionNotifier $notifier): RedirectResponse
+    public function storeDomain(Request $request, AdminActionNotifier $notifier, LaravelCloudClient $cloud): RedirectResponse
     {
         $request->merge([
             'domain' => $this->normalizeDomain((string) $request->input('domain')),
+            'cloudflare_strategy' => $request->input('cloudflare_strategy', Domain::CLOUDFLARE_NONE),
+            'verification_method' => $request->input('verification_method', Domain::VERIFICATION_REAL_TIME),
         ]);
 
         $centralDomains = $this->centralDomains();
@@ -91,16 +95,68 @@ class ClientDashboardController extends Controller
                     }
                 },
             ],
+            'www_redirect' => ['nullable', Rule::in([Domain::WWW_TO_ROOT, Domain::ROOT_TO_WWW])],
+            'wildcard_enabled' => ['nullable', 'boolean'],
+            'allow_downtime' => ['nullable', 'boolean'],
+            'cloudflare_strategy' => ['required', Rule::in([
+                Domain::CLOUDFLARE_NONE,
+                Domain::CLOUDFLARE_DNS,
+                Domain::CLOUDFLARE_DNS_PROXY,
+            ])],
+            'verification_method' => ['required', Rule::in([
+                Domain::VERIFICATION_REAL_TIME,
+                Domain::VERIFICATION_PRE_VERIFICATION,
+            ])],
         ]);
+
+        $validated['wildcard_enabled'] = $request->boolean('wildcard_enabled');
+        $validated['allow_downtime'] = $request->has('allow_downtime')
+            ? $request->boolean('allow_downtime')
+            : true;
+        $validated['www_redirect'] = $validated['www_redirect'] ?? null;
+
+        if (! $validated['allow_downtime']) {
+            $validated['verification_method'] = Domain::VERIFICATION_PRE_VERIFICATION;
+        }
+
+        if ($validated['wildcard_enabled']
+            && $validated['cloudflare_strategy'] !== Domain::CLOUDFLARE_DNS_PROXY
+            && $validated['verification_method'] !== Domain::VERIFICATION_PRE_VERIFICATION) {
+            return back()
+                ->withErrors(['verification_method' => 'Wildcard domains need pre-verification unless the domain is already proxied through Cloudflare.'])
+                ->withInput();
+        }
 
         $tenant = Tenant::query()
             ->where('owner_user_id', $request->user()->id)
             ->findOrFail($validated['tenant_id']);
 
-        // Only one domain may be primary/live, and only one replacement can be pending at a time.
+        $cloudResponse = null;
+
+        if ($cloud->enabled()) {
+            try {
+                $cloudResponse = $cloud->createDomain($validated['domain'], [
+                    'www_redirect' => $validated['www_redirect'],
+                    'wildcard_enabled' => $validated['wildcard_enabled'],
+                    'allow_downtime' => $validated['allow_downtime'],
+                    'cloudflare_strategy' => $validated['cloudflare_strategy'],
+                    'verification_method' => $validated['verification_method'],
+                ]);
+            } catch (LaravelCloudApiException $exception) {
+                return back()
+                    ->withErrors(['domain' => 'Laravel Cloud could not connect this domain: '.$exception->getMessage()])
+                    ->withInput();
+            }
+        }
+
+        // Only one replacement can be pending at a time.
         $tenant->domains()->where('is_primary', false)->delete();
 
-        $makePrimary = ! $tenant->domains()->exists();
+        $makePrimary = $cloudResponse === null || ! $tenant->domains()->exists();
+
+        if ($makePrimary) {
+            $tenant->domains()->update(['is_primary' => false]);
+        }
 
         $verificationToken = Str::random(40);
         $domain = $tenant->domains()->create([
@@ -108,15 +164,28 @@ class ClientDashboardController extends Controller
             'is_primary' => $makePrimary,
             'status' => Domain::STATUS_PENDING,
             'ssl_status' => Domain::SSL_PENDING,
-            'verification_token' => $verificationToken,
-            'verification_payload' => [
-                'type' => 'CNAME',
-                'host' => $validated['domain'],
-                'value' => $this->dnsTarget(),
-                'txt_name' => '_jobboardsoftware-verification.'.$validated['domain'],
-                'txt_value' => 'jobboardsoftware-site-verification='.$verificationToken,
-            ],
+            'cloud_environment_id' => $cloudResponse ? $cloud->environmentId() : null,
+            'cloudflare_strategy' => $validated['cloudflare_strategy'],
+            'verification_method' => $validated['verification_method'],
+            'www_redirect' => $validated['www_redirect'],
+            'wildcard_enabled' => $validated['wildcard_enabled'],
+            'allow_downtime' => $validated['allow_downtime'],
+            'verification_token' => $cloudResponse ? null : $verificationToken,
+            'verification_payload' => $cloudResponse
+                ? ['provider' => 'laravel_cloud']
+                : [
+                    'type' => 'CNAME',
+                    'host' => $validated['domain'],
+                    'value' => $this->dnsTarget(),
+                    'txt_name' => '_jobboardsoftware-verification.'.$validated['domain'],
+                    'txt_value' => 'jobboardsoftware-site-verification='.$verificationToken,
+                ],
         ]);
+
+        if ($cloudResponse) {
+            $domain->syncFromLaravelCloud($cloudResponse, $cloud->environmentId());
+            $this->promoteDomainIfReady($domain->refresh());
+        }
 
         $notifier->notify('New domain connected', [
             'tenant_id' => $tenant->id,
@@ -132,18 +201,38 @@ class ClientDashboardController extends Controller
                 : 'Domain connected. Once DNS verification succeeds, this will replace your current domain. Add the DNS records below to complete verification.');
     }
 
-    public function verifyDomain(Request $request, Domain $domain): RedirectResponse
+    public function verifyDomain(Request $request, Domain $domain, LaravelCloudClient $cloud): RedirectResponse
     {
         abort_unless(
             $request->user()->ownedTenants()->whereKey($domain->tenant_id)->exists(),
             404,
         );
 
+        if ($domain->usesLaravelCloud()) {
+            if (! $cloud->enabled() || ! $domain->cloud_domain_id) {
+                return back()->with('status', 'Laravel Cloud API is not configured for this domain yet.');
+            }
+
+            try {
+                $domain->syncFromLaravelCloud($cloud->verifyDomain($domain->cloud_domain_id), $cloud->environmentId());
+            } catch (LaravelCloudApiException $exception) {
+                return back()->with('status', 'Laravel Cloud could not verify this domain: '.$exception->getMessage());
+            }
+
+            $verified = $this->promoteDomainIfReady($domain->refresh());
+
+            return back()->with(
+                'status',
+                $verified
+                    ? 'Laravel Cloud verification succeeded and this domain is now live.'
+                    : 'Laravel Cloud is still waiting for DNS verification. Check the records below and try again.',
+            );
+        }
+
         $verified = $domain->checkDnsVerification();
 
         if ($verified) {
-            $domain->tenant->domains()->whereKeyNot($domain->id)->delete();
-            $domain->forceFill(['is_primary' => true])->save();
+            $this->promoteDomainIfReady($domain);
         }
 
         return back()->with(
@@ -1448,6 +1537,18 @@ class ClientDashboardController extends Controller
         $appHost = parse_url(config('app.url'), PHP_URL_HOST);
 
         return is_string($appHost) && $appHost !== '' ? $appHost : 'jobboardsoftware.co';
+    }
+
+    private function promoteDomainIfReady(Domain $domain): bool
+    {
+        if (! $domain->isReadyForTraffic()) {
+            return false;
+        }
+
+        $domain->tenant->domains()->whereKeyNot($domain->id)->update(['is_primary' => false]);
+        $domain->forceFill(['is_primary' => true])->save();
+
+        return true;
     }
 
     private function normalizeDomain(string $value): string
