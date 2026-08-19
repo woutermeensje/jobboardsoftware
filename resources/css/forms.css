@@ -95,7 +95,7 @@ input[type="radio"]{
   border: var(--border-default);
   border-radius: var(--radius-default);
 
-  padding: 0;
+  padding: 16px;
   margin: 24px auto;
   width: 400px;
 }

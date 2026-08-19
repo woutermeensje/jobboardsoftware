@@ -24,6 +24,9 @@ $centralRoutes = function (): void {
     Route::view('/features', 'pages.features')->name('pages.features');
     Route::view('/guide', 'pages.guide')->name('pages.guide');
     Route::view('/how-to-start-a-job-board', 'pages.how-to-start-a-job-board')->name('pages.how-to-start-a-job-board');
+    Route::view('/guide/choosing-a-niche-for-your-job-board', 'pages.guides.choosing-a-niche-for-your-job-board')->name('pages.guides.choosing-a-niche-for-your-job-board');
+    Route::view('/guide/building-an-audience-and-generating-traffic', 'pages.guides.building-an-audience-and-generating-traffic')->name('pages.guides.building-an-audience-and-generating-traffic');
+    Route::view('/guide/generating-recurring-customers', 'pages.guides.generating-recurring-customers')->name('pages.guides.generating-recurring-customers');
     Route::view('/faq', 'pages.faq')->name('pages.faq');
     Route::view('/pricing', 'pages.tarieven')->name('pages.tarieven');
     Route::view('/customers', 'pages.customers')->name('pages.customers');

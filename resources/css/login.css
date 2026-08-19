@@ -141,7 +141,7 @@
 .auth-form-card {
   width: min(420px, 100%);
   margin: 0 auto;
-  padding: 0;
+  padding: 16px;
 }
 
 .auth-form-head {
@@ -465,7 +465,7 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-default);
   background: #ffffff;
-  padding: 0;
+  padding: 16px;
 }
 
 .signup-section .auth-grid--two {
@@ -706,6 +706,6 @@
 
   .signup-section,
   .signup-payment {
-    padding: 20px;
+    padding: 16px;
   }
 }

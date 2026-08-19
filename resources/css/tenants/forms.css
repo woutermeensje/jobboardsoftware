@@ -37,7 +37,7 @@
   display: grid;
   gap: 12px;
   margin-top: 16px;
-  padding: 0;
+  padding: 16px;
 }
 
 .tenant-apply label {
@@ -108,14 +108,14 @@
 .tenant-post-job-form {
   display: grid;
   gap: 22px;
-  padding: 0;
+  padding: 16px;
 }
 
 .tenant-company-form,
 .tenant-dashboard-form {
   --tenant-danger: var(--color-danger);
   gap: 0;
-  padding: clamp(32px, 4vw, 48px);
+  padding: 16px;
 }
 
 .tenant-company-form__header,
@@ -707,7 +707,7 @@
   .tenant-panel.tenant-post-job__main > form.tenant-post-job-form,
   .tenant-company-form,
   .tenant-dashboard-form {
-    padding: 0;
+    padding: 16px;
   }
 
   .tenant-panel.tenant-post-job__account-panel {

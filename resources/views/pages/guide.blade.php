@@ -6,14 +6,45 @@
 @section('content')
 @include('pages.partials.page-styles')
 
+@php
+  $guides = [
+    [
+      'title' => 'How to start',
+      'description' => 'A practical guide to starting, building and growing a job board.',
+      'icon' => 'ph-map-trifold',
+      'url' => route('pages.how-to-start-a-job-board'),
+    ],
+    [
+      'title' => 'Choosing a niche for your job board',
+      'description' => 'Industry, region, skill, profession and other angles for positioning your job board.',
+      'icon' => 'ph-crosshair',
+      'url' => route('pages.guides.choosing-a-niche-for-your-job-board'),
+    ],
+    [
+      'title' => 'Building an audience and generating traffic',
+      'description' => 'Ideas for attracting the right candidates and growing repeat visits over time.',
+      'icon' => 'ph-megaphone',
+      'url' => route('pages.guides.building-an-audience-and-generating-traffic'),
+    ],
+    [
+      'title' => 'Generating recurring customers',
+      'description' => 'How to turn employers into repeat buyers and build more predictable revenue.',
+      'icon' => 'ph-repeat',
+      'url' => route('pages.guides.generating-recurring-customers'),
+    ],
+  ];
+@endphp
+
 <div class="content-page">
   <div class="content-page__shell">
     <section class="features-grid" aria-label="Guides">
-      <a class="features-card" href="{{ route('pages.how-to-start-a-job-board') }}">
-        <i class="ph ph-map-trifold features-card__icon" aria-hidden="true"></i>
-        <h2 class="features-card__title">How to start</h2>
-        <p class="features-card__description">A practical guide to starting, building and growing a job board.</p>
-      </a>
+      @foreach($guides as $guide)
+        <a class="features-card" href="{{ $guide['url'] }}">
+          <i class="ph {{ $guide['icon'] }} features-card__icon" aria-hidden="true"></i>
+          <h2 class="features-card__title">{{ $guide['title'] }}</h2>
+          <p class="features-card__description">{{ $guide['description'] }}</p>
+        </a>
+      @endforeach
     </section>
   </div>
 </div>

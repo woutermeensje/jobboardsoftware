@@ -717,7 +717,7 @@
 .domain-form {
   display: grid;
   gap: 14px;
-  padding: 0;
+  padding: 16px;
 }
 
 .domain-form__grid {
