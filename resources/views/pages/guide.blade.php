@@ -46,6 +46,11 @@
         </a>
       @endforeach
     </section>
+
+    <section class="content-section" aria-labelledby="job-board-guide-heading">
+      <h1 id="job-board-guide-heading">Our guide to start a job board</h1>
+      <p>On this page, you can find different steps you can take to start and launch a job board. From deciding on your niche to getting your first job posts, doing outreach and sales, and growing with organic traffic.</p>
+    </section>
   </div>
 </div>
 @endsection
