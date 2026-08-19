@@ -27,7 +27,7 @@
 
           <p>So here's the first question you need to answer:</p>
 
-          <p><strong>What keyword sums up my job board?</strong></p>
+          <h2>What keyword sums up my job board?</h2>
 
           <p>Say you're running a job board for the construction industry — your keyword might be "Construction Jobs."</p>
 
