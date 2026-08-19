@@ -669,6 +669,52 @@ class ClientDashboardTest extends TestCase
             ->assertSee($logoPath, false);
     }
 
+    public function test_tenant_header_logo_falls_back_to_settings_url_when_public_storage_is_unwritable(): void
+    {
+        $unwritableRoot = tempnam(sys_get_temp_dir(), 'uploads-file-');
+        $this->assertIsString($unwritableRoot);
+        $this->beforeApplicationDestroyed(static function () use ($unwritableRoot): void {
+            @unlink($unwritableRoot);
+        });
+
+        config([
+            'filesystems.public_uploads_disk' => 'unwritable-public-uploads',
+            'filesystems.disks.unwritable-public-uploads' => [
+                'driver' => 'local',
+                'root' => $unwritableRoot,
+                'url' => 'http://localhost/storage',
+                'visibility' => 'public',
+                'throw' => false,
+            ],
+        ]);
+
+        $owner = User::factory()->create(['role' => User::ROLE_TENANT_OWNER]);
+        $tenant = $this->tenantFor($owner, 'Fondsen', 'fondsen');
+
+        $this->actingAs($owner)
+            ->patch('/client/dashboard/settings', [
+                'tenant_id' => $tenant->id,
+                'primary_color' => '#1189C9',
+                'secondary_color' => '#FF8A2A',
+                'homepage_title' => 'Impact jobs',
+                'homepage_subtitle' => 'Find roles with purpose.',
+                'logo' => UploadedFile::fake()->create('fonds-logo.png', 39, 'image/png'),
+            ])
+            ->assertRedirect(route('client.settings'))
+            ->assertSessionHas('status', 'Settings saved.')
+            ->assertSessionDoesntHaveErrors();
+
+        $tenant->refresh();
+
+        $this->assertArrayNotHasKey('logo_path', $tenant->settings ?? []);
+        $this->assertStringStartsWith('data:image/png;base64,', $tenant->settings['logo_url'] ?? '');
+
+        $this->get('http://fondsen.jobboardsoftware.co/')
+            ->assertOk()
+            ->assertSee('tenant-brand__logo', false)
+            ->assertSee('data:image/png;base64,', false);
+    }
+
     public function test_tenant_owner_can_edit_company_from_the_client_dashboard(): void
     {
         Storage::fake(PublicUploadStorage::diskName());

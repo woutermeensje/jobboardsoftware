@@ -531,15 +531,21 @@ class ClientDashboardController extends Controller
         $settings['homepage_subtitle'] = Str::of($validated['homepage_subtitle'] ?? '')->squish()->toString() ?: null;
 
         if ($request->hasFile('logo')) {
-            try {
-                $settings['logo_path'] = PublicUploadStorage::store($request->file('logo'), 'tenant-logos', $tenant->id);
-            } catch (RuntimeException) {
-                return back()
-                    ->withErrors(['logo' => 'The header logo could not be saved. Check that public upload storage is writable.'])
-                    ->withInput();
-            }
+            $logo = $request->file('logo');
 
-            unset($settings['logo_url']);
+            try {
+                $settings['logo_path'] = PublicUploadStorage::store($logo, 'tenant-logos', $tenant->id);
+                unset($settings['logo_url']);
+            } catch (RuntimeException) {
+                try {
+                    $settings['logo_url'] = PublicUploadStorage::dataUrl($logo);
+                    unset($settings['logo_path']);
+                } catch (RuntimeException) {
+                    return back()
+                        ->withErrors(['logo' => 'The header logo could not be saved. Check that public upload storage is writable.'])
+                        ->withInput();
+                }
+            }
         }
 
         $tenant->forceFill(['settings' => $settings])->save();

@@ -6,6 +6,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use RuntimeException;
+use Throwable;
 
 class PublicUploadStorage
 {
@@ -20,13 +21,36 @@ class PublicUploadStorage
         $tenantPrefix = self::tenantPrefix($tenantId);
         $path = trim($tenantPrefix.'/'.$directory, '/');
 
-        $storedPath = $file->storePublicly($path, self::diskName());
+        try {
+            $storedPath = $file->storePublicly($path, self::diskName());
+        } catch (Throwable $exception) {
+            throw new RuntimeException('The uploaded file could not be stored.', previous: $exception);
+        }
 
         if (! is_string($storedPath) || $storedPath === '') {
             throw new RuntimeException('The uploaded file could not be stored.');
         }
 
         return $storedPath;
+    }
+
+    public static function dataUrl(UploadedFile $file): string
+    {
+        $realPath = $file->getRealPath();
+
+        if (! is_string($realPath) || $realPath === '') {
+            throw new RuntimeException('The uploaded file path is unavailable.');
+        }
+
+        $contents = file_get_contents($realPath);
+
+        if ($contents === false) {
+            throw new RuntimeException('The uploaded file could not be read.');
+        }
+
+        $mimeType = $file->getMimeType() ?: 'application/octet-stream';
+
+        return 'data:'.$mimeType.';base64,'.base64_encode($contents);
     }
 
     public static function url(?string $path): ?string
