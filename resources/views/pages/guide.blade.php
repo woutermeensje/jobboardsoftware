@@ -32,6 +32,60 @@
       'icon' => 'ph-repeat',
       'url' => route('pages.guides.generating-recurring-customers'),
     ],
+    [
+      'title' => 'Run your job board as an agency!',
+      'description' => 'Why running your job board like an agency can unlock more revenue and stronger client relationships.',
+      'icon' => 'ph-briefcase',
+      'url' => route('pages.guides.run-your-job-board-as-an-agency'),
+    ],
+    [
+      'title' => 'Give deals to your customers',
+      'description' => 'Strategies for offering discounts and bundles that keep employers coming back.',
+      'icon' => 'ph-percent',
+      'url' => route('pages.guides.give-deals-to-your-customers'),
+    ],
+    [
+      'title' => 'How to price your job postings?',
+      'description' => 'How to price single postings, bundles and subscriptions for your job board.',
+      'icon' => 'ph-currency-dollar',
+      'url' => route('pages.guides.how-to-price-your-job-postings'),
+    ],
+    [
+      'title' => 'How to do SEO/GEO for your job board?',
+      'description' => 'How to optimize your job board for search engines and AI-driven search.',
+      'icon' => 'ph-magnifying-glass',
+      'url' => route('pages.guides.how-to-do-seo-geo-for-your-job-board'),
+    ],
+    [
+      'title' => 'The importance of job category pages',
+      'description' => 'Why category pages matter for SEO, navigation and conversion.',
+      'icon' => 'ph-squares-four',
+      'url' => route('pages.guides.the-importance-of-job-category-pages'),
+    ],
+    [
+      'title' => 'How to get the right traffic?',
+      'description' => 'How to attract the traffic that actually converts into paying customers.',
+      'icon' => 'ph-users-three',
+      'url' => route('pages.guides.how-to-get-the-right-traffic'),
+    ],
+    [
+      'title' => 'Why should you acquire a job board?',
+      'description' => 'The reasons to consider acquiring an existing job board instead of starting from scratch.',
+      'icon' => 'ph-lightbulb',
+      'url' => route('pages.guides.why-should-you-acquire-a-job-board'),
+    ],
+    [
+      'title' => 'How to acquire a job board?',
+      'description' => 'A practical guide to finding, evaluating and acquiring a job board.',
+      'icon' => 'ph-handshake',
+      'url' => route('pages.guides.how-to-acquire-a-job-board'),
+    ],
+    [
+      'title' => 'Choosing a job board name',
+      'description' => 'How to pick a name that fits your niche and works for branding and SEO.',
+      'icon' => 'ph-tag',
+      'url' => route('pages.guides.choosing-a-job-board-name'),
+    ],
   ];
 @endphp
 

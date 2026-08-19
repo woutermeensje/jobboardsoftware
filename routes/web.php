@@ -27,6 +27,15 @@ $centralRoutes = function (): void {
     Route::view('/guide/choosing-a-niche-for-your-job-board', 'pages.guides.choosing-a-niche-for-your-job-board')->name('pages.guides.choosing-a-niche-for-your-job-board');
     Route::view('/guide/building-an-audience-and-generating-traffic', 'pages.guides.building-an-audience-and-generating-traffic')->name('pages.guides.building-an-audience-and-generating-traffic');
     Route::view('/guide/generating-recurring-customers', 'pages.guides.generating-recurring-customers')->name('pages.guides.generating-recurring-customers');
+    Route::view('/guide/run-your-job-board-as-an-agency', 'pages.guides.run-your-job-board-as-an-agency')->name('pages.guides.run-your-job-board-as-an-agency');
+    Route::view('/guide/give-deals-to-your-customers', 'pages.guides.give-deals-to-your-customers')->name('pages.guides.give-deals-to-your-customers');
+    Route::view('/guide/how-to-price-your-job-postings', 'pages.guides.how-to-price-your-job-postings')->name('pages.guides.how-to-price-your-job-postings');
+    Route::view('/guide/how-to-do-seo-geo-for-your-job-board', 'pages.guides.how-to-do-seo-geo-for-your-job-board')->name('pages.guides.how-to-do-seo-geo-for-your-job-board');
+    Route::view('/guide/the-importance-of-job-category-pages', 'pages.guides.the-importance-of-job-category-pages')->name('pages.guides.the-importance-of-job-category-pages');
+    Route::view('/guide/how-to-get-the-right-traffic', 'pages.guides.how-to-get-the-right-traffic')->name('pages.guides.how-to-get-the-right-traffic');
+    Route::view('/guide/why-should-you-acquire-a-job-board', 'pages.guides.why-should-you-acquire-a-job-board')->name('pages.guides.why-should-you-acquire-a-job-board');
+    Route::view('/guide/how-to-acquire-a-job-board', 'pages.guides.how-to-acquire-a-job-board')->name('pages.guides.how-to-acquire-a-job-board');
+    Route::view('/guide/choosing-a-job-board-name', 'pages.guides.choosing-a-job-board-name')->name('pages.guides.choosing-a-job-board-name');
     Route::view('/faq', 'pages.faq')->name('pages.faq');
     Route::view('/pricing', 'pages.tarieven')->name('pages.tarieven');
     Route::view('/customers', 'pages.customers')->name('pages.customers');
